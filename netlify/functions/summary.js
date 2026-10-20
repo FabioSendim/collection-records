@@ -31,8 +31,8 @@ exports.handler = async function (event) {
   const prompt =
     "You are a music historian and critic. Write a two-paragraph summary of the album '" + title + "' by " + artist +
     (year ? ' (released ' + year + ')' : '') + '. The musical styles are: ' + (styles.length ? styles.join(', ') : 'Jazz/Unknown') + '.\n\n' +
-    "Paragraph 1 (FACTUAL): Write 2-3 sentences focusing strictly on objective facts: the specific musical genre, its place in the artist's discography, and notable recording or structural details. Avoid flowery language.\n\n" +
-    'Paragraph 2 (ATMOSPHERE): Write 2 sentences focusing on the emotional vibe, mood, and why a listener would enjoy it. Use evocative, descriptive language.\n\n' +
+    "Paragraph 1 (FACTUAL): Write 2-3 sentences focusing strictly on objective facts: the specific musical genre(s) and sub-genre(s), its place in the artist's discography, and notable recording or structural details. Avoid flowery language.\n\n" +
+    'Paragraph 2 (ATMOSPHERE): Write 2 sentences focusing on the emotional vibe, mood, and why a listener would enjoy it. Use descriptive language but at same time easy to get/understand.\n\n' +
     "Separate the two paragraphs with a double line break. Do NOT include labels like 'Factual:' or 'Atmosphere:'. Do not use Markdown. Keep the total under 90 words.";
 
   const model = (process.env.GEMINI_MODEL || DEFAULT_MODEL).replace(/[^\w.\-]/g, '');
