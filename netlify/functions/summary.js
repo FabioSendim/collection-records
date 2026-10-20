@@ -28,16 +28,6 @@ exports.handler = async function (event) {
     } catch (e) { /* styles are optional */ }
   }
 
-  const prompt =
-    "You are a music writer explaining an album to a friend who has never heard it. " +
-    "Write a two-paragraph summary of the album '" + title + "' by " + artist +
-    (year ? ' (released ' + year + ')' : '') + ". The musical styles are: " +
-    (styles.length ? styles.join(', ') : 'Jazz/Unknown') + ".\n\n" +
-    "Paragraph 1 (FACTS): Write 2-3 short sentences with only objective facts: the genre(s) and sub-genre(s), where it sits in the artist's discography, and any notable recording or structural details. Plain language, no hype.\n\n" +
-    "Paragraph 2 (WHAT IT FEELS LIKE): Write 2-3 sentences in simple, everyday language describing the mood, energy level, and what a first-time listener should expect. Use concrete comparisons a normal person instantly gets (e.g. 'late-night drive music', 'warm and slow like a rainy Sunday') instead of fancy or vague words. Say when or why someone would put it on. " +
-    "Banned words: sonic, texture, ethereal, lush, juxtaposition, landscape, journey, tapestry, cinematic, intricate, sprawling, soundscape. No metaphor stacking, no music-critic jargon.\n\n" +
-    "Separate the two paragraphs with a double line break. Do NOT include labels like 'Facts:' or 'What it feels like:'. Do not use Markdown. Keep the total under 90 words.";
-  
   const prompt = 
     `Write a friendly, clear introduction to the album "${title}" by ${artist}${year ? ` (${year})` : ''}.
     Write exactly two short paragraphs, with a blank line between them. Keep the whole response under 90 words and use no headings or Markdown.
