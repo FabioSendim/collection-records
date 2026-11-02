@@ -87,6 +87,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:850;font-stretch:62%;fon
 .search input:focus + kbd,.search input:not(:placeholder-shown) + kbd{opacity:0}
 
 .btn,.lessbtn{height:40px;padding:0 14px;display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);font-weight:600;font-size:13px;color:var(--ink);white-space:nowrap}
+@media (max-width:768px){.btn,.lessbtn{height:44px;padding:0 16px}}
 .btn:hover,.lessbtn:hover{border-color:var(--ink-3)}
 .btn.ghost{background:transparent}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
@@ -193,6 +194,7 @@ tbody tr.user-add td:first-child::before{content:"+";display:inline-block;width:
 .empty .hint{color:var(--ink-2);font-size:13px}
 
 dialog{width:min(640px,calc(100% - 24px));max-height:min(92vh,860px);padding:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);overflow:auto;box-shadow:var(--shadow-2)}
+@media (max-width:600px){dialog{width:min(90vw,calc(100% - 20px));max-height:min(95vh,90vh)}}
 dialog::backdrop{background:rgb(8 12 14/.55);backdrop-filter:blur(2px)}
 .d-head{--tb:hsl(var(--h) var(--tile-s) var(--tile-l));background-color:var(--tb);background-image:repeating-radial-gradient(circle at 100% 100%,transparent 0 5px,color-mix(in srgb,var(--tile-ink) 6%,transparent) 5px 6px);color:var(--tile-ink);padding:22px 22px 20px;display:grid;gap:8px;position:relative;overflow:hidden}
 .d-head.has-cover{color:#FFF;background-color:#333;background-image:none}
@@ -472,6 +474,123 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
 .credits small.src{font:400 11px var(--font-mono);color:var(--ink-3)}
 .credits p.val{margin:0;color:var(--ink-2)}
 .note textarea{font-size:14px;line-height:1.5;max-width:68ch;display:block}
+.tools{position:relative}
+.tools > summary{list-style:none}
+.tools > summary::-webkit-details-marker{display:none}
+.tools-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:5;width:260px;padding:12px;display:grid;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-2)}
+.tools-panel .btn{width:100%;justify-content:flex-start}
+.tools-panel p{margin:0;color:var(--ink-2);font-size:12px}
+.mobile-only{display:none}
+.filter-controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.filter-controls label{display:inline-flex;align-items:center;gap:8px;color:var(--ink-2)}
+.filter-controls select{height:40px;padding:0 10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s)}
+.filter-controls .dir{min-width:40px;height:40px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s)}
+.fold{border:1px solid var(--line);border-radius:var(--radius-s);padding:12px}
+.fold > summary{cursor:pointer;font-weight:600;min-height:44px;display:list-item;align-content:center}
+.fold > :not(summary){margin-top:12px}
+.record-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 0;background:var(--surface);position:sticky;top:0;z-index:4;border-bottom:1px solid var(--line)}
+.record-actions .btn{min-height:44px}
+.record-score{display:flex;gap:8px;align-items:center;flex:1}
+.record-score select{min-width:0;max-width:180px;height:44px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-s)}
+#dlg .d-head{padding-top:68px}
+#dlg .d-head.has-cover{padding-left:148px;min-height:190px;background:var(--surface-2);color:var(--ink)}
+#dlg .d-head .cover-lg{position:absolute;left:20px;top:68px;width:108px;height:108px;border-radius:4px;object-fit:contain}
+#dlg .veil-lg{display:none}
+#dlg .d-head .x,#dlg .d-head .back{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.queue-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.queue-item{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:var(--radius-s)}
+.queue-item .open-record{background:none;border:0;text-align:left;padding:0;font-weight:600;color:var(--accent);overflow-wrap:anywhere}
+.queue-item .queue-actions{display:flex;flex-wrap:wrap;gap:6px}
+.queue-item .btn{padding:0 10px}
+.notice{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 24px));z-index:20;display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);color:var(--ink);border:1px solid var(--accent);border-radius:var(--radius);box-shadow:var(--shadow-2)}
+.notice p{margin:0;flex:1;overflow-wrap:anywhere}
+.notice.error{border-color:var(--warn)}
+.notice button{min-width:44px;min-height:44px}
+.inline-feedback{font-size:13px;color:var(--ink-2);margin:8px 0 0}
+.inline-feedback.error{color:var(--warn)}
+.jazz-styles{display:grid;gap:18px;min-width:0}
+.jazz-intro{display:grid;gap:10px}
+.jazz-intro h2{margin:0;font:800 28px/1.1 var(--font-display);text-transform:uppercase}
+.jazz-intro p{margin:0;max-width:80ch;color:var(--ink-2)}
+.jazz-jump{display:flex;gap:8px;flex-wrap:wrap}
+.jazz-jump a{min-height:44px;display:inline-flex;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent);text-decoration:none;font-size:13px}
+.jazz-group{border:1px solid var(--line);border-left:4px solid var(--style-color,var(--accent));border-radius:var(--radius);padding:14px;scroll-margin-top:16px}
+.jazz-group > summary{cursor:pointer;min-height:44px;font-weight:700;font-size:18px;overflow-wrap:anywhere}
+.jazz-group > summary .origin{display:block;font:400 12px/1.5 var(--font-mono);color:var(--ink-2);margin-top:5px}
+.jazz-group > p{color:var(--ink-2);max-width:80ch;line-height:1.6}
+.jazz-group > a{display:inline-flex;align-items:center;min-height:44px;color:var(--accent);font-size:13px;margin-bottom:10px}
+.jazz-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.jazz-card{display:flex;flex-direction:column;gap:6px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2);color:var(--ink);text-align:left}
+.jazz-card:hover{border-color:var(--accent)}
+.jazz-card img,.jazz-card .no-cover{width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;background:hsl(var(--h) var(--tile-s) var(--tile-l))}
+.jazz-card strong,.jazz-card .record-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;line-height:1.35}
+.jazz-card small{font-size:11px;color:var(--ink-2);margin-top:auto}
+.jazz-editor{display:grid;gap:12px}
+.jazz-editor fieldset{margin:0;padding:12px;border:1px solid var(--line);border-radius:var(--radius-s)}
+.jazz-style-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}
+.jazz-style-options label{display:flex;gap:8px;align-items:center;min-height:44px;overflow-wrap:anywhere}
+.jazz-style-options input{width:18px;height:18px;accent-color:var(--accent);flex-shrink:0}
+.jazz-editor .hint{font-size:13px;color:var(--ink-2);margin:0}
+.jazz-editor a{color:var(--accent)}
+.recording-editor{display:grid;gap:12px}
+.recording-editor .year-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.recording-editor .hint{font-size:12px;color:var(--ink-2);margin:0}
+.recording-editor a{color:var(--accent)}
+@media(max-width:600px){
+  .seg button{padding:0 9px}
+  .jazz-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .jazz-group{padding:10px}
+  .jazz-card{padding:8px;font-size:13px}
+  .jazz-style-options{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .mobile-only{display:inline-flex}
+  .row1{gap:8px}
+  .search{flex-basis:100%}
+  .search input,.fld input,.fld select,.fld textarea{font-size:16px}
+  .search input,.seg button,.chip,.themebtn,.btn,.lessbtn,.filter-controls select,.filter-controls .dir{min-height:44px;height:auto}
+  .search input{height:44px}
+  .seg button{padding:0 12px}
+  .tools{margin-left:auto}
+  .tools-panel{max-width:calc(100vw - 32px)}
+  #filter-home{display:none}
+  #filters-dlg{position:fixed;inset:auto 0 0;margin:0 auto;width:100%;max-width:100%;max-height:90dvh;border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom)}
+  #filters-body .filter-controls{display:grid;grid-template-columns:1fr;align-items:stretch}
+  #filters-dlg > .form-body:last-child{position:sticky;bottom:0;background:var(--surface)}
+  #filters-body label{justify-content:space-between}
+  #filters-body select{flex:1;max-width:70%}
+  #filters-body .chk{justify-content:flex-start;min-height:44px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .tile{aspect-ratio:auto;background:var(--surface);color:var(--ink);display:block;contain-intrinsic-size:auto 260px}
+  .tile.is-least::after,.tile.has-cover.is-least::after{border-color:var(--accent)}
+  .tile.has-cover{color:var(--ink)}
+  .tile .cover{position:relative;width:100%;height:auto;aspect-ratio:1;object-fit:cover}
+  .tile:not(.has-cover)::before{content:"";display:block;width:100%;aspect-ratio:1;background:hsl(var(--h) var(--tile-s) var(--tile-l))}
+  .tile .veil{display:none}
+  .tile .content{height:auto;padding:10px;gap:6px}
+  .tile .cat{display:none}
+  .tile .artist{font-size:17px;line-height:1.1;text-shadow:none;-webkit-line-clamp:2}
+  .tile .ttl{font-size:13px;line-height:1.35;text-shadow:none;-webkit-line-clamp:2}
+  .tile .yr{font-size:11px}
+  .tile .tier,.tile.has-cover .tier.S{background:var(--surface-2);color:var(--ink)}
+  .tile.is-user::before{content:none}
+  .tile:not(.has-cover).is-user::before{content:"";position:static;border-radius:0;height:auto}
+  dialog.form-dlg,dialog.artist,dialog.artists-dlg,#dlg{width:calc(100% - 16px);max-height:94dvh}
+  .form-body,.d-body{padding:14px}
+  .form-hero{padding:20px 60px 16px 16px}
+  .form-hero .x,.d-head .x,.a-hero .x{width:44px;height:44px;top:10px;right:10px}
+  .d-head .back,.a-hero .back{height:44px;right:62px;top:10px}
+  #dlg .d-head{padding:66px 16px 18px}
+  #dlg .d-head.has-cover{padding-left:120px;min-height:174px}
+  #dlg .d-head .cover-lg{left:16px;top:66px;width:88px;height:88px}
+  #dlg .d-head .artist{font-size:24px}
+  #dlg .d-head .ttl{font-size:15px}
+  .record-actions{gap:8px}
+  .record-score{flex-basis:100%;justify-content:space-between}
+  .d-nav button,.d-nav a{min-height:44px}
+  .count .pill{height:auto;min-height:44px;white-space:normal}
+  .notice{font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -503,18 +622,33 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <div class="seg" role="group" aria-label="View">
         <button type="button" id="vgrid" aria-pressed="true">Sleeves</button>
         <button type="button" id="vtable" aria-pressed="false">Table</button>
+        <button type="button" id="vjazz" aria-pressed="false">Jazz styles</button>
       </div>
       <button type="button" class="btn ghost" id="random" title="Random pick (R)">Random</button>
-      <button type="button" class="btn ghost" id="artists-btn" title="Browse artists (A)">Artists</button>
-      <button type="button" class="btn ghost" id="labels-btn" title="Browse labels (B)">Labels</button>
+      <button type="button" class="btn mobile-only" id="filters-btn" aria-haspopup="dialog" aria-controls="filters-dlg">Filters</button>
+      <button type="button" class="btn ghost" id="queue-btn" aria-haspopup="dialog">Play next (0)</button>
+      <button type="button" class="btn primary" id="add-btn" title="Add a record by Discogs URL or ID (N)">+ Add record</button>
+      <details class="tools" id="collection-tools">
+      <summary class="btn">Collection tools</summary>
+      <div class="tools-panel">
+      <button type="button" class="btn ghost" id="artists-btn" title="Browse artists (A)">Browse artists</button>
+      <button type="button" class="btn ghost" id="labels-btn" title="Browse labels (B)">Browse labels</button>
       <button type="button" class="btn" id="covers-btn" title="Fetch missing covers from Discogs">Fetch covers</button>
       <button type="button" class="btn" id="photos-btn" title="Fetch missing artist photos (Wikipedia, then Discogs)">Fetch artist photos</button>
-      <button type="button" class="btn primary" id="add-btn" title="Add a record by Discogs URL or ID (N)">+ Add record</button>
+      <button type="button" class="btn ghost" id="export-btn" title="Export collection as CSV">Export CSV</button>
+      <button type="button" class="btn ghost" id="import-csv-btn">Import CSV</button>
+      <input type="file" id="import-file" accept=".csv,text/csv" hidden>
+      <button type="button" class="btn danger" id="reset-data-btn" hidden>Reset data</button>
+      <button type="button" class="btn ghost" id="save-html-btn">Save as HTML backup</button>
+      <button type="button" class="btn ghost" id="help-btn">Help &amp; shortcuts</button>
+      <p>Edits and the listening queue are saved on this device, not synced. Export or save a backup to keep a copy of your collection.</p>
+      </div>
+      </details>
     </div>
 
     <div class="chips" id="chips" role="group" aria-label="Folder"></div>
 
-    <div class="row3">
+    <div id="filter-home"><div class="filter-controls" id="filter-controls">
       <label for="sort">Sort
         <select id="sort">
           <option value="added">Recently added</option>
@@ -549,12 +683,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <label class="chk" for="mono"><input type="checkbox" id="mono"> Mono only</label>
       <button type="button" class="lessbtn" id="less" aria-pressed="false" title="Least-played records (L)">Least played <span class="n">–</span></button>
       <button type="button" class="btn ghost" id="reset-filters-btn" title="Clear all filters (X)">Reset filters</button>
-      <button type="button" class="btn ghost" id="export-btn" title="Export the whole collection, including your scores, notes and plays, as CSV">Export CSV</button>
-      <button type="button" class="btn ghost" id="import-csv-btn" title="Load a CSV exported from this app (or Discogs) and merge it with this browser's data">Import CSV</button>
-      <input type="file" id="import-file" accept=".csv,text/csv" hidden>
-      <button type="button" class="btn danger" id="reset-data-btn" title="Forget the imported CSV and this browser's edits" hidden>Reset data</button>
-      <button type="button" class="btn ghost" id="save-html-btn" title="Download this page with all data and images baked in">Save as HTML</button>
-    </div>
+    </div></div>
   </section>
 
   <p class="count" id="count" aria-live="polite"></p>
@@ -563,6 +692,53 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
 
 <dialog id="dlg" aria-label="Record details"></dialog>
 <dialog id="artist-dlg" class="artist" aria-label="Artist spotlight"></dialog>
+<dialog id="filters-dlg" class="form-dlg" aria-labelledby="filters-title">
+  <div class="form-hero">
+    <button type="button" class="x" id="filters-close" aria-label="Close filters">✕</button>
+    <h2 id="filters-title">Filters &amp; sort</h2>
+    <p>Filters apply immediately. Close to browse your results.</p>
+  </div>
+  <div class="form-body" id="filters-body"></div>
+  <div class="form-body"><button type="button" class="btn primary" id="filters-show">Show records</button></div>
+</dialog>
+<dialog id="queue-dlg" class="form-dlg" aria-labelledby="queue-title">
+  <div class="form-hero">
+    <button type="button" class="x" id="queue-close" aria-label="Close listening queue">✕</button>
+    <h2 id="queue-title">Play next</h2>
+    <p>Your listening queue, saved on this device. Log a play to complete a record. This does not play audio.</p>
+  </div>
+  <div class="form-body"><ol class="queue-list" id="queue-list"></ol></div>
+</dialog>
+<dialog id="random-dlg" class="form-dlg" aria-labelledby="random-title">
+  <div class="form-hero">
+    <button type="button" class="x" id="random-close" aria-label="Close random pick">✕</button>
+    <h2 id="random-title">Find your next listen</h2>
+    <p>Choose from the records matching your current search and filters.</p>
+  </div>
+  <div class="form-body">
+    <div class="fld"><label for="random-mode">Pick from</label><select id="random-mode">
+      <option value="results">These results</option><option value="unplayed">Never played</option><option value="least">Least played</option>
+    </select></div>
+    <p class="status" id="random-status" role="status"></p>
+    <button type="button" class="btn primary" id="random-pick">Pick a record</button>
+  </div>
+</dialog>
+<dialog id="jazz-fetch-dlg" class="form-dlg" aria-labelledby="jazz-fetch-title">
+  <div class="form-hero">
+    <button type="button" class="x" id="jazz-fetch-close" aria-label="Close style lookup">✕</button>
+    <h2 id="jazz-fetch-title">Find jazz styles</h2>
+    <p>Fetch missing style metadata for the matching jazz records. Manual classifications are kept. Discogs lookups are rate-limited and may take a few minutes.</p>
+  </div>
+  <div class="form-body">
+    <p id="jazz-fetch-status" class="status" role="status"></p>
+    <progress id="jazz-fetch-progress" value="0" max="1" aria-label="Style lookup progress"></progress>
+    <div id="jazz-fetch-log" class="elog" role="log" aria-label="Style lookup results"></div>
+    <div class="form-actions">
+      <button type="button" class="btn" id="jazz-fetch-stop" disabled>Stop after this record</button>
+      <button type="button" class="btn primary" id="jazz-fetch-start">Fetch missing styles</button>
+    </div>
+  </div>
+</dialog>
 
 <dialog id="add-dlg" class="form-dlg" aria-label="Add a record">
   <form id="add-form" method="dialog" novalidate>
@@ -598,7 +774,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <div class="form-hero">
       <button type="button" class="x" id="export-close" aria-label="Close">✕</button>
       <h2>Export as CSV</h2>
-      <p>The CSV follows the Discogs collection export columns and carries everything you edit here — scores, listening and other notes, play counts, plus records you added — and an <code>App Last Modified</code> column. Import it in another browser to pick up exactly where you left off: newer changes win, older ones never overwrite.</p>
+      <p>The CSV follows the Discogs collection export columns and carries everything you edit here — scores, notes, play counts, recording dates, jazz style overrides and added records — and an <code>App Last Modified</code> column. Import it in another browser to pick up exactly where you left off: newer changes win, older ones never overwrite. HTML backups also include fetched style metadata.</p>
     </div>
     <div class="form-body">
       <p class="status" id="export-status" aria-live="polite"></p>
@@ -696,6 +872,38 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <ul class="artists-list" id="labels-list"></ul>
   </div>
 </dialog>
+
+<dialog id="shortcuts-dlg" class="form-dlg" aria-label="Keyboard shortcuts">
+  <form method="dialog">
+    <div class="form-hero">
+      <button type="button" class="x" id="shortcuts-close" aria-label="Close">✕</button>
+      <h2>Keyboard Shortcuts</h2>
+      <p>Quick keys to navigate and control your collection.</p>
+    </div>
+    <div class="form-body">
+      <div class="kv">
+        <dt>/</dt><dd>Focus search</dd>
+        <dt>?</dt><dd>Show keyboard shortcuts</dd>
+        <dt>←/→</dt><dd>Previous/Next record (when dialog open)</dd>
+        <dt>Esc</dt><dd>Close any dialog</dd>
+        <dt>N</dt><dd>Add a new record</dd>
+        <dt>G / T / J</dt><dd>Sleeves / table / jazz styles</dd>
+        <dt>A / B</dt><dd>Browse artists / labels</dd>
+        <dt>R</dt><dd>Random record from these results</dd>
+        <dt>L / X</dt><dd>Least played / reset filters</dd>
+        <dt>Backspace</dt><dd>Back within record or artist details</dd>
+      </div>
+      <p>Notes save automatically on this device. Use Collection tools to export a backup. Play next is a listening list, not an audio player.</p>
+      <p>Jazz styles groups albums by subgenre, with sections ordered by approximate origins. Styles overlap: an album can appear in more than one section, regardless of recording year. Fetch missing style metadata from the Jazz styles view, or open Jazz styles in record details to review or correct a classification. Unclassified albums remain visible. CSV and HTML backups include manual classifications and recording-date edits.</p>
+    </div>
+  </form>
+</dialog>
+
+<div id="notice" class="notice" hidden>
+  <p id="notice-message" role="status" aria-live="polite"></p>
+  <button type="button" class="btn" id="notice-undo" hidden>Undo</button>
+  <button type="button" class="btn ghost" id="notice-close" aria-label="Dismiss notification">✕</button>
+</div>
 
 <script>
 var KB = {
@@ -848,6 +1056,51 @@ async function idbDelete(key){
 
   var TIER = { S:5, A:4, B:3, C:2, D:1 };
   var SCORE_OPTIONS = ['S-Tier (Superb)','A-Tier (Amazing)','B-Tier (Good)','C-Tier (Average)','D-Tier (Below Average)'];
+  var JAZZ_STYLES = [
+    {id:'traditional',name:'Traditional / New Orleans',origin:'Early 1900s–1920s · New Orleans',color:'#A77727',page:'Dixieland',aliases:['dixieland','new orleans jazz','ragtime','traditional jazz'],
+      description:'Collective improvisation, lively ensemble playing and roots in blues, ragtime and brass-band music. These early approaches remain alive in later recordings.'},
+    {id:'swing',name:'Swing / Big band',origin:'1930s · United States',color:'#AF6F18',page:'Swing_music',aliases:['swing','big band'],
+      description:'A flowing dance pulse, arranged ensemble passages and room for soloists. Closely associated with the big-band era, though small groups swing too.'},
+    {id:'bebop',name:'Bebop',origin:'Early–mid 1940s · United States',color:'#A94F42',page:'Bebop',aliases:['bop','bebop','be-bop'],
+      description:'Agile melodies, rich chord changes and improvisation built for close listening. Small groups and quick exchanges between soloists are common.'},
+    {id:'latin',name:'Latin / Afro-Cuban jazz',origin:'1940s · Cuba and the United States',color:'#AA653A',page:'Afro-Cuban_jazz',aliases:['latin jazz','afro-cuban jazz','afro cuban jazz'],
+      description:'Jazz improvisation meets Afro-Cuban and other Latin American rhythmic traditions. Percussion patterns and interlocking rhythms are central; this is a broad family, not a single sound.'},
+    {id:'cool',name:'Cool / West Coast jazz',origin:'Late 1940s–1950s · United States',color:'#28788B',page:'Cool_jazz',aliases:['cool jazz','cool','west coast jazz','west coast'],
+      description:'Often a lighter tone, measured phrasing and carefully shaped arrangements. West Coast jazz overlaps with cool jazz, but the terms are not exact synonyms.'},
+    {id:'hard-bop',name:'Hard bop',origin:'Mid-1950s · United States',color:'#8B5F9E',page:'Hard_bop',aliases:['hard bop','hard-bop'],
+      description:'Bebop language with strong blues, gospel and rhythm-and-blues connections. Expect earthy grooves, memorable themes and forceful small-group playing.'},
+    {id:'modal',name:'Modal jazz',origin:'Mid–late 1950s · United States',color:'#397A52',page:'Modal_jazz',aliases:['modal','modal jazz'],
+      description:'Improvisation explores scales or modes rather than constantly changing chords. This can leave more space for melody, repetition and gradual development.'},
+    {id:'soul',name:'Soul jazz',origin:'1950s–1960s · United States',color:'#9E6334',page:'Soul_jazz',aliases:['soul-jazz','soul jazz'],
+      description:'Blues, gospel and rhythm-and-blues feeling with direct, groove-led improvisation. Organ groups are a familiar sound, but the style is not limited to them.'},
+    {id:'free',name:'Free / Avant-garde jazz',origin:'Late 1950s–1960s · United States',color:'#AE4972',page:'Free_jazz',aliases:['free jazz','avant-garde jazz','avant garde jazz','free improvisation','free jazz improvisation'],
+      description:'Musicians explore alternatives to fixed chord progressions, regular metre or familiar song forms. Free jazz and the wider avant-garde overlap without being identical.'},
+    {id:'bossa',name:'Bossa nova / Brazilian jazz',origin:'Late 1950s–1960s · Brazil',color:'#4A8275',page:'Bossa_nova',aliases:['bossa nova','brazilian jazz','samba-jazz','samba jazz'],
+      description:'Brazilian samba-derived rhythms meet intimate phrasing and jazz harmony. Bossa nova and Brazilian jazz intersect, while Brazilian jazz also reaches well beyond bossa.'},
+    {id:'post-bop',name:'Post-bop',origin:'1960s · United States (a flexible term)',color:'#6875A2',page:'Post-bop',aliases:['post bop','post-bop'],
+      description:'An open-ended meeting of bop, modal and freer approaches. The label has several meanings, so it is best treated as a useful guide rather than a strict formula.'},
+    {id:'spiritual',name:'Spiritual jazz',origin:'1960s · United States',color:'#967C3B',page:'Spiritual_jazz',aliases:['spiritual jazz'],
+      description:'Jazz connected with spiritual exploration, often using recurring motifs, modal playing and influences from several musical traditions. It can overlap with free jazz and post-bop.'},
+    {id:'fusion',name:'Fusion / Jazz-rock',origin:'Late 1960s · United States and beyond',color:'#797326',page:'Jazz_fusion',aliases:['fusion','jazz fusion','jazz-rock','jazz rock'],
+      description:'Jazz improvisation combines with rock rhythms, electric instruments and studio experimentation. The family includes both forceful electric bands and quieter hybrids.'},
+    {id:'jazz-funk',name:'Jazz-funk',origin:'Late 1960s–1970s · United States',color:'#9E5373',page:'Jazz-funk',aliases:['jazz-funk','jazz funk'],
+      description:'Funk bass lines, syncopated grooves and jazz improvisation, often with electric keyboards and danceable rhythms. It overlaps with fusion and soul jazz.'},
+    {id:'contemporary',name:'Contemporary / Crossover jazz',origin:'Late 20th century onward · international; broad labels',color:'#487C9A',page:'Jazz',aliases:['contemporary jazz','crossover jazz','smooth jazz','jazz-pop','jazz pop'],
+      description:'Broad metadata labels for several modern and crossover approaches, not a single movement with one birth date. A new recording of hard bop still belongs under Hard bop, not here merely because it is recent.'},
+    {id:'nu-jazz',name:'Nu jazz / Jazztronica',origin:'1990s onward · international',color:'#637D48',page:'Nu_jazz',aliases:['nu jazz','nu-jazz','jazztronica','future jazz'],
+      description:'Jazz ideas meet electronic production, sampling and club rhythms. Acoustic playing and programmed sounds often share the same space.'}
+  ];
+  var JAZZ_STYLE_SEEDS = {
+    35666779:{ids:['modal'],page:'Kind_of_Blue'},
+    5142904:{ids:['modal'],page:'Kind_of_Blue'},
+    15928051:{ids:['hard-bop','post-bop'],page:'Giant_Steps'},
+    24504497:{ids:['hard-bop'],page:'Blue_Train_(album)'},
+    18150907:{ids:['hard-bop'],page:"Moanin%27"},
+    23290832:{ids:['modal'],page:'My_Favorite_Things_(John_Coltrane_album)'},
+    37997085:{ids:['bossa','soul','latin'],page:'Bossa_Nova_Soul_Samba'},
+    37415985:{ids:['cool'],page:'Birth_of_the_Cool'},
+    10676568:{ids:['fusion'],page:'In_a_Silent_Way'}
+  };
   var HUES = { 'Jazz':205,'Rock':12,'Progressive Metal':278,'Classical':46,'R&B/Soul':335,'Pop-Rock':160,'Heavy Metal':0,'Progressive Rock':250,'Pop':310,'Indie':95,'Musica Portuguesa':140,'Latin':28,'Symphonic Metal':295,'Post-Rock':190,'Blues':225 };
   var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var LS_USER = 'fs-user-records-v4';
@@ -858,6 +1111,7 @@ async function idbDelete(key){
   var LS_IMPORT_AT = 'rcImportedAt';
   var LS_CACHE = 'rcCache_v1';
   var LS_REMOVED = 'rcRemoved_v1';
+  var LS_QUEUE = 'rcQueue_v1';
   var DOTS_MAX = 5;
   var FN = '/.netlify/functions/';
 
@@ -886,6 +1140,77 @@ async function idbDelete(key){
   function lsGet(k, fallback){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch(e){ return fallback; } }
   function lsSet(k, v){ try { localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); return true; } catch(e){ return false; } }
   function lsDel(k){ try { localStorage.removeItem(k); } catch(e){} }
+
+  var noticeUndo = null;
+  function notify(message, undo, error){
+    var host = Array.from(document.querySelectorAll('dialog[open]')).pop() || document.body;
+    host.append($('notice'));
+    $('notice').hidden = false;
+    $('notice').classList.toggle('error', !!error);
+    $('notice-message').textContent = message;
+    $('notice-undo').hidden = !undo;
+    noticeUndo = undo || null;
+  }
+  function inlineError(container, message){
+    var status = container.querySelector('.inline-feedback');
+    if(!status){ status = el('p','inline-feedback error'); status.setAttribute('role','alert'); container.append(status); }
+    status.textContent = message;
+  }
+  function moveNotice(){
+    if(!$('notice').hidden){
+      var host = Array.from(document.querySelectorAll('dialog[open]')).pop() || document.body;
+      host.append($('notice'));
+    }
+  }
+  var storedQueue = lsGet(LS_QUEUE, []);
+  var listeningQueue = Array.isArray(storedQueue) ? storedQueue.filter(function(k, i, a){ return typeof k === 'string' && a.indexOf(k) === i; }) : [];
+  function setQueue(next){
+    if(!lsSet(LS_QUEUE, next)){ notify('Could not save your listening queue. Device storage may be full.', null, true); return false; }
+    listeningQueue = next;
+    buildQueue();
+    return true;
+  }
+  function buildQueue(){
+    var keys = listeningQueue.filter(function(k){ return !!byKey[k]; });
+    $('queue-btn').textContent = 'Play next (' + keys.length + ')';
+    var list = $('queue-list'), focused = document.activeElement;
+    var focusedKey = list.contains(focused) && (focused.dataset.queueOpen || focused.dataset.key);
+    var focusedAction = focusedKey && focused.dataset.queueAction;
+    list.textContent = '';
+    if(!keys.length){ list.append(el('li','','Your queue is empty. Open a record and choose Play next.')); }
+    keys.forEach(function(key, i){
+      var r = byKey[key], li = el('li','queue-item');
+      var open = el('button','open-record', (i+1) + '. ' + r.a + ' — ' + r.t);
+      open.type = 'button'; open.dataset.queueOpen = key; li.append(open);
+      var actions = el('div','queue-actions');
+      [['up','Move up'],['down','Move down'],['complete','Log a play'],['remove','Remove']].forEach(function(pair){
+        var b = el('button','btn',pair[1]); b.type = 'button'; b.dataset.queueAction = pair[0]; b.dataset.key = key;
+        b.setAttribute('aria-label', pair[1] + ': ' + r.t);
+        b.disabled = pair[0] === 'up' && i === 0 || pair[0] === 'down' && i === keys.length-1;
+        actions.append(b);
+      });
+      li.append(actions); list.append(li);
+    });
+    if(focusedKey){
+      var replacement = Array.from(list.querySelectorAll('button')).find(function(b){
+        return (b.dataset.queueOpen || b.dataset.key) === focusedKey && b.dataset.queueAction === focusedAction && !b.disabled;
+      });
+      if(replacement) replacement.focus({preventScroll:true});
+    }
+    var record = detailRecord();
+    if(record){
+      var b = dlg.querySelector('[data-queue-add]');
+      if(b){ b.disabled = listeningQueue.indexOf(record.key) >= 0; b.textContent = b.disabled ? 'In Play next' : 'Play next'; }
+    }
+  }
+  function addToQueue(r){
+    if(listeningQueue.indexOf(r.key) >= 0) return;
+    if(setQueue(listeningQueue.concat(r.key))){
+      notify('Added "' + r.t + '" to Play next.', function(){
+        if(setQueue(listeningQueue.filter(function(k){ return k !== r.key; }))) notify('Removed from Play next.');
+      });
+    }
+  }
 
   /* Secrets now live in Netlify environment variables. Forget any copies older versions stored here. */
   ['fs-discogs-token','gemini_api_key','discogs_token'].forEach(lsDel);
@@ -925,7 +1250,9 @@ async function idbDelete(key){
   var cacheTimer;
   function saveCache(){
     clearTimeout(cacheTimer);
-    cacheTimer = setTimeout(function(){ lsSet(LS_CACHE, cache); }, 200);
+    cacheTimer = setTimeout(function(){
+      if(!lsSet(LS_CACHE, cache)) notify('Could not save fetched data on this device. Storage may be full; save an HTML backup.', null, true);
+    }, 200);
   }
   function cacheGet(kind, key){
     if(key == null || key === '') return null;
@@ -976,7 +1303,12 @@ async function idbDelete(key){
     ['m','Collection Is Mono',/^collection is mono/i],
     ['n','Collection Revision Notes',/^collection revision notes/i],
     ['x','Collection Extra Notes',/^collection extra notes/i],
-    ['mt','App Last Modified',/^app last modified$/i]
+    ['mt','App Last Modified',/^app last modified$/i],
+    ['recordedFrom','Recording Year Start',/^recording year start$/i],
+    ['recordedTo','Recording Year End',/^recording year end$/i],
+    ['recordedSource','Recording Source URL',/^recording source url$/i],
+    ['recordedStatus','Recording Date Status',/^recording date status$/i],
+    ['jazzStyles','Jazz Style Override',/^jazz style override$/i]
   ];
   function parseTable(text){
     var rows = parseCSV(text);
@@ -1039,6 +1371,84 @@ async function idbDelete(key){
   function scoreLetter(sl){ var m = /^([SABCD])-Tier/i.exec(trim(sl)); return m ? m[1].toUpperCase() : ''; }
 
   /* ---------- records ---------- */
+  var RECORDING_SEEDS = {
+    35666779:[1959,1959,'Kind_of_Blue'],
+    5142904:[1959,1959,'Kind_of_Blue'],
+    15928051:[1959,1959,'Giant_Steps'],
+    7632519:[1959,1959,'Time_Out_(Dave_Brubeck_Quartet_album)'],
+    24504497:[1957,1957,'Blue_Train_(album)'],
+    18150907:[1958,1958,"Moanin%27"],
+    23290832:[1960,1960,'My_Favorite_Things_(John_Coltrane_album)'],
+    21377296:[1957,1958,'Lush_Life_(John_Coltrane_album)'],
+    19923829:[1963,1963,'Midnight_Blue_(Kenny_Burrell_album)'],
+    16312236:[1963,1963,'The_Sidewinder'],
+    37997085:[1962,1962,'Bossa_Nova_Soul_Samba'],
+    37415985:[1949,1950,'Birth_of_the_Cool'],
+    35229295:[1964,1964,'A_Love_Supreme'],
+    10676568:[1969,1969,'In_a_Silent_Way'],
+    35912773:[1975,1975,'The_K%C3%B6ln_Concert'],
+    14431144:[2016,2016,'Munich_2016'],
+    21029962:[1963,1963,'The_Black_Saint_and_the_Sinner_Lady'],
+    23050199:[2000,2001,'Come_Away_with_Me']
+  };
+  function recordingError(d){
+    if(!d || d.status === 'unknown') return '';
+    var ceiling = new Date().getFullYear();
+    if(!Number.isInteger(d.start) || !Number.isInteger(d.end) || d.start < 1900 || d.end > ceiling || d.end < d.start){
+      return 'Use whole recording years from 1900 to ' + ceiling + ', with the end year on or after the start.';
+    }
+    if(['user','verified'].indexOf(d.status) < 0) return 'Choose a valid recording-date status.';
+    if(d.source){
+      try { var u = new URL(d.source); if(u.protocol !== 'https:' && u.protocol !== 'http:') return 'Use an http or https source URL.'; }
+      catch(e){ return 'Enter a complete source URL, starting with https://.'; }
+    }
+    if(d.status === 'verified' && !d.source) return 'A verified date needs a source URL.';
+    return '';
+  }
+  function recordingFromFields(f, id){
+    var provided = ['recordedFrom','recordedTo','recordedSource','recordedStatus'].some(function(k){ return trim(f[k]) !== ''; });
+    if(!provided){
+      var seed = RECORDING_SEEDS[id];
+      return seed ? {start:seed[0],end:seed[1],source:'https://en.wikipedia.org/wiki/' + seed[2],status:'verified'} : null;
+    }
+    if(trim(f.recordedStatus) === 'unknown') return {status:'unknown'};
+    var start = Number(f.recordedFrom), end = trim(f.recordedTo) ? Number(f.recordedTo) : start;
+    var d = {start:start,end:end,source:trim(f.recordedSource),status:trim(f.recordedStatus) || 'user'};
+    var error = recordingError(d);
+    if(error) throw new Error('Recording date for "' + f.t + '": ' + error);
+    return d;
+  }
+  function recordingDate(r){
+    var d = r.recording;
+    return d && d.status !== 'unknown' && !recordingError(d) ? d : null;
+  }
+  function recordingLabel(d){ return d.start === d.end ? String(d.start) : d.start + '–' + d.end; }
+  function parseJazzStyles(value){
+    if(value == null || value === '') return null;
+    var ids = typeof value === 'string' ? JSON.parse(value) : value;
+    if(!Array.isArray(ids) || ids.some(function(id){ return !JAZZ_STYLES.some(function(s){ return s.id === id; }); })){
+      throw new Error('Jazz Style Override must be a JSON array of supported jazz style IDs.');
+    }
+    return ids.filter(function(id,i){ return ids.indexOf(id) === i; });
+  }
+  function jazzClassification(r){
+    if(Array.isArray(r.jazzStyles)) return {ids:r.jazzStyles,source:'Your classification',raw:[]};
+    var credits = cacheGet('credits',r.id), sum = cacheGet('summaries',editKey(r));
+    var raw = (r.styles || []).concat(credits && credits.styles || []);
+    var source = 'Discogs style metadata';
+    if(!raw.length && !(credits && credits.stylesChecked)){ raw = sum && sum.styles || []; source = 'Cached summary style metadata'; }
+    raw = raw.filter(function(s,i){ return typeof s === 'string' && raw.indexOf(s) === i; });
+    var ids = JAZZ_STYLES.filter(function(style){
+      return raw.some(function(s){ return style.aliases.indexOf(s.toLowerCase().trim()) >= 0; });
+    }).map(function(s){ return s.id; });
+    var seed = JAZZ_STYLE_SEEDS[r.id];
+    if(!ids.length && seed) return {ids:seed.ids.slice(),source:'Album reference',url:'https://en.wikipedia.org/wiki/'+seed.page,raw:raw};
+    return {ids:ids,source:raw.length ? source : credits && credits.stylesChecked ? 'Discogs lists no styles' : 'No style metadata yet',raw:raw};
+  }
+  function isJazzRecord(r){
+    if(/\bjazz\b/i.test(r.g) || Array.isArray(r.jazzStyles)) return true;
+    return jazzClassification(r).ids.length > 0;
+  }
   function recKeyOf(id, artist, title){ return id ? 'id:' + id : 'k:' + artistKey(artist) + '|' + String(title||'').toLowerCase(); }
   function makeRecord(f){
     var id = parseInt(f.id,10) || 0;
@@ -1061,7 +1471,8 @@ async function idbDelete(key){
       n:trim(f.n), x:trim(f.x),
       g:trim(f.g) || 'Unfiled',
       mt:trim(f.mt), xc:f.xc || {},
-      comp:'', pers:[], trk:[], hist:'', hasKB:false, img:''
+      comp:'', pers:[], trk:[], hist:'', hasKB:false, img:'',
+      recording:recordingFromFields(f,id), jazzStyles:parseJazzStyles(f.jazzStyles)
     };
     applyKnowledge(r);
     return r;
@@ -1128,6 +1539,7 @@ async function idbDelete(key){
     loadUserRecords().forEach(function(s){
       var r = Object.assign({}, s);
       r.key = r.key || recKeyOf(r.id, r.a, r.t);
+      if(r.recording === undefined) r.recording = recordingFromFields({},r.id);
       r.pers = r.pers || []; r.trk = r.trk || []; r.xc = r.xc || {};
       if(r.p === undefined) r.p = null;
       if(wasRemoved(r)) return;
@@ -1135,7 +1547,7 @@ async function idbDelete(key){
       if(cur){
         ['comp','pers','trk','hist','hasKB','styles'].forEach(function(k){ if(!cur[k] || (Array.isArray(cur[k]) && !cur[k].length)) cur[k] = r[k]; });
         if(!cur.img && r.img) cur.img = r.img;
-        if((r.mt || '') > (cur.mt || '')) ['p','sl','n','x','g','cond','mt'].forEach(function(k){ cur[k] = r[k]; });
+        if((r.mt || '') > (cur.mt || '')) ['p','sl','n','x','g','cond','mt','recording','jazzStyles'].forEach(function(k){ cur[k] = r[k]; });
         return;
       }
       if(!r.img && DATA.COVERS[r.id]) r.img = DATA.COVERS[r.id];
@@ -1152,7 +1564,7 @@ async function idbDelete(key){
     var arr = lsGet(LS_USER, []);
     return Array.isArray(arr) ? arr : [];
   }
-  var USER_FIELDS = ['id','key','a','araw','af','t','l','lraw','c','f','fg','y','d','r','cond','buy','clean','s','sl','p','m','n','x','g','mt','xc','comp','pers','trk','hist','hasKB','styles'];
+  var USER_FIELDS = ['id','key','a','araw','af','t','l','lraw','c','f','fg','y','d','r','cond','buy','clean','s','sl','p','m','n','x','g','mt','xc','comp','pers','trk','hist','hasKB','styles','recording','jazzStyles'];
   function saveUserRecords(){
     var slim = recs.filter(function(r){ return r.__userAdded; }).map(function(r){
       var o = {}; USER_FIELDS.forEach(function(k){ if(r[k] !== undefined) o[k] = r[k]; }); o.img = r.img || ''; return o;
@@ -1164,10 +1576,10 @@ async function idbDelete(key){
   }
 
   /* ---------- edits made in this browser ---------- */
-  var EDIT_FIELDS = ['sl','n','x','p'];
+  var EDIT_FIELDS = ['sl','n','x','p','recording','jazzStyles'];
   var edits = lsGet(LS_EDITS, {}) || {};
   function editKey(r){ return r.id ? String(r.id) : r.key; }
-  function saveEdits(){ lsSet(LS_EDITS, edits); }
+  function saveEdits(){ return lsSet(LS_EDITS, edits); }
   function applyEdits(){
     var changed = false;
     recs.forEach(function(r){
@@ -1180,14 +1592,16 @@ async function idbDelete(key){
   }
   function recordEdit(r, patch){
     var k = editKey(r), t = nowISO();
-    var e = edits[k] || {};
+    var e = Object.assign({}, edits[k] || {}, patch, { t:t });
+    var nextEdits = Object.assign({}, edits); nextEdits[k] = e;
+    if(!lsSet(LS_EDITS, nextEdits)){ notify('Could not save this edit. Device storage may be full. Copy your notes before leaving.', null, true); return false; }
     Object.keys(patch).forEach(function(f){ e[f] = patch[f]; r[f] = patch[f]; });
     e.t = t; edits[k] = e; r.mt = t;
     refreshRecord(r);
-    saveEdits();
     if(r.__userAdded) saveUserRecords();
     updateDataButtons();
     scheduleRefresh(true);
+    return true;
   }
 
   /* One-time move of data saved by the old stacked patch scripts into the edits store and caches. */
@@ -1434,7 +1848,7 @@ async function idbDelete(key){
         case 'tier': state.tier = v; break; case 'fmt': state.fmt = v; break;
         case 'mono': state.mono = v==='1'; break; case 'least': state.least = v==='1'; break;
         case 'sort': if(KEYS[v]) state.sort = v; break; case 'dir': state.dir = v==='1'?1:-1; break;
-        case 'view': if(v==='grid'||v==='table') state.view = v; break;
+        case 'view': if(v==='timeline') state.view = 'jazz'; else if(v==='grid'||v==='table'||v==='jazz') state.view = v; break;
         case 'theme': if(v==='light'||v==='dark'||v==='auto') state.theme = v; break;
         case 'artist': state.who = artistKey(v); break;
         case 'label': state.lab = labelKey(v); break;
@@ -1447,6 +1861,7 @@ async function idbDelete(key){
       if(NOT_SAVED[k] || !(k in s)) return;
       if(typeof s[k] === typeof DEFAULTS[k]) state[k] = s[k];
     });
+    if(state.view === 'timeline') state.view = 'jazz';
   }
   var lsTimer;
   function saveState(){
@@ -1482,6 +1897,7 @@ async function idbDelete(key){
     $('theme-label').textContent = t==='auto'?'Auto':(t==='light'?'Light':'Dark');
   }
   function resetFilters(){
+    clearTimeout(searchTimer);
     ['q','folder','tier','fmt','mono','least','sort','dir','who','lab'].forEach(function(k){ state[k] = DEFAULTS[k]; });
     syncChips(); render();
   }
@@ -1499,7 +1915,7 @@ async function idbDelete(key){
   var chipsEl = $('chips');
   var qEl = $('q'), sortEl = $('sort'), dirEl = $('dir'), tierElSel = $('tier'),
       fmtEl = $('fmt'), monoEl = $('mono'), lessEl = $('less');
-  var vGrid = $('vgrid'), vTable = $('vtable');
+  var vGrid = $('vgrid'), vTable = $('vtable'), vJazz = $('vjazz');
   var artistsDlg = $('artists-dlg'), labelsDlg = $('labels-dlg');
 
   function computeVisible(){
@@ -1507,6 +1923,7 @@ async function idbDelete(key){
     var base = [];
     for(var i=0;i<recs.length;i++){
       var r = recs[i];
+      if(state.view === 'jazz' && !isJazzRecord(r)) continue;
       if(state.folder!=='All' && r.g!==state.folder) continue;
       if(state.who && r.ek.indexOf(state.who)<0 && r.pk.indexOf(state.who)<0) continue;
       if(state.lab && r.lk.indexOf(state.lab)<0) continue;
@@ -1615,6 +2032,60 @@ async function idbDelete(key){
     });
     tb.append(f); t.append(thead, tb); wrap.append(t); return wrap;
   }
+  var jazzGroupOpen = {};
+  function jazzCard(r){
+    var classification = jazzClassification(r), b = el('button','jazz-card');
+    b.type = 'button'; b.dataset.i = r.i; b.style.setProperty('--h',r.hue);
+    b.setAttribute('aria-label',r.a + ' — ' + r.t + '. Open record details.');
+    if(r.img){ var img = el('img'); img.src = r.img; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; b.append(img); }
+    else b.append(el('span','no-cover'));
+    b.append(el('strong','',r.a),el('span','record-title',r.t),el('small','',classification.source));
+    return b;
+  }
+  function buildJazzStyles(list){
+    var section = el('section','jazz-styles'); section.setAttribute('aria-label','Explore jazz styles');
+    var intro = el('div','jazz-intro');
+    intro.append(el('h2','','Your jazz, by style'),
+      el('p','','Follow the development of jazz through your collection. Sections follow approximate origins, not album dates: a modern hard-bop recording belongs with Hard bop.'),
+      el('p','','Styles overlap and branch, rather than replacing one another. Albums may appear in several sections; counts describe records, not unique album titles. Search, filters and sorting still apply.'));
+    var fetch = el('button','btn','Fetch missing style metadata'); fetch.type = 'button'; fetch.dataset.fetchMissingJazz = '1';
+    intro.append(fetch,el('p','','Classification uses available style metadata or linked album references, never the album date. Your manual choices take precedence. Missing metadata can be fetched on the hosted site.'));
+    section.append(intro);
+    var buckets = {};
+    JAZZ_STYLES.forEach(function(s){ buckets[s.id] = []; });
+    var unclassified = [];
+    list.forEach(function(r){
+      var ids = jazzClassification(r).ids;
+      if(!ids.length) unclassified.push(r);
+      ids.forEach(function(id){ if(buckets[id]) buckets[id].push(r); });
+    });
+    section.append(el('p','count',list.length+' matching jazz records · '+(list.length-unclassified.length)+' classified · '+unclassified.length+' unclassified. Multi-style records count once in each relevant section.'));
+    var jump = el('nav','jazz-jump'); jump.setAttribute('aria-label','Jump to jazz style');
+    JAZZ_STYLES.concat([{id:'unclassified',name:'Unclassified'}]).forEach(function(s){
+      var records = s.id === 'unclassified' ? unclassified : buckets[s.id];
+      if(!records.length) return;
+      var a = el('a','',s.name+' ('+records.length+')'); a.href = '#jazz-style-'+s.id; a.dataset.jazzJump = s.id; jump.append(a);
+    });
+    section.append(jump);
+    if(!list.length){
+      section.append(el('p','','No jazz records match these filters.'));
+      var reset = el('button','btn','Clear collection filters'); reset.type = 'button'; reset.dataset.clear = '1'; section.append(reset);
+    }
+    JAZZ_STYLES.concat([{id:'unclassified',name:'Unclassified',origin:'Needs a style review',description:'No supported subgenre classification yet, or deliberately left unclassified by you. Open an album and expand Jazz styles to fetch its Discogs styles or choose one or more subgenres. Dates and artist names are never used to guess a style.'}]).forEach(function(style){
+      var records = style.id === 'unclassified' ? unclassified : buckets[style.id];
+      var group = el('details','jazz-group'); group.id = 'jazz-style-'+style.id; group.dataset.jazzGroup = style.id;
+      group.style.setProperty('--style-color',style.color || 'var(--accent)');
+      group.open = style.id in jazzGroupOpen ? jazzGroupOpen[style.id] : records.length > 0;
+      var summary = el('summary','',style.name+' · '+plural(records.length,'record'));
+      summary.append(el('span','origin',style.origin)); group.append(summary,el('p','',style.description));
+      if(style.page){ var source = el('a','','Style background & origins'); source.href = 'https://en.wikipedia.org/wiki/'+style.page; source.target = '_blank'; source.rel = 'noopener'; group.append(source); }
+      if(records.length){
+        var cards = el('div','jazz-cards'); records.forEach(function(r){ cards.append(jazzCard(r)); }); group.append(cards);
+      } else group.append(el('p','','No matching records in this section.'));
+      section.append(group);
+    });
+    return section;
+  }
   function filterPill(text, kind){
     var b = el('button','pill'); b.type = 'button'; b.dataset.clearFilter = kind;
     b.title = 'Remove this filter';
@@ -1625,11 +2096,13 @@ async function idbDelete(key){
     if(state.who && !artistIndex[state.who]) state.who = '';
     if(state.lab && !labelIndex[state.lab]) state.lab = '';
     current = computeVisible();
+    out.querySelectorAll('[data-jazz-group]').forEach(function(g){ jazzGroupOpen[g.dataset.jazzGroup] = g.open; });
     out.textContent = '';
-    if(!current.length){
+    if(state.view === 'jazz'){ out.append(buildJazzStyles(current)); }
+    else if(!current.length){
       var empty = el('div','empty');
-      empty.append(el('p','','No records match these filters.'));
-      empty.append(el('p','hint','Try clearing the search, switching folder, or turning off least played.'));
+      empty.append(el('p','','🔍 No records match these filters.'));
+      empty.append(el('p','hint','Try clearing the search, switching folder, turning off "least played," or checking your filters.'));
       var cb = el('button','linkbtn','Clear all filters'); cb.type = 'button'; cb.dataset.clear = '1';
       empty.append(cb); out.append(empty);
     } else if(state.view==='grid'){ out.append(buildGrid(current)); }
@@ -1637,6 +2110,17 @@ async function idbDelete(key){
 
     countEl.textContent = '';
     countEl.append(el('span','','Showing '+current.length+' of '+recs.length+' records'));
+    [
+      ['q', state.q ? 'Search: ' + state.q : ''],
+      ['folder', state.folder !== DEFAULTS.folder ? 'Folder: ' + state.folder : ''],
+      ['tier', state.tier !== DEFAULTS.tier ? 'Score: ' + state.tier : ''],
+      ['fmt', state.fmt !== DEFAULTS.fmt ? 'Format: ' + state.fmt : ''],
+      ['mono', state.mono ? 'Mono only' : ''],
+      ['least', state.least ? 'Least played' : '']
+    ].forEach(function(pair){ if(pair[1]) countEl.append(filterPill(pair[1], pair[0])); });
+    var activeCount = ['q','folder','tier','fmt','mono','least','who','lab'].filter(function(k){ return state[k] !== DEFAULTS[k]; }).length;
+    $('filters-btn').textContent = 'Filters' + (activeCount ? ' · ' + activeCount : '');
+    $('filters-show').textContent = 'Show ' + plural(current.length, 'record');
     if(state.who){ countEl.append(el('span','sep','·')); countEl.append(filterPill('Artist: ' + artistIndex[state.who].name, 'who')); }
     if(state.lab){ countEl.append(el('span','sep','·')); countEl.append(filterPill('Label: ' + labelIndex[state.lab].name, 'lab')); }
     var withCovers = recs.filter(function(r){ return !!r.img; }).length;
@@ -1652,11 +2136,13 @@ async function idbDelete(key){
     lessEl.querySelector('.n').textContent = lastMin==null?'–':String(lastMin);
     vGrid.setAttribute('aria-pressed', String(state.view==='grid'));
     vTable.setAttribute('aria-pressed', String(state.view==='table'));
+    vJazz.setAttribute('aria-pressed', String(state.view==='jazz'));
     sortEl.value = state.sort; tierElSel.value = state.tier;
     fmtEl.value = state.fmt; monoEl.checked = state.mono;
     if(document.activeElement !== qEl) qEl.value = state.q;
     dirEl.textContent = state.dir>0?'↑':'↓';
     dirEl.setAttribute('aria-label','Sort direction: '+(state.dir>0?'ascending':'descending'));
+    buildQueue();
     saveState(); writeHash();
   }
   function buildStats(){
@@ -1730,10 +2216,11 @@ async function idbDelete(key){
   function back(){ var v = nav.stack.pop(); if(v) go(v, { noPush:true }); }
   function onDialogClosed(){
     if(!dlg.open && !artistDlg.open){ nav.stack = []; nav.cur = null; }
+    moveNotice();
   }
   function closeAll(){
     flushNotes();
-    [dlg, artistDlg, artistsDlg, labelsDlg].forEach(function(d){ if(d.open) d.close(); });
+    document.querySelectorAll('dialog[open]').forEach(function(d){ d.close(); });
     nav.stack = []; nav.cur = null;
   }
   function startTrail(fresh){ if(fresh){ nav.stack = []; nav.cur = null; } }
@@ -1834,25 +2321,135 @@ async function idbDelete(key){
     box.append(ta);
     return box;
   }
+  function jazzStyleEditor(r){
+    var classification = jazzClassification(r), manual = Array.isArray(r.jazzStyles);
+    var details = el('details','fold jazz-style-fold');
+    details.append(el('summary','','Jazz styles · '+(classification.ids.length ? classification.ids.map(function(id){ return JAZZ_STYLES.find(function(s){ return s.id === id; }).name; }).join(', ') : 'unclassified')));
+    var form = el('form','jazz-editor'); form.dataset.jazzStyleForm = '1';
+    form.append(el('p','hint','Select every style that fits this album, regardless of recording or release year. Save no selections to keep it unclassified. Your choices override automatic metadata.'));
+    var provenance = el('p','hint','Currently: '+classification.source+'.');
+    if(classification.url){ var link = el('a','',' View album reference'); link.href = classification.url; link.target = '_blank'; link.rel = 'noopener'; provenance.append(link); }
+    form.append(provenance);
+    var credits = cacheGet('credits',r.id), sum = cacheGet('summaries',editKey(r));
+    var raw = (r.styles || []).concat(credits && credits.styles || [],sum && sum.styles || []);
+    raw = raw.filter(function(s,i){ return typeof s === 'string' && raw.indexOf(s) === i; });
+    form.append(el('p','hint',raw.length ? 'Available metadata: '+raw.join(', ')+'. Labels outside the supported jazz families are not guessed into a section.' : 'No style metadata cached yet. Fetch from Discogs on the hosted site or choose styles below.'));
+    var fieldset = el('fieldset'); fieldset.append(el('legend','','Album subgenres'));
+    var options = el('div','jazz-style-options');
+    JAZZ_STYLES.forEach(function(style){
+      var label = el('label'), input = el('input'); input.type = 'checkbox'; input.name = 'jazzStyle'; input.value = style.id; input.checked = classification.ids.indexOf(style.id) >= 0;
+      label.append(input,document.createTextNode(style.name)); options.append(label);
+    });
+    fieldset.append(options); form.append(fieldset);
+    var actions = el('div','form-actions');
+    var reset = el('button','btn ghost','Use automatic styles'); reset.type = 'button'; reset.dataset.jazzAuto = '1'; reset.disabled = !manual;
+    var fetch = el('button','btn','Fetch styles from Discogs'); fetch.type = 'button'; fetch.dataset.fetchJazzStyles = '1'; fetch.disabled = !r.id || !netOK();
+    if(fetch.disabled) form.append(el('p','hint',!r.id ? 'A Discogs release ID is needed to fetch styles. Manual classification is still available.' : 'Style lookup is unavailable offline or while the hosted Discogs service is unavailable. Manual classification is still available.'));
+    var save = el('button','btn primary','Save jazz styles'); save.type = 'submit';
+    actions.append(reset,fetch,save); form.append(actions); details.append(form); return details;
+  }
+  function refreshJazzEditor(r){
+    if(!dlg.open || dlg.dataset.key !== r.key) return;
+    var old = dlg.querySelector('.jazz-style-fold');
+    if(old){ var replacement = jazzStyleEditor(r); replacement.open = true; old.replaceWith(replacement); }
+  }
+  function saveJazzStyles(r, automatic){
+    var ids = automatic ? null : Array.from(dlg.querySelectorAll('input[name="jazzStyle"]:checked')).map(function(input){ return input.value; });
+    if(!recordEdit(r,{jazzStyles:ids})) return;
+    refreshJazzEditor(r);
+    dlg.querySelector('.jazz-editor button[type="submit"]').focus({preventScroll:true});
+    notify(automatic ? 'Automatic jazz style classification restored.' : 'Jazz styles saved on this device.');
+  }
+  var jazzStylesInFlight = {};
+  async function fetchJazzMetadata(r){
+    var release = await dgRelease(r.id);
+    var credits = creditsFromRelease(release);
+    cachePut('credits',r.id,credits); r.styles = credits.styles;
+    if(r.__userAdded) saveUserRecords();
+    refreshRecord(r);
+    return credits.styles;
+  }
+  async function fetchJazzStyles(r, button){
+    if(jazzStylesInFlight[r.key]) return;
+    jazzStylesInFlight[r.key] = true; button.disabled = true; button.textContent = 'Fetching styles…';
+    try {
+      var styles = await fetchJazzMetadata(r);
+      scheduleRefresh(false); refreshJazzEditor(r);
+      notify(styles.length ? 'Discogs styles updated. Your manual classifications, if any, were kept.' : 'Discogs lists no styles for this release. You can classify it manually.');
+    } catch(err){
+      button.disabled = false; button.textContent = 'Retry fetching styles';
+      var message = 'Could not fetch styles: '+fetchError(err);
+      if(dlg.open && dlg.dataset.key === r.key) inlineError(dlg.querySelector('.jazz-editor'),message);
+      else notify(message,null,true);
+    } finally { delete jazzStylesInFlight[r.key]; }
+  }
+  function recordingEditor(r){
+    var details = el('details','fold recording-fold'), d = recordingDate(r);
+    details.append(el('summary','','Recording dates · '+(d ? recordingLabel(d) : 'unknown')));
+    var form = el('form','recording-editor'); form.dataset.recordingForm = '1'; form.noValidate = true;
+    form.append(el('p','hint','Use the sessions heard on this album, not the reissue year. For compilations or multiple sessions, enter the earliest and latest recording years. Recording dates are context only; they do not determine the jazz style.'));
+    if(d){
+      var provenance = el('p','hint',d.status === 'verified' ? 'Verified against linked source. Check your edition for extra sessions.' : 'Entered by you; not yet verified.');
+      if(d.source){ var link = el('a','',' View source'); link.href = d.source; link.target = '_blank'; link.rel = 'noopener'; provenance.append(link); }
+      form.append(provenance);
+    }
+    var years = el('div','year-inputs');
+    [['recording-start','First recording year',d ? d.start : ''],['recording-end','Last year (optional)',d ? d.end : '']].forEach(function(v){
+      var field = el('div','fld'), label = el('label','',v[1]); label.htmlFor = v[0];
+      var input = el('input'); input.id = v[0]; input.type = 'number'; input.min = '1900'; input.max = String(new Date().getFullYear()); input.step = '1'; input.inputMode = 'numeric'; input.value = v[2];
+      field.append(label,input); years.append(field);
+    });
+    form.append(years);
+    var sourceField = el('div','fld'), sourceLabel = el('label','','Source URL (optional unless verified)'); sourceLabel.htmlFor = 'recording-source';
+    var source = el('input'); source.id = 'recording-source'; source.type = 'url'; source.placeholder = 'https://…'; source.value = d && d.source || '';
+    sourceField.append(sourceLabel,source); form.append(sourceField);
+    var statusField = el('div','fld'), statusLabel = el('label','','Verification'); statusLabel.htmlFor = 'recording-status';
+    var status = el('select'); status.id = 'recording-status';
+    [['user','Entered by me (unverified)'],['verified','I verified these dates against the source']].forEach(function(v){ var o = el('option','',v[1]); o.value = v[0]; status.append(o); });
+    status.value = d ? d.status : 'user'; statusField.append(statusLabel,status); form.append(statusField);
+    var feedback = el('p','status'); feedback.id = 'recording-feedback'; feedback.setAttribute('role','status'); form.append(feedback);
+    var actions = el('div','form-actions');
+    var save = el('button','btn primary','Save recording dates'); save.type = 'submit';
+    var unknown = el('button','btn ghost','Mark date unknown'); unknown.type = 'button'; unknown.dataset.recordingUnknown = '1';
+    actions.append(unknown,save); form.append(actions); details.append(form); return details;
+  }
+  function saveRecordingDates(r, unknown){
+    var d = unknown ? {status:'unknown'} : {
+      start:Number($('recording-start').value),
+      end:$('recording-end').value ? Number($('recording-end').value) : Number($('recording-start').value),
+      source:$('recording-source').value.trim(),status:$('recording-status').value
+    };
+    var error = recordingError(d), feedback = $('recording-feedback');
+    if(error){ feedback.textContent = error; feedback.className = 'status err'; feedback.setAttribute('role','alert'); return; }
+    if(!recordEdit(r,{recording:d})) return;
+    var old = dlg.querySelector('.recording-fold'), replacement = recordingEditor(r); replacement.open = true; old.replaceWith(replacement);
+    var recorded = dlg.querySelector('[data-recorded]');
+    if(recorded) recorded.textContent = unknown ? 'Unknown' : recordingLabel(d);
+    dlg.querySelector('.recording-editor button[type="submit"]').focus({preventScroll:true});
+    notify(unknown ? 'Recording date marked unknown.' : 'Recording dates saved on this device.');
+  }
   function aboutBox(r){
     var box = el('div','note about');
     box.append(el('h3','','About this record'));
-    if(r.hist){
-      box.append(el('p','', r.hist));
-      box.append(el('small','','Background notes compiled from general knowledge. They may contain mistakes.'));
-      return box;
-    }
     var sum = cacheGet('summaries', editKey(r));
     if(sum && sum.text){
       sum.text.split(/\n{2,}/).forEach(function(par){ box.append(el('p','', par)); });
       if(sum.styles && sum.styles.length) box.append(el('p','styles', 'Discogs styles: ' + sum.styles.join(', ')));
       box.append(el('small','', sum.src === 'wiki' ? 'Summary from Wikipedia.' : 'AI-written summary. It may contain mistakes.'));
-      return box;
+    } else if(r.hist){
+      box.append(el('p','', r.hist));
+      box.append(el('small','','Background notes compiled from general knowledge. They may contain mistakes.'));
+    } else {
+      box.append(el('p','', fallbackHistory(r)));
     }
-    box.append(el('p','', fallbackHistory(r)));
-    if(aiAvailable() && r.id){
-      var b = el('button','linkbtn','Write a short summary with AI'); b.type = 'button'; b.dataset.summary = r.key;
-      box.append(b);
+    var pending = !!summaryInFlight[r.key];
+    var b = el('button','btn', pending ? 'Writing summary…' : (sum && sum.text || r.hist ? 'Refresh album summary' : 'Write a short summary with AI'));
+    b.type = 'button'; b.dataset.summary = r.key;
+    b.disabled = pending || !aiAvailable();
+    box.append(b);
+    if(!aiAvailable()){
+      box.append(el('small','', onFileProtocol ? 'Summary updates are available on the hosted site, not in a local file.' :
+        !serverInfo.checked ? 'Checking summary service…' : 'Summary updates are unavailable. Check the Netlify functions and GEMINI_API_KEY configuration.'));
     }
     return box;
   }
@@ -1862,6 +2459,7 @@ async function idbDelete(key){
     var keepScroll = opts && opts.keepScroll ? dlg.scrollTop : 0;
     idx = current.indexOf(r);
     if(!dlg.open) lastFocus = document.activeElement;
+    document.body.append($('notice'));
     dlg.textContent = '';
     dlg.dataset.key = r.key;
 
@@ -1870,7 +2468,7 @@ async function idbDelete(key){
     head.style.setProperty('--tile-s','34%'); head.style.setProperty('--tile-l','80%');
     if(r.img){
       head.classList.add('has-cover');
-      var im = el('img','cover-lg'); im.src = r.img; im.alt=''; head.append(im); head.append(el('span','veil-lg'));
+      var im = el('img','cover-lg'); im.src = r.img; im.alt=''; im.loading='lazy'; im.decoding='async'; head.append(im); head.append(el('span','veil-lg'));
     }
     head.append(el('span','cat', r.c));
     headButtons(head);
@@ -1880,23 +2478,33 @@ async function idbDelete(key){
     if(r.comp){ var cp = el('p','comp'); cp.append(creditNodes(r.comp, 'hlink')); head.append(cp); }
 
     var body = el('div','d-body');
+    var actions = el('div','record-actions');
+    var scoreLabel = el('label','record-score','Score');
+    scoreLabel.append(scoreSelect(r));
+    var logBtn = el('button','btn primary','+ Log a play'); logBtn.type = 'button'; logBtn.dataset.play = '1';
+    var queueBtn = el('button','btn', listeningQueue.indexOf(r.key) >= 0 ? 'In Play next' : 'Play next');
+    queueBtn.type = 'button'; queueBtn.dataset.queueAdd = '1'; queueBtn.disabled = listeningQueue.indexOf(r.key) >= 0;
+    actions.append(scoreLabel, logBtn, queueBtn);
+    body.append(actions);
     var dl = el('dl','facts');
     if(r.l) fact(dl,'Label', labelNodes(r, 'p'));
     fact(dl,'Format', r.f); fact(dl,'Released', r.y?String(r.y):'');
+    var recorded = fact(dl,'Recorded',recordingDate(r) ? recordingLabel(recordingDate(r)) : 'Unknown'); recorded.dataset.recorded = '1';
     var fb = el('button','p', r.g); fb.type = 'button'; fb.dataset.folder = r.g; fb.title = 'Show this folder';
     fact(dl,'Folder', fb);
     fact(dl,'Added', fmtDate(r.d)); fact(dl,'Condition', r.cond);
     fact(dl,'Rating', r.r?r.r+' of 5':'');
-    fact(dl,'Score', scoreSelect(r));
     var pd = fact(dl,'Plays', r.p!=null?String(r.p):'0'); if(pd) pd.dataset.plays = '1';
     fact(dl,'Mono', r.m==='Yes'?'Yes':'');
     if(r.mt) fact(dl,'Last edited', fmtDate(r.mt.slice(0,10)));
-    body.append(dl);
-
-    body.append(hasCredits(r) ? buildCredits(r) : buildCreditsPlaceholder(r));
+    var technical = el('details','fold');
+    technical.append(el('summary','','Release details'), dl);
+    var credits = el('details','fold');
+    credits.append(el('summary','','Credits & tracks'), hasCredits(r) ? buildCredits(r) : buildCreditsPlaceholder(r));
     body.append(aboutBox(r));
     body.append(noteBox(r, 'n', 'Listening notes', 'How it sounds, clicks, pressing quirks…'));
     body.append(noteBox(r, 'x', 'Other notes', 'Anything else worth remembering'));
+    body.append(jazzStyleEditor(r), recordingEditor(r), technical, credits);
 
     var sim = similarRecords(r, 4);
     if(sim.length){
@@ -1905,7 +2513,7 @@ async function idbDelete(key){
       sim.forEach(function(s){
         var card = el('button','simcard'); card.type='button'; card.dataset.i = s.r.i;
         var sw = el('span','swatch'); sw.style.setProperty('--h', s.r.hue);
-        if(s.r.img){ var swi = el('img'); swi.src = s.r.img; swi.alt=''; sw.append(swi); }
+        if(s.r.img){ var swi = el('img'); swi.src = s.r.img; swi.alt=''; swi.loading='lazy'; swi.decoding='async'; sw.append(swi); }
         card.append(sw);
         var meta = el('span','meta');
         meta.append(el('span','a', s.r.a), el('span','t', s.r.t), el('span','why', s.why));
@@ -1915,7 +2523,6 @@ async function idbDelete(key){
     }
 
     var navBar = el('div','d-nav');
-    var logBtn = el('button','primary','+ Log a play'); logBtn.type = 'button'; logBtn.dataset.play = '1';
     var undoBtn = el('button','','−'); undoBtn.type = 'button'; undoBtn.dataset.play = '-1';
     undoBtn.title = 'Decrease play count'; undoBtn.setAttribute('aria-label','Decrease play count');
     var prev = el('button','','← Previous'), next = el('button','','Next →'), close = el('button','','Close');
@@ -1923,18 +2530,18 @@ async function idbDelete(key){
     prev.dataset.step = '-1'; next.dataset.step = '1'; close.dataset.close = '1';
     prev.disabled = idx<=0; next.disabled = idx<0 || idx>=current.length-1;
     var q = encodeURIComponent(r.a+' '+r.t);
-    navBar.append(logBtn, undoBtn, el('span','sp'), prev, next);
+    navBar.append(undoBtn, el('span','sp'), prev, next);
     if(r.id){ var dg = el('a','primary','Discogs'); dg.href = 'https://www.discogs.com/release/'+r.id; dg.target='_blank'; dg.rel='noopener'; navBar.append(dg); }
-    var mb = el('a','lk','MusicBrainz'); mb.href = 'https://musicbrainz.org/search?query='+q+'&type=release'; mb.target='_blank'; mb.rel='noopener';
     var wp = el('a','lk','Wikipedia'); wp.href = 'https://en.wikipedia.org/w/index.php?search='+q; wp.target='_blank'; wp.rel='noopener';
-    navBar.append(mb, wp);
+    navBar.append(wp);
     if(r.__userAdded){ var rm = el('button','danger','Remove'); rm.type='button'; rm.dataset.remove = '1'; navBar.append(rm); }
     navBar.append(close); body.append(navBar);
 
     dlg.append(head, body);
     if(!dlg.open) dlg.showModal();
+    moveNotice();
     dlg.scrollTop = keepScroll;
-    if(!opts || !opts.keepScroll) requestAnimationFrame(function(){ var f = dlg.querySelector('.d-nav button'); if(f) f.focus({ preventScroll:true }); });
+    if(!opts || !opts.keepScroll) requestAnimationFrame(function(){ var f = dlg.querySelector('[data-play="1"]'); if(f) f.focus({ preventScroll:true }); });
     if(!hasCredits(r) && r.id && netOK()) loadCredits(r);
   }
   function detailRecord(){ return dlg.open ? byKey[dlg.dataset.key] : null; }
@@ -1945,9 +2552,27 @@ async function idbDelete(key){
     go({ t:'rec', k:current[j].key }, { noPush:true });
   }
   function logPlay(r, delta){
-    var next = Math.max(0, (r.p || 0) + delta);
-    recordEdit(r, { p: next });
-    var dd = dlg.querySelector('dd[data-plays]'); if(dd) dd.textContent = String(next);
+    var before = r.p || 0, next = Math.max(0, before + delta);
+    if(before === next) return false;
+    if(!recordEdit(r, { p: next })) return false;
+    var queueIndex = delta > 0 ? listeningQueue.indexOf(r.key) : -1;
+    if(queueIndex >= 0 && !setQueue(listeningQueue.filter(function(k){ return k !== r.key; }))){
+      var restored = recordEdit(r,{p:before});
+      notify(restored ? 'Queue could not be saved. The play was not logged; please try again.' : 'The play was logged, but the queue could not be saved. Check your device storage.', null, true);
+      return false;
+    }
+    if(dlg.dataset.key === r.key){ var dd = dlg.querySelector('dd[data-plays]'); if(dd) dd.textContent = String(next); }
+    notify('"' + r.t + '": ' + plural(next,'play') + (queueIndex >= 0 ? ' · completed in Play next.' : ' · saved on this device.'), function(){
+      if(queueIndex >= 0 && listeningQueue.indexOf(r.key) < 0){
+        var restoredQueue = listeningQueue.slice(); restoredQueue.splice(Math.min(queueIndex,restoredQueue.length),0,r.key);
+        if(!setQueue(restoredQueue)) return;
+      }
+      if(recordEdit(r, { p: Math.max(0, (r.p || 0) - (next-before)) })){
+        var dd = dlg.dataset.key === r.key && dlg.querySelector('dd[data-plays]'); if(dd) dd.textContent = String(r.p);
+        notify(queueIndex >= 0 ? 'Play undone and record restored to Play next.' : 'Play count change undone.');
+      }
+    });
+    return true;
   }
 
   /* Notes save 400 ms after you stop typing, and immediately when the dialog closes or changes record. */
@@ -1965,7 +2590,7 @@ async function idbDelete(key){
     var v = p.v.replace(/\s+$/,'');
     if((p.r[p.f] || '') === v) return;
     var patch = {}; patch[p.f] = v;
-    recordEdit(p.r, patch);
+    if(recordEdit(p.r, patch)) notify('Notes saved on this device.');
   }
 
   function removeUserRecord(r){
@@ -1998,8 +2623,12 @@ async function idbDelete(key){
       var box = dlg.open && dlg.dataset.key === r.key && dlg.querySelector('.credits');
       if(box){ rebuildIndexes(); needIndex = false; box.replaceWith(hasCredits(r) ? buildCredits(r) : noCredits()); }
     } catch(err){
-      var box2 = dlg.open && dlg.dataset.key === r.key && dlg.querySelector('.credits .val');
-      if(box2) box2.textContent = 'Could not load credits: ' + fetchError(err);
+      var box2 = dlg.open && dlg.dataset.key === r.key && dlg.querySelector('.credits');
+      if(box2){
+        box2.textContent = '';
+        box2.append(el('p','val','Could not load credits: ' + fetchError(err)));
+        var retry = el('button','btn','Retry credits'); retry.type = 'button'; retry.dataset.retryCredits = '1'; box2.append(retry);
+      }
     } finally {
       delete creditsInFlight[r.id];
     }
@@ -2019,7 +2648,7 @@ async function idbDelete(key){
     (d.extraartists||[]).forEach(function(ea){ addPers(ea); });
     (d.tracklist||[]).forEach(function(t){ (t.extraartists||[]).forEach(function(ea){ addPers(ea, t.title); }); });
     var trk = (d.tracklist||[]).filter(function(t){ return t.type_ !== 'heading' && t.title; }).map(function(t){ return t.title; });
-    return { comp: compParts.join(', '), pers: pers, trk: trk, styles: (d.styles||[]).slice() };
+    return { comp: compParts.join(', '), pers: pers, trk: trk, styles: (d.styles||[]).slice(), stylesChecked:true };
   }
   function harvestArtistIds(d){
     var lists = [d.artists, d.extraartists];
@@ -2038,6 +2667,7 @@ async function idbDelete(key){
     if(summaryInFlight[r.key]) return;
     summaryInFlight[r.key] = true;
     if(btn){ btn.disabled = true; btn.textContent = 'Writing summary…'; }
+    var summaryError = '';
     try {
       var res = await fetch(FN + 'summary', { method:'POST', headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ id:r.id, artist:r.a, title:r.t, year:r.y || '' }) });
@@ -2046,12 +2676,16 @@ async function idbDelete(key){
       if(!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
       if(!j.text) throw new Error('Empty answer');
       cachePut('summaries', editKey(r), { text: String(j.text), styles: j.styles || [], src:'ai' });
-      if(dlg.open && dlg.dataset.key === r.key){ var box = dlg.querySelector('.about'); if(box) box.replaceWith(aboutBox(r)); }
+      notify('Album summary updated.');
     } catch(err){
-      if(btn){ btn.disabled = false; btn.textContent = 'Write a short summary with AI'; btn.title = fetchError(err); }
-      alert('Could not write a summary: ' + fetchError(err));
+      summaryError = 'Could not update the summary: ' + fetchError(err) + ' Your previous summary has been kept.';
     } finally {
       delete summaryInFlight[r.key];
+      if(dlg.open && dlg.dataset.key === r.key){ var box = dlg.querySelector('.about'); if(box) box.replaceWith(aboutBox(r)); }
+      if(summaryError){
+        if(dlg.open && dlg.dataset.key === r.key) inlineError(dlg.querySelector('.about'), summaryError);
+        else notify(summaryError, null, true);
+      }
     }
   }
 
@@ -2113,11 +2747,12 @@ async function idbDelete(key){
   }
   function buildSpotlight(key){
     var a = artistIndex[key]; if(!a) return;
+    document.body.append($('notice'));
     artistDlg.textContent = '';
     var hero = heroShell(a.hue);
     var portrait = el('div','portrait');
     if(a.portrait){
-      var im = el('img'); im.src = a.portrait; im.alt = ''; portrait.append(im);
+      var im = el('img'); im.src = a.portrait; im.alt = ''; im.loading='lazy'; im.decoding='async'; portrait.append(im);
       var rb = el('button','fetch redo','Re-fetch'); rb.type = 'button'; rb.dataset.fetchPortrait = a.key;
       portrait.append(rb);
     } else {
@@ -2208,20 +2843,22 @@ async function idbDelete(key){
     }
     artistDlg.append(hero, body);
     if(!artistDlg.open) artistDlg.showModal();
+    moveNotice();
   }
 
   /* ---------- label spotlight ---------- */
   function buildLabelSpotlight(key){
     var L = labelIndex[key]; if(!L) return;
+    document.body.append($('notice'));
     artistDlg.textContent = '';
     var hero = heroShell(L.hue);
     var portrait = el('div','portrait');
     var covers = L.records.filter(function(r){ return r.img; }).slice(0, 4);
     if(covers.length === 1){
-      var im = el('img'); im.src = covers[0].img; im.alt = ''; portrait.append(im);
+      var im = el('img'); im.src = covers[0].img; im.alt = ''; im.loading='lazy'; im.decoding='async'; portrait.append(im);
     } else if(covers.length > 1){
       portrait.classList.add('mosaic');
-      covers.forEach(function(r){ var t = el('img'); t.src = r.img; t.alt = ''; portrait.append(t); });
+      covers.forEach(function(r){ var t = el('img'); t.src = r.img; t.alt = ''; t.loading='lazy'; t.decoding='async'; portrait.append(t); });
     } else portrait.append(el('span','initials', artistInitials(L.name)));
     hero.append(portrait);
     var meta = el('div','meta');
@@ -2264,6 +2901,7 @@ async function idbDelete(key){
     body.append(ws);
     artistDlg.append(hero, body);
     if(!artistDlg.open) artistDlg.showModal();
+    moveNotice();
   }
 
   /* ---------- Artists / Labels lists ---------- */
@@ -2338,9 +2976,21 @@ async function idbDelete(key){
     });
     list.append(f);
   }
-  function randomPick(){
-    if(!current.length) return;
-    openRecord(current[Math.floor(Math.random()*current.length)].i, true);
+  function randomPick(mode){
+    var pool = current.slice();
+    if(mode === 'unplayed') pool = pool.filter(function(r){ return !(r.p > 0); });
+    if(mode === 'least' && pool.length){
+      var min = Math.min.apply(null, pool.map(function(r){ return r.p || 0; }));
+      pool = pool.filter(function(r){ return (r.p || 0) === min; });
+    }
+    if(!pool.length){
+      var message = mode === 'unplayed' ? 'No never-played records match your filters. Try These results or clear some filters.' : 'No records match your filters.';
+      $('random-status').textContent = message;
+      if(!$('random-dlg').open) notify(message);
+      return;
+    }
+    $('random-dlg').close();
+    openRecord(pool[Math.floor(Math.random()*pool.length)].i, true);
   }
 
 
@@ -2888,7 +3538,7 @@ async function idbDelete(key){
     addPreview.textContent = '';
     var wrap = el('div');
     var sw = el('div','cover'); sw.style.setProperty('--h', r.hue);
-    if(r.img){ var i = el('img'); i.src = r.img; i.alt=''; sw.append(i); }
+    if(r.img){ var i = el('img'); i.src = r.img; i.alt=''; i.loading='lazy'; i.decoding='async'; sw.append(i); }
     wrap.append(sw);
     var head = el('div','head');
     head.append(el('div','artist', r.a), el('div','ttl', r.t));
@@ -2946,7 +3596,7 @@ async function idbDelete(key){
   });
 
   /* ---------- CSV export ----------
-     Columns follow the Discogs collection export, plus "App Last Modified". Every field is written back
+     Columns follow the Discogs collection export, plus edit timestamps and sourced recording dates. Every field is written back
      (buy value, cleaning, unknown extra columns), so an export is a complete backup and imports losslessly. */
   function csvEscape(v){
     var s = String(v==null?'':v);
@@ -2966,7 +3616,10 @@ async function idbDelete(key){
     var lines = [header.map(csvEscape).join(',')];
     list.forEach(function(r){
       var row = [r.c, r.araw || r.a, r.t, r.lraw || r.l, r.f, r.r || '', r.y || '', r.id || '', r.g, formatDateForCSV(r.d),
-        r.cond || '', r.buy || '', r.clean || '', r.p == null ? '' : r.p, r.sl || '', r.m || '', r.n || '', r.x || '', r.mt || '']
+        r.cond || '', r.buy || '', r.clean || '', r.p == null ? '' : r.p, r.sl || '', r.m || '', r.n || '', r.x || '', r.mt || '',
+        recordingDate(r) ? r.recording.start : '', recordingDate(r) ? r.recording.end : '',
+        recordingDate(r) ? r.recording.source || '' : '', r.recording && r.recording.status || 'unknown',
+        Array.isArray(r.jazzStyles) ? JSON.stringify(r.jazzStyles) : '']
         .concat(extra.map(function(h){ return (r.xc||{})[h] || ''; }));
       lines.push(row.map(csvEscape).join(','));
     });
@@ -3016,18 +3669,26 @@ async function idbDelete(key){
     var file = importFile.files && importFile.files[0]; if(!file) return;
     var reader = new FileReader();
     reader.onload = function(){ importCSVText(String(reader.result || ''), file.name); };
-    reader.onerror = function(){ alert('Could not read ' + file.name); };
+    reader.onerror = function(){ notify('Could not read ' + file.name, null, true); };
     reader.readAsText(file, 'utf-8');
   });
   function sameVal(f, a, b){
     if(f === 'p') return (a == null ? null : +a) === (b == null ? null : +b);
+    if(f === 'recording'){
+      return ['status','start','end','source'].every(function(k){ return sameVal(k, a && a[k], b && b[k]); });
+    }
+    if(f === 'jazzStyles'){
+      if(!Array.isArray(a) || !Array.isArray(b)) return a == null && b == null;
+      return a.length === b.length && a.every(function(id){ return b.indexOf(id) >= 0; });
+    }
     return String(a == null ? '' : a).trim() === String(b == null ? '' : b).trim();
   }
   function importCSVText(text, name){
     var parsed;
-    try { parsed = parseTable(text); } catch(e){ alert('That file could not be read as CSV.'); return; }
-    var rows = parsed.rows.map(makeRecord).filter(Boolean);
-    if(!rows.length){ alert('No records found in ' + name + '.'); return; }
+    var rows;
+    try { parsed = parseTable(text); rows = parsed.rows.map(makeRecord).filter(Boolean); }
+    catch(e){ notify('That CSV could not be imported: ' + e.message, null, true); return; }
+    if(!rows.length){ notify('No records found in ' + name + '.', null, true); return; }
     var hasMt = rows.some(function(r){ return r.mt; });
     var newer = 0, added = 0, conflicts = [];
     rows.forEach(function(row){
@@ -3047,11 +3708,11 @@ async function idbDelete(key){
     if(!confirm(msg)) return;
     if(conflicts.length){
       var keep = confirm(conflicts.length + ' record' + (conflicts.length === 1 ? ' has' : 's have') +
-        ' a score, note or play count edited in this browser that differs from the file.\n\n' +
+        ' a score, note, play count, recording date or jazz classification edited in this browser that differs from the file.\n\n' +
         'OK = keep this browser\'s edits\nCancel = use the values from the file');
       if(!keep) conflicts.forEach(function(k){ delete edits[k]; });
     }
-    if(!lsSet(LS_IMPORT, text)){ alert('This browser\'s storage is full, so the import could not be saved.'); return; }
+    if(!lsSet(LS_IMPORT, text)){ notify('This browser\'s storage is full, so the import could not be saved.', null, true); return; }
     lsSet(LS_IMPORT_AT, nowISO());
     saveEdits();
     location.reload();
@@ -3084,7 +3745,7 @@ async function idbDelete(key){
     var out = {};
     CACHE_KINDS.forEach(function(k){ out[k] = Object.assign({}, DATA.EXTRA[k] || {}, cache[k] || {}); });
     recs.forEach(function(r){
-      if(r.id && !r.hasKB && hasCredits(r)) out.credits[r.id] = { comp:r.comp || '', pers:r.pers || [], trk:r.trk || [], styles:r.styles || [] };
+      if(r.id && !r.hasKB && hasCredits(r)) out.credits[r.id] = Object.assign({},out.credits[r.id] || {},{ comp:r.comp || '', pers:r.pers || [], trk:r.trk || [], styles:r.styles || [] });
     });
     return out;
   }
@@ -3096,11 +3757,18 @@ async function idbDelete(key){
       var portraits = {}; Object.keys(artistIndex).forEach(function(k){ if(artistIndex[k].portrait) portraits[k] = artistIndex[k].portrait; });
       Object.keys(PORTRAITS).forEach(function(k){ if(!portraits[k]) portraits[k] = PORTRAITS[k]; });
       var root = document.documentElement.cloneNode(true);
+      root.querySelector('#filter-home').append(root.querySelector('#filter-controls'));
+      var notice = root.querySelector('#notice'); notice.hidden = true;
+      root.querySelector('body').insertBefore(notice, root.querySelector('body > script'));
+      root.querySelector('#collection-tools').removeAttribute('open');
       root.removeAttribute('data-theme');
       ['out','stats','chips','count','dlg','artist-dlg','artists-list','labels-list','artists-meta','labels-meta','add-preview',
-       'folder-suggest','folder-list-inline','covers-log','photos-log','add-status','export-status'].forEach(function(id){
+       'folder-suggest','folder-list-inline','covers-log','photos-log','add-status','export-status','queue-list','notice-message','random-status','jazz-fetch-log','jazz-fetch-status'].forEach(function(id){
         var n = root.querySelector('#' + id); if(n) n.textContent = '';
       });
+      root.querySelector('#jazz-fetch-progress').value = 0;
+      root.querySelector('#jazz-fetch-start').disabled = false;
+      root.querySelector('#jazz-fetch-stop').disabled = true;
       root.querySelectorAll('dialog[open]').forEach(function(d){ d.removeAttribute('open'); });
       var banner = root.querySelector('#file-banner'); if(banner) banner.classList.remove('on');
       var rd = root.querySelector('#reset-data-btn'); if(rd) rd.hidden = true;
@@ -3117,13 +3785,130 @@ async function idbDelete(key){
       countEl.append(el('span','', 'Saved ' + recs.length + ' records · ' + Object.keys(covers).length + ' covers · ' +
         Object.keys(portraits).length + ' artist photos to ' + filename));
     } catch(err){
-      alert('Could not save: ' + err.message);
+      notify('Could not save the HTML backup: ' + err.message, null, true);
     }
   }
   $('save-html-btn').addEventListener('click', saveAsHTML);
 
 
   /* ---------- events ---------- */
+  $('notice-close').addEventListener('click', function(){ $('notice').hidden = true; noticeUndo = null; });
+  $('notice-undo').addEventListener('click', function(){
+    var undo = noticeUndo; noticeUndo = null; $('notice').hidden = true;
+    if(undo) undo();
+  });
+  document.querySelectorAll('dialog').forEach(function(d){
+    d.addEventListener('close', moveNotice);
+  });
+  var mobileLayout = window.matchMedia('(max-width:600px)');
+  function placeFilters(){
+    var focused = document.activeElement;
+    if(!mobileLayout.matches && $('filters-dlg').open) $('filters-dlg').close();
+    (mobileLayout.matches ? $('filters-body') : $('filter-home')).append($('filter-controls'));
+    if(focused && $('filter-controls').contains(focused) && (!mobileLayout.matches || $('filters-dlg').open)) focused.focus();
+  }
+  mobileLayout.addEventListener('change', placeFilters);
+  placeFilters();
+  $('filters-btn').addEventListener('click', function(){ $('filters-dlg').showModal(); moveNotice(); });
+  wireDialogClose($('filters-dlg'), ['filters-close','filters-show']);
+  $('collection-tools').addEventListener('click', function(e){
+    if(e.target.closest('button')) $('collection-tools').open = false;
+  });
+  document.addEventListener('click', function(e){ if(!$('collection-tools').contains(e.target)) $('collection-tools').open = false; });
+  $('collection-tools').addEventListener('keydown', function(e){ if(e.key === 'Escape'){ $('collection-tools').open = false; $('collection-tools').querySelector('summary').focus(); } });
+  $('help-btn').addEventListener('click', function(){ $('shortcuts-dlg').showModal(); moveNotice(); });
+  $('queue-btn').addEventListener('click', function(){ buildQueue(); $('queue-dlg').showModal(); moveNotice(); });
+  wireDialogClose($('queue-dlg'), ['queue-close']);
+  $('queue-list').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    if(b.dataset.queueOpen){
+      var r = byKey[b.dataset.queueOpen]; if(!r) return;
+      $('queue-dlg').close(); openRecord(r.i,true); return;
+    }
+    var key = b.dataset.key, action = b.dataset.queueAction, r = byKey[key];
+    if(!action || !r) return;
+    var next = listeningQueue.filter(function(k){ return !!byKey[k]; }), i = next.indexOf(key);
+    if(i < 0) return;
+    if(action === 'up' || action === 'down'){
+      var j = i + (action === 'up' ? -1 : 1);
+      if(j < 0 || j >= next.length) return;
+      next.splice(i,1); next.splice(j,0,key);
+      if(setQueue(next)){
+        var moved = Array.from($('queue-list').querySelectorAll('button')).find(function(n){ return n.dataset.key === key && n.dataset.queueAction === action && !n.disabled; });
+        if(moved) moved.focus(); else $('queue-list').querySelectorAll('.open-record')[j].focus();
+        notify('Queue order saved on this device.');
+      }
+      return;
+    }
+    if(action === 'complete'){
+      if(logPlay(r,1)) ($('queue-list').querySelector('button') || $('queue-close')).focus();
+      return;
+    }
+    next.splice(i,1);
+    if(!setQueue(next)) return;
+    notify('"' + r.t + '" removed from Play next.', function(){
+      var restored = listeningQueue.slice();
+      if(restored.indexOf(key) < 0) restored.splice(Math.min(i,restored.length),0,key);
+      if(setQueue(restored)) notify('Record restored to Play next.');
+    });
+    var focus = $('queue-list').querySelector('button') || $('queue-close'); focus.focus();
+  });
+  wireDialogClose($('random-dlg'), ['random-close']);
+  $('random-pick').addEventListener('click', function(){ randomPick($('random-mode').value); });
+  var jazzFetchRunning = false, jazzFetchStop = false, jazzFetchQueue = [];
+  function missingJazzMetadata(list){
+    return list.filter(function(r){
+      var c = jazzClassification(r), credits = cacheGet('credits',r.id);
+      var directStyles = (r.styles || []).concat(credits && credits.styles || []);
+      return r.id && !Array.isArray(r.jazzStyles) && !c.ids.length && !directStyles.length && !(credits && credits.stylesChecked);
+    });
+  }
+  function openJazzFetch(){
+    jazzFetchQueue = missingJazzMetadata(current);
+    $('jazz-fetch-log').textContent = '';
+    $('jazz-fetch-progress').value = 0;
+    $('jazz-fetch-progress').max = jazzFetchQueue.length || 1;
+    $('jazz-fetch-status').textContent = !netOK() ? 'Style lookup needs the hosted site. It is unavailable offline or when the Discogs service is not configured.' :
+      jazzFetchQueue.length ? plural(jazzFetchQueue.length,'record')+' without style metadata ready to check.' : 'No missing metadata to fetch in these results. Records with unsupported styles or no styles listed by Discogs can be classified manually.';
+    $('jazz-fetch-start').disabled = !netOK() || !jazzFetchQueue.length;
+    $('jazz-fetch-stop').disabled = true;
+    $('jazz-fetch-dlg').showModal(); moveNotice();
+  }
+  function stopJazzFetch(){ jazzFetchStop = true; $('jazz-fetch-stop').disabled = true; }
+  $('jazz-fetch-close').addEventListener('click', function(){ stopJazzFetch(); $('jazz-fetch-dlg').close(); });
+  $('jazz-fetch-dlg').addEventListener('cancel', stopJazzFetch);
+  $('jazz-fetch-stop').addEventListener('click', stopJazzFetch);
+  $('jazz-fetch-start').addEventListener('click', async function(){
+    if(jazzFetchRunning) return;
+    jazzFetchRunning = true; jazzFetchStop = false;
+    $('jazz-fetch-progress').value = 0; $('jazz-fetch-progress').max = jazzFetchQueue.length || 1;
+    $('jazz-fetch-log').textContent = '';
+    $('jazz-fetch-start').disabled = true; $('jazz-fetch-stop').disabled = false;
+    var done = 0, failed = 0, classified = 0;
+    try {
+      for(var i=0;i<jazzFetchQueue.length && !jazzFetchStop;i++){
+        var r = jazzFetchQueue[i];
+        $('jazz-fetch-status').textContent = (i+1)+' / '+jazzFetchQueue.length+' · '+r.a+' — '+r.t;
+        try {
+          await fetchJazzMetadata(r);
+          if(jazzClassification(r).ids.length) classified++;
+          else $('jazz-fetch-log').append(el('p','',r.a+' — '+r.t+': '+(r.styles.length ? 'no supported subgenre match ('+r.styles.join(', ')+')' : 'no styles listed by Discogs')+'. Choose styles manually in record details.'));
+        } catch(err){
+          failed++;
+          $('jazz-fetch-log').append(el('p','',r.a+' — '+r.t+': '+fetchError(err)));
+          if(!netOK()){ jazzFetchStop = true; }
+        }
+        done++; $('jazz-fetch-progress').value = done;
+      }
+    } finally {
+      jazzFetchRunning = false; $('jazz-fetch-stop').disabled = true;
+      $('jazz-fetch-status').textContent = (jazzFetchStop ? 'Stopped. ' : 'Finished. ')+done+' checked · '+classified+' classified · '+failed+' failed. Retrieved metadata is kept on this device.';
+      jazzFetchQueue = missingJazzMetadata(current);
+      $('jazz-fetch-start').textContent = 'Fetch remaining metadata';
+      $('jazz-fetch-start').disabled = !netOK() || !jazzFetchQueue.length;
+      render();
+    }
+  });
   var searchTimer;
   qEl.addEventListener('input', function(e){
     clearTimeout(searchTimer);
@@ -3139,7 +3924,8 @@ async function idbDelete(key){
   lessEl.addEventListener('click', toggleLeast);
   vGrid.addEventListener('click', function(){ state.view = 'grid'; render(); });
   vTable.addEventListener('click', function(){ state.view = 'table'; render(); });
-  $('random').addEventListener('click', randomPick);
+  vJazz.addEventListener('click', function(){ state.view = 'jazz'; render(); });
+  $('random').addEventListener('click', function(){ $('random-status').textContent = ''; $('random-dlg').showModal(); moveNotice(); });
   $('reset-filters-btn').addEventListener('click', resetFilters);
   $('theme').addEventListener('click', function(){
     var seq = ['auto','light','dark'];
@@ -3158,10 +3944,23 @@ async function idbDelete(key){
   });
   countEl.addEventListener('click', function(e){
     var b = e.target.closest('button[data-clear-filter]'); if(!b) return;
-    state[b.dataset.clearFilter] = ''; render();
+    if(b.dataset.clearFilter === 'q') clearTimeout(searchTimer);
+    state[b.dataset.clearFilter] = DEFAULTS[b.dataset.clearFilter]; syncChips(); render();
   });
   out.addEventListener('click', function(e){
+    var jump = e.target.closest('[data-jazz-jump]');
+    if(jump){
+      e.preventDefault();
+      var group = $('jazz-style-'+jump.dataset.jazzJump); group.open = true;
+      var summary = group.querySelector('summary'); summary.focus({preventScroll:true}); group.scrollIntoView({block:'start'});
+      return;
+    }
     var t = e.target.closest('button'); if(!t) return;
+    if(t.dataset.fetchMissingJazz){
+      if(jazzFetchRunning){ $('jazz-fetch-dlg').showModal(); moveNotice(); }
+      else openJazzFetch();
+      return;
+    }
     if(t.dataset.clear){ resetFilters(); return; }
     if(t.dataset.artist){ openArtist(t.dataset.artist, true); return; }
     if(t.dataset.label){ openLabel(t.dataset.label, true); return; }
@@ -3191,17 +3990,33 @@ async function idbDelete(key){
     if(handleLink(b)) return;
     if(!r) return;
     if(b.dataset.play){ logPlay(r, +b.dataset.play); return; }
+    if(b.dataset.queueAdd){ addToQueue(r); return; }
+    if(b.dataset.retryCredits){ b.disabled = true; b.textContent = 'Loading credits…'; loadCredits(r); return; }
+    if(b.dataset.recordingUnknown){ saveRecordingDates(r,true); return; }
+    if(b.dataset.jazzAuto){ saveJazzStyles(r,true); return; }
+    if(b.dataset.fetchJazzStyles){ fetchJazzStyles(r,b); return; }
     if(b.dataset.remove){ removeUserRecord(r); return; }
     if(b.dataset.summary){ requestSummary(r, b); return; }
   });
   dlg.addEventListener('change', function(e){
     var r = detailRecord(); if(!r) return;
-    if(e.target.dataset.edit === 'sl'){ recordEdit(r, { sl: e.target.value }); }
+    if(e.target.dataset.edit === 'sl'){
+      if(recordEdit(r, { sl: e.target.value })) notify('Score saved on this device.');
+      else e.target.value = r.sl || '';
+    }
+  });
+  dlg.addEventListener('submit', function(e){
+    if(e.target.dataset.jazzStyleForm){
+      e.preventDefault(); var record = detailRecord(); if(record) saveJazzStyles(record,false); return;
+    }
+    if(!e.target.dataset.recordingForm) return;
+    e.preventDefault(); var r = detailRecord(); if(r) saveRecordingDates(r,false);
   });
   dlg.addEventListener('input', function(e){
     var r = detailRecord(); if(!r) return;
     var f = e.target.dataset.edit;
     if(f === 'n' || f === 'x') queueNote(r, f, e.target.value);
+    if(e.target.id === 'recording-start' || e.target.id === 'recording-end' || e.target.id === 'recording-source') $('recording-status').value = 'user';
   });
   dlg.addEventListener('focusout', function(e){ if(e.target.tagName === 'TEXTAREA') flushNotes(); });
   dlg.addEventListener('close', function(){
@@ -3220,23 +4035,37 @@ async function idbDelete(key){
       var ab = artistIndex[b.dataset.fetchBio]; if(!ab) return;
       b.disabled = true; b.textContent = 'Looking up…';
       try { await discogsArtistInfo(ab); if(nav.cur && nav.cur.k === ab.key) buildSpotlight(ab.key); }
-      catch(err){ b.disabled = false; b.textContent = 'Get bio from Discogs'; alert('No Discogs profile found: ' + fetchError(err)); }
+      catch(err){
+        b.disabled = false; b.textContent = 'Get bio from Discogs';
+        var message = 'No Discogs profile found for ' + ab.name + ': ' + fetchError(err);
+        if(artistDlg.open && nav.cur && nav.cur.t === 'artist' && nav.cur.k === ab.key) inlineError(b.parentElement, message);
+        else notify(message, null, true);
+      }
       return;
     }
     if(b.dataset.fetchPortrait){
       var a = artistIndex[b.dataset.fetchPortrait]; if(!a) return;
       var btnLabel = b.textContent;
       b.disabled = true; b.textContent = '…';
-      try { await fetchOnePortrait(a); refreshAfterPortrait(a); }
+      var manual = artistDlg.querySelector('#portrait-manual');
+      try { await fetchOnePortrait(a, manual && manual.value.trim() || undefined); refreshAfterPortrait(a); }
       catch(err){
         b.disabled = false; b.textContent = btnLabel;
-        var manual = prompt('No confident photo match for "' + a.name + '".\n(' + fetchError(err) + ')\n\n' +
-          'Paste a Wikipedia page title, an image URL, or a Discogs artist URL/ID — or Cancel to leave it as is:', '');
-        if(manual && manual.trim()){
-          b.disabled = true; b.textContent = '…';
-          try { await fetchOnePortrait(a, manual.trim()); refreshAfterPortrait(a); }
-          catch(err2){ b.disabled = false; b.textContent = btnLabel; alert("That didn't work: " + fetchError(err2)); }
+        if(!artistDlg.open || !nav.cur || nav.cur.t !== 'artist' || nav.cur.k !== a.key){
+          notify('Could not fetch a photo for ' + a.name + ': ' + fetchError(err), null, true);
+          return;
         }
+        var recovery = artistDlg.querySelector('.portrait-recovery');
+        if(!recovery){
+          recovery = el('div','form-body portrait-recovery');
+          var label = el('label','','Optional photo source'); label.htmlFor = 'portrait-manual';
+          var input = el('input'); input.id = 'portrait-manual'; input.type = 'text'; input.placeholder = 'Wikipedia title, image URL, or Discogs artist ID';
+          var field = el('div','fld'); field.append(label,input);
+          var retry = el('button','btn','Retry artist photo'); retry.type = 'button'; retry.dataset.fetchPortrait = a.key;
+          recovery.append(field,retry); artistDlg.append(recovery);
+        }
+        inlineError(recovery, 'Could not fetch a photo: ' + fetchError(err) + '. Add a source above or retry.');
+        recovery.scrollIntoView({block:'nearest'});
       }
       return;
     }
@@ -3258,6 +4087,7 @@ async function idbDelete(key){
   $('labels-btn').addEventListener('click', function(){ openList(labelsDlg, $('labels-search'), buildLabelsIndex); });
   wireDialogClose(artistsDlg, ['artists-close']);
   wireDialogClose(labelsDlg, ['labels-close']);
+  wireDialogClose($('shortcuts-dlg'), ['shortcuts-close']);
   var listTimer;
   $('artists-search').addEventListener('input', function(){ clearTimeout(listTimer); listTimer = setTimeout(buildArtistsIndex, 80); });
   $('labels-search').addEventListener('input', function(){ clearTimeout(listTimer); listTimer = setTimeout(buildLabelsIndex, 80); });
@@ -3297,11 +4127,13 @@ async function idbDelete(key){
       return;
     }
     if(e.key==='/' && !typing){ e.preventDefault(); qEl.focus(); qEl.select(); return; }
+    if(e.key==='?' && !typing){ e.preventDefault(); $('shortcuts-dlg').showModal(); moveNotice(); return; }
     if(e.key==='Escape'){ if(qEl.value){ qEl.value=''; state.q=''; render(); } else if(document.activeElement===qEl) qEl.blur(); return; }
     if(typing) return;
     switch(e.key){
       case 'g': case 'G': state.view='grid'; render(); return;
       case 't': case 'T': state.view='table'; render(); return;
+      case 'j': case 'J': state.view='jazz'; render(); return;
       case 'a': case 'A': $('artists-btn').click(); return;
       case 'b': case 'B': $('labels-btn').click(); return;
       case 'n': case 'N': $('add-btn').click(); return;
@@ -3341,6 +4173,8 @@ async function idbDelete(key){
     $('import-csv-btn').title = 'Imported CSV in use' + (at ? ' (since ' + fmtDate(at.slice(0,10)) + ')' : '') + '. Load another CSV to merge it in.';
   }
   checkServer().then(function(){
+    var r = detailRecord();
+    if(dlg.open && r){ var box = dlg.querySelector('.about'); if(box) box.replaceWith(aboutBox(r)); }
     if(serverInfo.up && !serverInfo.discogsToken) console.info('Discogs function is running without DISCOGS_TOKEN.');
   });
 
