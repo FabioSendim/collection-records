@@ -80,6 +80,8 @@ h1{margin:0;font-family:var(--font-display);font-weight:850;font-stretch:62%;fon
 
 .bar{display:grid;gap:12px}
 .row1{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.listening-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.listening-label{margin:0 4px 0 0;color:var(--ink-2);font:500 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
 .search{flex:1 1 260px;min-width:0;position:relative;display:flex}
 .search input{width:100%;min-width:0;height:40px;padding:0 40px 0 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s)}
 .search input:focus{outline:none;border-color:var(--accent);background:var(--surface-2)}
@@ -364,6 +366,16 @@ dialog.form-dlg{width:min(560px,calc(100% - 24px));max-height:min(92vh,760px)}
 .status.ok{color:var(--ok)}
 .status.err{color:var(--warn)}
 .status.warn{color:var(--warn-2)}
+.discovery-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.discovery-list li{padding:14px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2);overflow-wrap:anywhere}
+.discovery-list h3{margin:0;font-size:17px}
+.discovery-list p{margin:6px 0 10px;color:var(--ink-2)}
+.discovery-list .discovery-artist{margin:3px 0;font-weight:600;color:var(--ink)}
+.discovery-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.discovery-actions .btn{white-space:normal;height:auto;min-height:40px}
+.discovery-wishlist{border-top:1px solid var(--line);padding-top:14px}
+.discovery-wishlist summary{cursor:pointer;font-weight:600;margin-bottom:12px}
+#discovery-dlg .notice{position:sticky;bottom:0;left:auto;transform:none;margin:12px auto}
 .spinner{display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;vertical-align:-1px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .kv{display:grid;grid-template-columns:max-content 1fr;gap:5px 16px;font-size:12.5px;margin:0}
@@ -624,13 +636,11 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
         <button type="button" id="vtable" aria-pressed="false">Table</button>
         <button type="button" id="vjazz" aria-pressed="false">Jazz styles</button>
       </div>
-      <button type="button" class="btn ghost" id="random" title="Random pick (R)">Random</button>
       <button type="button" class="btn mobile-only" id="filters-btn" aria-haspopup="dialog" aria-controls="filters-dlg">Filters · 2</button>
-      <button type="button" class="btn ghost" id="queue-btn" aria-haspopup="dialog">Play next (0)</button>
-      <button type="button" class="btn primary" id="add-btn" title="Add a record by Discogs URL or ID (N)">+ Add record</button>
       <details class="tools" id="collection-tools">
       <summary class="btn">Collection tools</summary>
       <div class="tools-panel">
+      <button type="button" class="btn primary" id="add-btn" title="Add a record by Discogs URL or ID (N)">+ Add record</button>
       <button type="button" class="btn ghost" id="artists-btn" title="Browse artists (A)">Browse artists</button>
       <button type="button" class="btn ghost" id="labels-btn" title="Browse labels (B)">Browse labels</button>
       <button type="button" class="btn" id="covers-btn" title="Fetch missing covers from Discogs">Fetch covers</button>
@@ -652,6 +662,13 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <p>Import HTML backup restores a saved collection, including covers and fetched metadata. In a local file it replaces this browser's collection; on the hosted site the owner can replace the shared cloud collection after confirmation. Save a backup first.</p>
       </div>
       </details>
+    </div>
+
+    <div class="listening-row" role="group" aria-labelledby="listening-label">
+      <p class="listening-label" id="listening-label">Listening</p>
+      <button type="button" class="btn ghost" id="random" title="Random pick (R)" aria-haspopup="dialog" aria-controls="random-dlg">Random</button>
+      <button type="button" class="btn ghost" id="discovery-btn" aria-haspopup="dialog" aria-controls="discovery-dlg">Discovery</button>
+      <button type="button" class="btn ghost" id="queue-btn" aria-haspopup="dialog" aria-controls="queue-dlg">Play next (0)</button>
     </div>
 
     <p id="cloud-status" role="status">Loading collection storage...</p>
@@ -730,6 +747,35 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     </select></div>
     <p class="status" id="random-status" role="status"></p>
     <button type="button" class="btn primary" id="random-pick">Pick a record</button>
+  </div>
+</dialog>
+<dialog id="discovery-dlg" class="form-dlg" aria-labelledby="discovery-title">
+  <div class="form-hero">
+    <button type="button" class="x" id="discovery-close" aria-label="Close discovery">✕</button>
+    <h2 id="discovery-title">Discovery</h2>
+    <p>Three new albums to explore. Start with an artist, album, genre or mood.</p>
+  </div>
+  <form id="discovery-form" class="form-body">
+    <div class="fld"><label for="discovery-key-1">Music clue 1</label><input id="discovery-key-1" type="text" maxlength="200" required placeholder="e.g. Kind of Blue"></div>
+    <div class="fld"><label for="discovery-key-2">Music clue 2 (optional)</label><input id="discovery-key-2" type="text" maxlength="200" placeholder="e.g. Bill Evans"></div>
+    <div class="fld"><label for="discovery-key-3">Music clue 3 (optional)</label><input id="discovery-key-3" type="text" maxlength="200" placeholder="e.g. modal jazz"></div>
+    <div class="form-actions"><button type="submit" class="btn primary" id="discovery-submit">Discover 3 albums</button></div>
+    <p class="status" id="discovery-status" role="status" aria-live="polite"></p>
+    <ol class="discovery-list" id="discovery-results" aria-label="Discovered albums"></ol>
+  </form>
+  <div class="form-body">
+    <details class="discovery-wishlist" id="discovery-wishlist">
+      <summary id="discovery-wishlist-summary">Wishlist (0)</summary>
+      <p class="status">Saved in this browser, separate from your collection.</p>
+      <ol class="discovery-list" id="discovery-wishlist-list" aria-label="Discovery wishlist"></ol>
+    </details>
+    <details class="fold" id="discovery-about">
+      <summary>About Discovery</summary>
+      <p class="status">Use up to three clues: an album, artist, genre, mood or instrument. Suggestions exclude albums already in your collection; your current search and filters do not apply.</p>
+      <p class="status">Requires the hosted site and its configured AI service. Only your clues are sent to Gemini, not your collection. AI suggestions may be inaccurate; use the Discogs search links to check them.</p>
+      <p class="status">YouTube and Qobuz links search for the artist and album; they are not verified album pages. Qobuz may require sign-in and its mobile app.</p>
+      <p class="status">Your wishlist is not synced or included in collection backups. Clearing browser storage removes it. Saved links work without generating new suggestions.</p>
+    </details>
   </div>
 </dialog>
 <dialog id="jazz-fetch-dlg" class="form-dlg" aria-labelledby="jazz-fetch-title">
@@ -1143,6 +1189,7 @@ async function idbDelete(key){
   var LS_CACHE = 'rcCache_v1';
   var LS_REMOVED = 'rcRemoved_v1';
   var LS_QUEUE = 'rcQueue_v1';
+  var LS_WISHLIST = 'rcDiscoveryWishlist_v1';
   var DOTS_MAX = 5;
   var FN = '/.netlify/functions/';
 
@@ -3339,6 +3386,164 @@ async function idbDelete(key){
     return msg;
   }
 
+  /* Discovery keeps collection-based exclusions on this device. */
+  var discoveryController = null;
+  function discoveryName(s){
+    return foldAccents(stripDiscogsSuffix(s)).toLowerCase().replace(/&/g, ' and ').replace(/[\u2018\u2019'`]/g,'')
+      .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  }
+  function discoveryAlbum(artist, title){ return discoveryName(artist) + '\n' + discoveryName(title); }
+  var discoveryPicks = [], discoveryKeys = [], discoveryWishlist = [], wishlistReady = false;
+  function validWishlistItem(r){
+    return r && ['artist','title','reason'].every(function(k){
+      return typeof r[k] === 'string' && !!r[k].trim() && r[k].length <= (k === 'reason' ? 600 : 200);
+    }) && Array.isArray(r.keys) && r.keys.length >= 1 && r.keys.length <= 3 &&
+      r.keys.every(function(k){ return typeof k === 'string' && !!k.trim() && k.length <= 200; }) &&
+      typeof r.savedAt === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(r.savedAt) && Number.isFinite(Date.parse(r.savedAt));
+  }
+  function loadDiscoveryWishlist(){
+    try {
+      var raw = localStorage.getItem(LS_WISHLIST), items = raw === null ? [] : JSON.parse(raw);
+      if(!Array.isArray(items) || items.some(function(r){ return !validWishlistItem(r); }))
+        throw new Error('Saved wishlist data is invalid.');
+      var seen = new Set();
+      if(items.some(function(r){
+        var key = discoveryAlbum(r.artist,r.title);
+        if(seen.has(key)) return true;
+        seen.add(key); return false;
+      })) throw new Error('Saved wishlist contains duplicate albums.');
+      discoveryWishlist = items; wishlistReady = true; return true;
+    } catch(err){
+      wishlistReady = false;
+      notify('Could not load your Discovery wishlist: ' + err.message + ' Existing saved data has not been changed.', null, true);
+      return false;
+    }
+  }
+  function setDiscoveryWishlist(next){
+    if(!lsSet(LS_WISHLIST,next)){
+      notify('Could not save your Discovery wishlist. Browser storage may be full or unavailable. Your wishlist has not changed.', null, true);
+      return false;
+    }
+    discoveryWishlist = next; wishlistReady = true; renderDiscoveryLists(); return true;
+  }
+  function discoveryCard(r, saved){
+    var li = el('li'), actions = el('div','discovery-actions');
+    li.append(el('h3','',r.title), el('p','discovery-artist',r.artist), el('p','',r.reason));
+    if(saved) li.append(el('p','status','Clues: ' + r.keys.join(' / ') + ' · Saved ' + fmtDate(r.savedAt)));
+    var query = encodeURIComponent(r.artist+' '+r.title);
+    [
+      ['Search YouTube','https://www.youtube.com/results?search_query='+query],
+      ['Search Qobuz','https://play.qobuz.com/search/all?searchEntry='+query],
+      ['Search Discogs','https://www.discogs.com/search/?type=master&q='+query]
+    ].forEach(function(pair){
+      var link = el('a','linkbtn',pair[0]); link.href = pair[1];
+      link.target = '_blank'; link.rel = 'noopener noreferrer';
+      link.setAttribute('aria-label',pair[0]+': '+r.artist+' - '+r.title+' (opens in a new tab)');
+      actions.append(link);
+    });
+    var key = discoveryAlbum(r.artist,r.title);
+    var alreadySaved = wishlistReady && discoveryWishlist.some(function(item){ return discoveryAlbum(item.artist,item.title) === key; });
+    var button = el('button','btn ghost',saved ? 'Remove from wishlist' : alreadySaved ? 'Saved to wishlist' : 'Save to wishlist');
+    button.type = 'button'; button.dataset.wishlistAction = saved ? 'remove' : 'save'; button.dataset.albumKey = key;
+    button.disabled = !saved && alreadySaved;
+    button.setAttribute('aria-label',button.textContent+': '+r.title);
+    actions.append(button); li.append(actions); return li;
+  }
+  function renderDiscoveryLists(){
+    var focused = document.activeElement;
+    var focusKey = focused && focused.dataset.albumKey, focusAction = focused && focused.dataset.wishlistAction;
+    var results = $('discovery-results'), list = $('discovery-wishlist-list');
+    results.textContent = ''; list.textContent = '';
+    discoveryPicks.forEach(function(r){ results.append(discoveryCard(r,false)); });
+    $('discovery-wishlist-summary').textContent = wishlistReady ? 'Wishlist ('+discoveryWishlist.length+')' : 'Wishlist (unavailable)';
+    if(!wishlistReady) list.append(el('li','','Could not load your wishlist. Close and reopen Discovery to retry. Existing saved data is kept.'));
+    else if(!discoveryWishlist.length) list.append(el('li','','Your wishlist is empty. Save an album from Discovery to return to it later.'));
+    else discoveryWishlist.forEach(function(r){ list.append(discoveryCard(r,true)); });
+    if(focusKey){
+      var replacement = Array.from($('discovery-dlg').querySelectorAll('button[data-album-key]')).find(function(b){
+        return b.dataset.albumKey === focusKey && b.dataset.wishlistAction === focusAction && !b.disabled;
+      });
+      if(!replacement && focusAction === 'remove') replacement = list.querySelector('button');
+      (replacement || $('discovery-wishlist-summary')).focus({preventScroll:true});
+    }
+  }
+  function handleWishlistAction(e){
+    var button = e.target.closest('button[data-wishlist-action]'); if(!button) return;
+    if(!loadDiscoveryWishlist()){ renderDiscoveryLists(); return; }
+    var key = button.dataset.albumKey;
+    if(button.dataset.wishlistAction === 'save'){
+      var item = discoveryPicks.find(function(r){ return discoveryAlbum(r.artist,r.title) === key; });
+      if(!item){ notify('This suggestion is no longer available. Generate a new set.',null,true); return; }
+      if(discoveryWishlist.some(function(r){ return discoveryAlbum(r.artist,r.title) === key; })){
+        renderDiscoveryLists(); notify('This album is already in your wishlist.'); return;
+      }
+      var entry = {artist:item.artist,title:item.title,reason:item.reason,keys:discoveryKeys.slice(),savedAt:nowISO()};
+      if(setDiscoveryWishlist([entry].concat(discoveryWishlist))) notify('Saved "'+item.title+'" to your wishlist on this device.');
+    } else {
+      var removed = discoveryWishlist.find(function(r){ return discoveryAlbum(r.artist,r.title) === key; });
+      if(!removed){ renderDiscoveryLists(); notify('This album is no longer in your wishlist.'); return; }
+      if(setDiscoveryWishlist(discoveryWishlist.filter(function(r){ return discoveryAlbum(r.artist,r.title) !== key; })))
+        notify('Removed "'+removed.title+'" from your wishlist.');
+    }
+  }
+  async function requestDiscovery(e){
+    e.preventDefault();
+    if(discoveryController) return;
+    var inputs = [1,2,3].map(function(n){ return $('discovery-key-'+n); });
+    var keys = inputs.map(function(n){ return n.value.trim(); }).filter(Boolean);
+    var status = $('discovery-status'), results = $('discovery-results'), btn = $('discovery-submit');
+    status.className = 'status';
+    if(!keys.length){ status.className = 'status err'; status.textContent = 'Enter at least one music clue.'; inputs[0].focus(); return; }
+    if(onFileProtocol){ status.className = 'status err'; status.textContent = 'Discovery requires the hosted site; it is not available from file://.'; return; }
+    var controller = new AbortController(), timedOut = false;
+    discoveryController = controller;
+    var timer = setTimeout(function(){ timedOut = true; controller.abort(); }, 35000);
+    btn.disabled = true; inputs.forEach(function(n){ n.readOnly = true; });
+    discoveryPicks = []; discoveryKeys = [];
+    results.textContent = ''; results.setAttribute('aria-busy','true');
+    status.textContent = 'Finding albums beyond your collection...';
+    try {
+      var res = await fetch(FN + 'summary', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({keys:keys}), signal:controller.signal
+      });
+      var data = await res.json();
+      if(!res.ok) throw new Error(data.error || ('Discovery HTTP ' + res.status));
+      if(!Array.isArray(data.recommendations) || data.recommendations.some(function(r){
+        return !r || ['artist','title','reason'].some(function(k){
+          return typeof r[k] !== 'string' || !r[k].trim() || r[k].length > (k === 'reason' ? 600 : 200);
+        });
+      })) throw new Error('Discovery returned invalid suggestions. Please try again.');
+      var owned = new Set(recs.map(function(r){ return discoveryAlbum(r.a,r.t); }));
+      var clues = new Set(keys.map(discoveryName)), seen = new Set(), artists = new Set();
+      var eligible = data.recommendations.filter(function(r){
+        var key = discoveryAlbum(r.artist,r.title);
+        if(owned.has(key) || clues.has(discoveryName(r.title)) || seen.has(key)) return false;
+        seen.add(key); return true;
+      });
+      var picks = eligible.filter(function(r){
+        var key = discoveryName(r.artist);
+        if(artists.has(key)) return false;
+        artists.add(key); return true;
+      }).slice(0,3);
+      if(picks.length < 3){
+        eligible.forEach(function(r){ if(picks.length < 3 && picks.indexOf(r) < 0) picks.push(r); });
+      }
+      if(picks.length !== 3) throw new Error('Not enough new albums matched outside your collection. Try different clues or discover again.');
+      discoveryPicks = picks; discoveryKeys = keys.slice(); renderDiscoveryLists();
+      status.className = 'status ok'; status.textContent = 'Three albums to explore. Discover again for another set of suggestions.';
+    } catch(err){
+      status.className = 'status err';
+      status.textContent = controller.signal.aborted
+        ? (timedOut ? 'Discovery timed out. Please try again.' : 'Discovery cancelled.')
+        : 'Could not discover albums: ' + fetchError(err);
+    } finally {
+      clearTimeout(timer); discoveryController = null;
+      btn.disabled = onFileProtocol; inputs.forEach(function(n){ n.readOnly = false; });
+      results.removeAttribute('aria-busy');
+    }
+  }
+
   /* ---------- image helpers ---------- */
   async function downscale(blob, maxW, quality){
     var url = URL.createObjectURL(blob);
@@ -4161,12 +4366,21 @@ async function idbDelete(key){
       root.querySelector('#collection-tools').removeAttribute('open');
       root.removeAttribute('data-theme');
       ['out','stats','chips','count','dlg','artist-dlg','artists-list','labels-list','artists-meta','labels-meta','add-preview',
-       'folder-suggest','folder-list-inline','covers-log','photos-log','add-status','export-status','queue-list','notice-message','random-status','jazz-fetch-log','jazz-fetch-status'].forEach(function(id){
+       'folder-suggest','folder-list-inline','covers-log','photos-log','add-status','export-status','queue-list','notice-message','random-status','discovery-results','discovery-status','discovery-wishlist-list','jazz-fetch-log','jazz-fetch-status'].forEach(function(id){
         var n = root.querySelector('#' + id); if(n) n.textContent = '';
       });
       root.querySelector('#jazz-fetch-progress').value = 0;
       root.querySelector('#jazz-fetch-start').disabled = false;
       root.querySelector('#jazz-fetch-stop').disabled = true;
+      root.querySelector('#discovery-submit').disabled = false;
+      root.querySelector('#discovery-results').removeAttribute('aria-busy');
+      root.querySelector('#discovery-wishlist').removeAttribute('open');
+      root.querySelector('#discovery-about').removeAttribute('open');
+      root.querySelector('#discovery-wishlist-summary').textContent = 'Wishlist (0)';
+      [1,2,3].forEach(function(n){
+        var input = root.querySelector('#discovery-key-'+n);
+        input.value = ''; input.removeAttribute('value'); input.readOnly = false;
+      });
       root.querySelectorAll('dialog[open]').forEach(function(d){ d.removeAttribute('open'); });
       var banner = root.querySelector('#file-banner'); if(banner) banner.classList.remove('on');
       var rd = root.querySelector('#reset-data-btn'); if(rd) rd.hidden = true;
@@ -4317,6 +4531,23 @@ async function idbDelete(key){
     var focus = $('queue-list').querySelector('button') || $('queue-close'); focus.focus();
   });
   wireDialogClose($('random-dlg'), ['random-close']);
+  wireDialogClose($('discovery-dlg'), ['discovery-close']);
+  $('discovery-form').addEventListener('submit', requestDiscovery);
+  $('discovery-dlg').addEventListener('click', handleWishlistAction);
+  window.addEventListener('storage', function(e){
+    if((e.key === LS_WISHLIST || e.key === null) && $('discovery-dlg').open){ loadDiscoveryWishlist(); renderDiscoveryLists(); }
+  });
+  $('discovery-dlg').addEventListener('close', function(){ if(discoveryController) discoveryController.abort(); });
+  $('discovery-dlg').addEventListener('cancel', function(){ if(discoveryController) discoveryController.abort(); });
+  $('discovery-btn').addEventListener('click', function(){
+    loadDiscoveryWishlist(); renderDiscoveryLists();
+    $('discovery-submit').disabled = onFileProtocol || !!discoveryController;
+    if(onFileProtocol){
+      $('discovery-status').className = 'status err';
+      $('discovery-status').textContent = 'Discovery requires the hosted site; it is not available from file://.';
+    }
+    $('discovery-dlg').showModal(); moveNotice();
+  });
   $('random-pick').addEventListener('click', function(){ randomPick($('random-mode').value); });
   var jazzFetchRunning = false, jazzFetchStop = false, jazzFetchQueue = [];
   function missingJazzMetadata(list){
