@@ -557,13 +557,20 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
 }
 @media(max-width:600px){
   .mobile-only{display:inline-flex}
-  .row1{gap:8px}
+  .row1{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .row1 .search,.row1 .seg{grid-column:1 / -1}
+  .row1 .seg button{flex:1;min-width:0}
+  .row1 > .btn,.tools > summary{justify-content:center}
+  .listening-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch}
+  .listening-label{grid-column:1 / -1}
+  .listening-row .btn{min-width:0;padding:8px;justify-content:center;text-align:center;white-space:normal}
   .search{flex-basis:100%}
   .search input,.fld input,.fld select,.fld textarea{font-size:16px}
   .search input,.seg button,.chip,.themebtn,.btn,.lessbtn,.filter-controls select,.filter-controls .dir{min-height:44px;height:auto}
   .search input{height:44px}
   .seg button{padding:0 12px}
-  .tools{margin-left:auto}
+  .tools{min-width:0}
+  .tools > summary{width:100%}
   .tools-panel{max-width:calc(100vw - 32px)}
   #filter-home{display:none}
   #filters-dlg{position:fixed;inset:auto 0 0;margin:0 auto;width:100%;max-width:100%;max-height:90dvh;border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom)}
@@ -833,6 +840,8 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <div class="form-body">
       <div class="fld"><label for="cloud-email">Email</label><input id="cloud-email" type="email" autocomplete="username" required=""></div>
       <div class="fld"><label for="cloud-password">Password</label><input id="cloud-password" type="password" autocomplete="current-password" required=""></div>
+      <label class="chk" for="cloud-remember"><input id="cloud-remember" type="checkbox"> Remember me on this device</label>
+      <p class="status">Use only on a trusted device. Sign out to remove the saved sign-in.</p>
       <p id="cloud-login-status" class="status" role="status"></p>
       <div class="form-actions">
         <button type="button" class="btn ghost" id="cloud-login-close">Cancel</button>
@@ -1248,7 +1257,7 @@ async function idbDelete(key){
     url:'https://jrrhnegaokissvkrkted.supabase.co',
     key:'sb_publishable_00u5O-4JNKSOh2J2zA9A3w_TjnwZUPE',
     owner:'e585fe35-5450-4588-b33a-0098fbf93415',
-    session:null, ready:false, published:false, version:0, dirty:false, saving:false,
+    session:null, rememberSession:false, ready:false, published:false, version:0, dirty:false, saving:false,
     conflict:false, generation:0, timer:null, pendingKey:'collection-cloud-pending-v1',
     knownAssets:new Set(), hashes:new Map(), persistence:Promise.resolve()
   };
@@ -1287,10 +1296,21 @@ async function idbDelete(key){
       return body;
     } finally { clearTimeout(timeout); }
   }
-  function cloudSetSession(session){
+  function cloudClearSession(){
+    cloud.session = null;
+    cloud.rememberSession = false;
+    localStorage.removeItem('collection-owner-session');
+    sessionStorage.removeItem('collection-owner-session');
+  }
+  function cloudSetSession(session, remember){
     if(!session || !session.user || session.user.id !== cloud.owner) throw new Error('This account is not the collection owner.');
+    if(remember === undefined) remember = cloud.rememberSession;
     session.expires_at = Math.floor(Date.now()/1000) + session.expires_in;
-    sessionStorage.setItem('collection-owner-session',JSON.stringify(session));
+    var storage = remember ? localStorage : sessionStorage;
+    var otherStorage = remember ? sessionStorage : localStorage;
+    storage.setItem('collection-owner-session',JSON.stringify(session));
+    otherStorage.removeItem('collection-owner-session');
+    cloud.rememberSession = remember;
     cloud.session = session;
   }
   async function cloudRefreshSession(){
@@ -1326,7 +1346,9 @@ async function idbDelete(key){
     if(!cloud.enabled){ cloudStatus('Local file mode. Edits stay in this browser; save an HTML backup to transfer them.'); return; }
     cloudStatus('Loading cloud collection...');
     try {
-      var stored = sessionStorage.getItem('collection-owner-session');
+      var stored = localStorage.getItem('collection-owner-session');
+      cloud.rememberSession = !!stored;
+      if(!stored) stored = sessionStorage.getItem('collection-owner-session');
       if(stored){
         try {
           cloud.session = JSON.parse(stored);
@@ -1334,7 +1356,7 @@ async function idbDelete(key){
           var user = await cloudRequest('/auth/v1/user',{},true);
           if(user.id !== cloud.owner) throw new Error('This account is not the collection owner.');
         } catch(err){
-          cloud.session = null; sessionStorage.removeItem('collection-owner-session');
+          cloudClearSession();
           notify('Owner session expired or could not be verified: ' + err.message,null,true);
         }
       }
@@ -4533,6 +4555,8 @@ async function idbDelete(key){
       root.querySelector('#cloud-email').removeAttribute('value');
       root.querySelector('#cloud-password').value = '';
       root.querySelector('#cloud-password').removeAttribute('value');
+      root.querySelector('#cloud-remember').checked = false;
+      root.querySelector('#cloud-remember').removeAttribute('checked');
       root.querySelector('#cloud-login-status').textContent = '';
       root.querySelectorAll('script[src], iframe, netlify-badge, #netlify-ds-badge').forEach(function(n){ n.remove(); });
       var html = '<!doctype html>\n' + root.outerHTML;
@@ -4574,7 +4598,7 @@ async function idbDelete(key){
       var session = await cloudRequest('/auth/v1/token?grant_type=password',{
         method:'POST',body:JSON.stringify({email:$('cloud-email').value.trim(),password:$('cloud-password').value})
       });
-      cloudSetSession(session);
+      cloudSetSession(session,$('cloud-remember').checked);
       $('cloud-password').value = '';
       location.reload();
     } catch(err){
@@ -4603,8 +4627,7 @@ async function idbDelete(key){
     if(cloud.dirty || cloud.saving){ notify('Save your pending cloud changes or load the latest collection before signing out.',null,true); return; }
     try {
       await cloudRequest('/auth/v1/logout',{method:'POST'},true);
-      sessionStorage.removeItem('collection-owner-session');
-      cloud.session = null;
+      cloudClearSession();
       location.reload();
     } catch(err){ notify('Could not sign out: ' + err.message,null,true); }
   });

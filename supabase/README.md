@@ -40,8 +40,15 @@ sign-ups can be disabled; creating another account does not grant owner access.
   confirmation. CSV import merges records and saves the result to the cloud.
 - If cloud loading fails, the app clearly labels the local fallback and disables
   edits. It does not silently publish that fallback over existing cloud data.
-- Sign-in is remembered for the current browser tab session. Passwords are never
-  included in HTML exports. Sign out on shared devices.
+- Sign-in lasts for the current browser tab session by default. Select **Remember
+  me on this device** when signing in to keep the session across closing and
+  reopening the site, including an iPhone home-screen shortcut. Use this only on
+  trusted devices: session tokens are saved in local storage, not the password.
+  Tokens refresh when needed; Supabase session expiry/revocation or clearing
+  browser storage can still require signing in again. Sign out removes the saved
+  session from this browser. Safari and home-screen shortcuts may use separate
+  storage, so sign in in the one you use. Passwords and the remember-me selection
+  are never included in HTML exports.
 
 ## Storage and access
 
