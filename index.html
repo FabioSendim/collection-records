@@ -3664,11 +3664,11 @@ async function idbDelete(key){
     if(onFileProtocol){ status.className = 'status err'; status.textContent = 'Discovery requires the hosted site; it is not available from file://.'; return; }
     var controller = new AbortController(), timedOut = false;
     discoveryController = controller;
-    var timer = setTimeout(function(){ timedOut = true; controller.abort(); }, 35000);
+    var timer = setTimeout(function(){ timedOut = true; controller.abort(); }, 55000);
     btn.disabled = true; inputs.forEach(function(n){ n.readOnly = true; });
     discoveryPicks = []; discoveryKeys = [];
     results.textContent = ''; results.setAttribute('aria-busy','true');
-    status.textContent = 'Finding albums beyond your collection...';
+    status.textContent = 'Finding albums beyond your collection... This can take up to a minute.';
     try {
       var res = await fetch(FN + 'summary', {
         method:'POST', headers:{'Content-Type':'application/json'},

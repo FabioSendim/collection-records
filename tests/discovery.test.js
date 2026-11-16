@@ -78,6 +78,7 @@ test('summaries and discovery use independent defaults and model overrides', asy
       [undefined, undefined],
       ['gemini-3.1-flash-lite', undefined],
       [undefined, 'gemini-3.6-flash'],
+      [undefined, 'gemini-2.5-flash'],
       ['gemini-3.1-flash-lite', 'gemini-3.6-flash']
     ]) {
       if (model === undefined) delete process.env.GEMINI_MODEL;
@@ -90,6 +91,10 @@ test('summaries and discovery use independent defaults and model overrides', asy
           assert.equal(url, 'https://generativelanguage.googleapis.com/v1beta/models/' +
             expectedModel + ':generateContent');
           assert.equal(JSON.parse(options.body).tools, undefined);
+          if (body.keys) {
+            assert.deepEqual(JSON.parse(options.body).generationConfig.thinkingConfig,
+              /^gemini-3[.-]/.test(expectedModel) ? { thinkingLevel: 'low' } : undefined);
+          }
           return response(body.keys ? answer() : { candidates: [{ content: { parts: [{ text: 'Album summary.' }] } }] });
         };
         assert.equal((await handler(event(body))).statusCode, 200);
@@ -174,6 +179,85 @@ test('surfaces network and timeout failures', async () => withAI(async () => {
     assert.match(JSON.parse(result.body).error, name === 'TimeoutError' ? /timed out/ : /Network unavailable/);
   }
 }));
+
+test('discovery allows a response after the former 25-second server deadline', async (t) => withAI(async () => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.mock.method(AbortSignal, 'timeout', (ms) => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(new DOMException('Timed out', 'TimeoutError')), ms);
+    return controller.signal;
+  });
+  global.fetch = async (url, options) => new Promise((resolve, reject) => {
+    options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true });
+    setTimeout(() => resolve(response(answer())), 30000);
+  });
+  const pending = handler(event({ keys: ['jazz'] }));
+  t.mock.timers.tick(30000);
+  const result = await pending;
+  assert.equal(result.statusCode, 200);
+  assert.deepEqual(JSON.parse(result.body).recommendations, albums);
+}));
+
+test('discovery still aborts an upstream request before the hosting deadline', async (t) => withAI(async () => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.mock.method(AbortSignal, 'timeout', (ms) => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(new DOMException('Timed out', 'TimeoutError')), ms);
+    return controller.signal;
+  });
+  global.fetch = async (url, options) => new Promise((resolve, reject) => {
+    options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true });
+    setTimeout(() => resolve(response(answer())), 61000);
+  });
+  const pending = handler(event({ keys: ['jazz'] }));
+  t.mock.timers.tick(50000);
+  const result = await pending;
+  assert.equal(result.statusCode, 502);
+  assert.match(JSON.parse(result.body).error, /Discovery timed out/);
+}));
+
+for (const [latency, succeeds] of [[45000, true], [70000, false]]) {
+  test(succeeds ? 'browser accepts Discovery results after the former 35-second deadline' :
+    'browser still cancels stalled Discovery requests and restores the form', async (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
+    const source = html.slice(html.indexOf('  async function requestDiscovery('), html.indexOf('  /* ---------- image helpers'));
+    const elements = new Map();
+    const context = {
+      AbortController, setTimeout, clearTimeout,
+      discoveryController: null, onFileProtocol: false, FN: '/.netlify/functions/',
+      recs: [], discoveryPicks: [], discoveryKeys: [],
+      discoveryName: (text) => text.toLowerCase(),
+      discoveryAlbum: (artist, title) => artist + '\n' + title,
+      fetchError: (err) => err.message,
+      renderDiscoveryLists() {},
+      $: (id) => {
+        if (!elements.has(id)) elements.set(id, {
+          value: id === 'discovery-key-1' ? 'jazz' : '',
+          setAttribute(key, value) { this[key] = value; },
+          removeAttribute(key) { delete this[key]; }
+        });
+        return elements.get(id);
+      },
+      fetch: async (url, options) => new Promise((resolve, reject) => {
+        options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true });
+        setTimeout(() => resolve(response({ recommendations: albums })), latency);
+      })
+    };
+    runInNewContext(source, context);
+    const pending = context.requestDiscovery({ preventDefault() {} });
+    assert.equal(context.$('discovery-submit').disabled, true);
+    t.mock.timers.tick(succeeds ? latency : 55000);
+    await pending;
+    assert.equal(context.$('discovery-status').className, succeeds ? 'status ok' : 'status err');
+    if (succeeds) assert.equal(context.discoveryPicks.length, 3);
+    else assert.match(context.$('discovery-status').textContent, /Discovery timed out/);
+    assert.equal(context.discoveryController, null);
+    assert.equal(context.$('discovery-submit').disabled, false);
+    assert.equal(context.$('discovery-key-1').readOnly, false);
+    assert.equal(context.$('discovery-results')['aria-busy'], undefined);
+  });
+}
 
 test('existing album summary requests preserve their response shape', async () => withAI(async () => {
   global.fetch = async () => response({ candidates: [{ content: { parts: [{ text: 'A short album summary.' }] } }] });
