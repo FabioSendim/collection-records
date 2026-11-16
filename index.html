@@ -780,6 +780,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <summary>About Discovery</summary>
       <p class="status">Use up to three clues: an album, artist, genre, mood or instrument. Suggestions exclude albums already in your collection; your current search and filters do not apply.</p>
       <p class="status">Requires the hosted site and its configured AI service. Only your clues are sent to Gemini, not your collection. AI suggestions may be inaccurate; use the Discogs search links to check them.</p>
+      <p class="status">Discovery runs in the background and can take up to three minutes. Keep this dialog open to receive the results. Closing it stops waiting, but an accepted job may continue on the server. Clues and results expire after ten minutes and are removed from temporary server storage by hourly cleanup.</p>
       <p class="status">YouTube and Qobuz links search for the artist and album; they are not verified album pages. Qobuz may require sign-in and its mobile app.</p>
       <p class="status">Your wishlist is not synced or included in collection backups. Clearing browser storage removes it. Saved links work without generating new suggestions.</p>
     </details>
@@ -3653,6 +3654,40 @@ async function idbDelete(key){
         notify('Removed "'+removed.title+'" from your wishlist.');
     }
   }
+  async function discoveryRequest(path, options, signal){
+    var controller = new AbortController();
+    var cancel = function(){ controller.abort(); };
+    var timeout = setTimeout(cancel,15000);
+    signal.addEventListener('abort',cancel,{once:true});
+    if(signal.aborted) cancel();
+    try {
+      var res = await fetch(FN + path,Object.assign({},options,{signal:controller.signal,cache:'no-store'}));
+      var text = await res.text(), data;
+      try { data = JSON.parse(text); } catch(err){
+        throw new Error('Discovery HTTP ' + res.status + ': the server returned an unexpected response. Check the Netlify function logs.');
+      }
+      if(!res.ok) throw new Error(data && (data.error || data.errorMessage) || 'Discovery HTTP ' + res.status);
+      return data;
+    } catch(err){
+      if(controller.signal.aborted && !signal.aborted) throw new Error('The Discovery server did not respond within 15 seconds. Please try again.');
+      throw err;
+    } finally {
+      clearTimeout(timeout);
+      signal.removeEventListener('abort',cancel);
+    }
+  }
+  function waitForDiscovery(signal){
+    return new Promise(function(resolve,reject){
+      function cancel(){
+        clearTimeout(timer);
+        signal.removeEventListener('abort',cancel);
+        reject(new DOMException('Discovery cancelled','AbortError'));
+      }
+      var timer = setTimeout(function(){ signal.removeEventListener('abort',cancel); resolve(); },2000);
+      signal.addEventListener('abort',cancel,{once:true});
+      if(signal.aborted) cancel();
+    });
+  }
   async function requestDiscovery(e){
     e.preventDefault();
     if(discoveryController) return;
@@ -3664,18 +3699,29 @@ async function idbDelete(key){
     if(onFileProtocol){ status.className = 'status err'; status.textContent = 'Discovery requires the hosted site; it is not available from file://.'; return; }
     var controller = new AbortController(), timedOut = false;
     discoveryController = controller;
-    var timer = setTimeout(function(){ timedOut = true; controller.abort(); }, 55000);
+    var timer = setTimeout(function(){ timedOut = true; controller.abort(); },180000);
+    var startedAt = Date.now();
     btn.disabled = true; inputs.forEach(function(n){ n.readOnly = true; });
     discoveryPicks = []; discoveryKeys = [];
     results.textContent = ''; results.setAttribute('aria-busy','true');
-    status.textContent = 'Finding albums beyond your collection... This can take up to a minute.';
+    status.textContent = 'Submitting background Discovery...';
     try {
-      var res = await fetch(FN + 'summary', {
+      var job = await discoveryRequest('discovery',{
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({keys:keys}), signal:controller.signal
-      });
-      var data = await res.json();
-      if(!res.ok) throw new Error(data.error || ('Discovery HTTP ' + res.status));
+        body:JSON.stringify({keys:keys})
+      },controller.signal);
+      if(!job || typeof job.jobId !== 'string' || !/^\d{13}-[0-9a-f]{48}$/.test(job.jobId)) throw new Error('Discovery returned an invalid job ID.');
+      var data;
+      while(true){
+        data = await discoveryRequest('discovery?job=' + encodeURIComponent(job.jobId),{},controller.signal);
+        if(!data) throw new Error('Discovery returned an invalid job status.');
+        if(data.status === 'complete') break;
+        if(data.status === 'failed') throw new Error(data.error || 'Background Discovery failed. Please try again.');
+        if(data.status !== 'queued' && data.status !== 'running') throw new Error('Discovery returned an invalid job status.');
+        status.textContent = (data.status === 'queued' ? 'Discovery queued' : 'Generating album suggestions') +
+          '... ' + Math.floor((Date.now() - startedAt)/1000) + ' seconds elapsed. This can take up to three minutes.';
+        await waitForDiscovery(controller.signal);
+      }
       if(!Array.isArray(data.recommendations) || data.recommendations.some(function(r){
         return !r || ['artist','title','reason'].some(function(k){
           return typeof r[k] !== 'string' || !r[k].trim() || r[k].length > (k === 'reason' ? 600 : 200);

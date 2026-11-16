@@ -1,10 +1,10 @@
 // AI album summary, written server-side so the Gemini key never reaches the browser.
 // Environment variables: GEMINI_API_KEY (required), GEMINI_MODEL (optional, defaults to gemini-3.5-flash-lite), DISCOGS_TOKEN (optional, for styles).
 // GEMINI_DISCOVERY_MODEL optionally overrides Discovery only (defaults to gemini-3.8-flash, independently of GEMINI_MODEL).
-// Discovery uses low thinking on Gemini 3 models and a 50-second deadline, below Netlify's 60-second limit.
+// Discovery generation is called by discovery-background, with a two-minute upstream deadline.
 // Both defaults support free-tier generation; billing depends on the API project's tier. Search grounding is not used.
 // POST { id, artist, title, year }  ->  { text, styles }
-// POST { keys: [one to three music clues] } -> { recommendations: [12 album candidates] }
+// Discovery requests use the separate discovery endpoint to submit and poll background jobs.
 // Discovery filters this candidate pool locally to show three albums not already owned.
 
 const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
@@ -20,7 +20,7 @@ exports.handler = async function (event) {
   let req;
   try { req = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad JSON' }); }
   if (!req || typeof req !== 'object' || Array.isArray(req)) return json(400, { error: 'Expected a JSON object' });
-  if (Object.prototype.hasOwnProperty.call(req, 'keys')) return discover(key, req.keys);
+  if (Object.prototype.hasOwnProperty.call(req, 'keys')) return json(410, { error: 'Discovery has moved to background processing. Reload the page and try again.' });
   const clip = (v, n) => String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').slice(0, n).trim();
   const artist = clip(req.artist, 200), title = clip(req.title, 200), year = clip(req.year, 10);
   const id = /^\d{1,10}$/.test(String(req.id || '')) ? String(req.id) : '';
@@ -65,8 +65,7 @@ exports.handler = async function (event) {
 };
 
 async function discover(key, keys) {
-  if (!Array.isArray(keys) || keys.length < 1 || keys.length > 3 ||
-      keys.some((x) => typeof x !== 'string' || !x.trim() || x.trim().length > 200)) {
+  if (!validDiscoveryKeys(keys)) {
     return json(400, { error: 'Provide one to three non-empty music clues, each up to 200 characters' });
   }
   keys = keys.map((x) => x.trim());
@@ -81,7 +80,7 @@ async function discover(key, keys) {
     const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      signal: AbortSignal.timeout(50000),
+      signal: AbortSignal.timeout(120000),
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
@@ -127,6 +126,14 @@ async function discover(key, keys) {
     return json(502, { error: err && err.name === 'TimeoutError' ? 'Discovery timed out. Please try again.' : String((err && err.message) || err) });
   }
 }
+
+function validDiscoveryKeys(keys) {
+  return Array.isArray(keys) && keys.length >= 1 && keys.length <= 3 &&
+    keys.every((x) => typeof x === 'string' && x.trim() && x.trim().length <= 200);
+}
+
+exports.discover = discover;
+exports.validDiscoveryKeys = validDiscoveryKeys;
 
 function hostOf(u) {
   try { return new URL(u).host; } catch (e) { return ''; }

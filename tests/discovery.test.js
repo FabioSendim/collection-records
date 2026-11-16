@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { Script, runInNewContext } = require('node:vm');
-const { handler } = require('../netlify/functions/summary');
+const { handler, discover } = require('../netlify/functions/summary');
+const generate = (keys) => discover(process.env.GEMINI_API_KEY, keys);
 
 const albums = Array.from({ length: 12 }, (_, i) => ({
   artist: 'Artist ' + i, title: 'Album ' + i, reason: 'Matches your jazz clue.'
@@ -97,7 +98,7 @@ test('summaries and discovery use independent defaults and model overrides', asy
           }
           return response(body.keys ? answer() : { candidates: [{ content: { parts: [{ text: 'Album summary.' }] } }] });
         };
-        assert.equal((await handler(event(body))).statusCode, 200);
+        assert.equal((body.keys ? await generate(body.keys) : await handler(event(body))).statusCode, 200);
       }
     }
   } finally {
@@ -119,7 +120,7 @@ test('discovery accepts one to three clues and requests a structured candidate p
       assert.ok(options.signal);
       return response(answer());
     };
-    const result = await handler(event({ keys }));
+    const result = await generate(keys);
     assert.equal(result.statusCode, 200);
     assert.deepEqual(JSON.parse(result.body).recommendations, albums);
     assert.equal(result.headers['Cache-Control'], 'no-store');
@@ -130,12 +131,15 @@ test('rejects invalid request shapes and clues without calling AI', async () => 
   global.fetch = async () => { assert.fail('AI should not be called'); };
   for (const body of [null, [], { keys: [] }, { keys: [' '] }, { keys: [1] },
     { keys: 'jazz' }, { keys: ['a', 'b', 'c', 'd'] }, { keys: ['x'.repeat(201)] }]) {
-    assert.equal((await handler(event(body))).statusCode, 400);
+    assert.equal((body && !Array.isArray(body) ? await generate(body.keys) : await handler(event(body))).statusCode, 400);
   }
   assert.equal((await handler({ ...event({}), body: '{' })).statusCode, 400);
 }));
 
 test('preserves origin, method and missing-configuration errors', async () => withAI(async () => {
+  const legacy = await handler(event({ keys: ['jazz'] }));
+  assert.equal(legacy.statusCode, 410);
+  assert.match(JSON.parse(legacy.body).error, /Reload the page/);
   assert.equal((await handler({ ...event({ keys: ['jazz'] }), httpMethod: 'GET' })).statusCode, 405);
   assert.equal((await handler({ ...event({ keys: ['jazz'] }), headers: { host: 'crate.test', origin: 'https://other.test' } })).statusCode, 403);
   delete process.env.GEMINI_API_KEY;
@@ -145,7 +149,7 @@ test('preserves origin, method and missing-configuration errors', async () => wi
 test('surfaces upstream rate limits and service errors', async () => withAI(async () => {
   for (const status of [429, 500]) {
     global.fetch = async () => response({ error: { message: 'Upstream error' } }, status);
-    const result = await handler(event({ keys: ['jazz'] }));
+    const result = await generate(['jazz']);
     assert.equal(result.statusCode, status === 429 ? 429 : 502);
     assert.equal(JSON.parse(result.body).error, 'Upstream error');
   }
@@ -164,7 +168,7 @@ test('rejects incomplete, malformed, empty and duplicate recommendations', async
   ];
   for (const data of invalid) {
     global.fetch = async () => response(data);
-    const result = await handler(event({ keys: ['jazz'] }));
+    const result = await generate(['jazz']);
     assert.equal(result.statusCode, 502);
     assert.ok(JSON.parse(result.body).error);
     assert.equal(JSON.parse(result.body).recommendations, undefined);
@@ -174,13 +178,13 @@ test('rejects incomplete, malformed, empty and duplicate recommendations', async
 test('surfaces network and timeout failures', async () => withAI(async () => {
   for (const name of ['Error', 'TimeoutError']) {
     global.fetch = async () => { const err = new Error('Network unavailable'); err.name = name; throw err; };
-    const result = await handler(event({ keys: ['jazz'] }));
+    const result = await generate(['jazz']);
     assert.equal(result.statusCode, 502);
     assert.match(JSON.parse(result.body).error, name === 'TimeoutError' ? /timed out/ : /Network unavailable/);
   }
 }));
 
-test('discovery allows a response after the former 25-second server deadline', async (t) => withAI(async () => {
+test('background generation can finish beyond the synchronous hosting limit', async (t) => withAI(async () => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   t.mock.method(AbortSignal, 'timeout', (ms) => {
     const controller = new AbortController();
@@ -189,16 +193,16 @@ test('discovery allows a response after the former 25-second server deadline', a
   });
   global.fetch = async (url, options) => new Promise((resolve, reject) => {
     options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true });
-    setTimeout(() => resolve(response(answer())), 30000);
+    setTimeout(() => resolve(response(answer())), 90000);
   });
-  const pending = handler(event({ keys: ['jazz'] }));
-  t.mock.timers.tick(30000);
+  const pending = generate(['jazz']);
+  t.mock.timers.tick(90000);
   const result = await pending;
   assert.equal(result.statusCode, 200);
   assert.deepEqual(JSON.parse(result.body).recommendations, albums);
 }));
 
-test('discovery still aborts an upstream request before the hosting deadline', async (t) => withAI(async () => {
+test('background generation still aborts a stalled upstream request', async (t) => withAI(async () => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   t.mock.method(AbortSignal, 'timeout', (ms) => {
     const controller = new AbortController();
@@ -207,57 +211,125 @@ test('discovery still aborts an upstream request before the hosting deadline', a
   });
   global.fetch = async (url, options) => new Promise((resolve, reject) => {
     options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true });
-    setTimeout(() => resolve(response(answer())), 61000);
+    setTimeout(() => resolve(response(answer())), 130000);
   });
-  const pending = handler(event({ keys: ['jazz'] }));
-  t.mock.timers.tick(50000);
+  const pending = generate(['jazz']);
+  t.mock.timers.tick(120000);
   const result = await pending;
   assert.equal(result.statusCode, 502);
   assert.match(JSON.parse(result.body).error, /Discovery timed out/);
 }));
 
-for (const [latency, succeeds] of [[45000, true], [70000, false]]) {
-  test(succeeds ? 'browser accepts Discovery results after the former 35-second deadline' :
-    'browser still cancels stalled Discovery requests and restores the form', async (t) => {
-    t.mock.timers.enable({ apis: ['setTimeout'] });
-    const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
-    const source = html.slice(html.indexOf('  async function requestDiscovery('), html.indexOf('  /* ---------- image helpers'));
-    const elements = new Map();
-    const context = {
-      AbortController, setTimeout, clearTimeout,
-      discoveryController: null, onFileProtocol: false, FN: '/.netlify/functions/',
-      recs: [], discoveryPicks: [], discoveryKeys: [],
-      discoveryName: (text) => text.toLowerCase(),
-      discoveryAlbum: (artist, title) => artist + '\n' + title,
-      fetchError: (err) => err.message,
-      renderDiscoveryLists() {},
-      $: (id) => {
-        if (!elements.has(id)) elements.set(id, {
-          value: id === 'discovery-key-1' ? 'jazz' : '',
-          setAttribute(key, value) { this[key] = value; },
-          removeAttribute(key) { delete this[key]; }
-        });
-        return elements.get(id);
-      },
-      fetch: async (url, options) => new Promise((resolve, reject) => {
-        options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true });
-        setTimeout(() => resolve(response({ recommendations: albums })), latency);
-      })
-    };
-    runInNewContext(source, context);
-    const pending = context.requestDiscovery({ preventDefault() {} });
-    assert.equal(context.$('discovery-submit').disabled, true);
-    t.mock.timers.tick(succeeds ? latency : 55000);
-    await pending;
-    assert.equal(context.$('discovery-status').className, succeeds ? 'status ok' : 'status err');
-    if (succeeds) assert.equal(context.discoveryPicks.length, 3);
-    else assert.match(context.$('discovery-status').textContent, /Discovery timed out/);
-    assert.equal(context.discoveryController, null);
-    assert.equal(context.$('discovery-submit').disabled, false);
-    assert.equal(context.$('discovery-key-1').readOnly, false);
-    assert.equal(context.$('discovery-results')['aria-busy'], undefined);
-  });
+const jobId = '1999999999999-' + 'a'.repeat(48);
+const flush = () => new Promise(setImmediate);
+const browserResponse = (body, status = 200) => ({ ok: status < 400, status, text: async () => JSON.stringify(body) });
+
+function discoveryContext(fetch) {
+  const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
+  const source = html.slice(html.indexOf('  async function discoveryRequest('), html.indexOf('  /* ---------- image helpers'));
+  const elements = new Map();
+  const context = {
+    AbortController, DOMException, setTimeout, clearTimeout, Date,
+    discoveryController: null, onFileProtocol: false, FN: '/.netlify/functions/',
+    recs: [{ a: 'Artist 0', t: 'Album 0' }], discoveryPicks: [], discoveryKeys: [],
+    discoveryName: (text) => text.toLowerCase(),
+    discoveryAlbum: (artist, title) => artist + '\n' + title,
+    fetchError: (err) => err.message,
+    renderDiscoveryLists() {},
+    $: (id) => {
+      if (!elements.has(id)) elements.set(id, {
+        value: id === 'discovery-key-1' ? 'jazz' : '',
+        setAttribute(key, value) { this[key] = value; },
+        removeAttribute(key) { delete this[key]; }
+      });
+      return elements.get(id);
+    },
+    fetch
+  };
+  runInNewContext(source, context);
+  return context;
 }
+
+test('browser polls queued and running jobs beyond 30 seconds and filters owned albums', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+  let polls = 0;
+  const context = discoveryContext(async (url, options) => {
+    if (options.method === 'POST') {
+      assert.equal(url, '/.netlify/functions/discovery');
+      assert.deepEqual(JSON.parse(options.body), { keys: ['jazz'] });
+      return browserResponse({ jobId, status: 'queued' }, 202);
+    }
+    polls++;
+    return browserResponse(polls === 1 ? { status: 'queued' } : polls < 22
+      ? { status: 'running' } : { status: 'complete', recommendations: albums });
+  });
+  const pending = context.requestDiscovery({ preventDefault() {} });
+  await flush();
+  assert.match(context.$('discovery-status').textContent, /queued/);
+  for (let i = 0; i < 21; i++) {
+    t.mock.timers.tick(2000);
+    await flush();
+  }
+  await pending;
+  assert.equal(polls, 22);
+  assert.equal(context.discoveryPicks.length, 3);
+  assert.equal(context.discoveryPicks[0].title, 'Album 1');
+  assert.equal(context.$('discovery-status').className, 'status ok');
+  assert.equal(context.discoveryController, null);
+  assert.equal(context.$('discovery-submit').disabled, false);
+  assert.equal(context.$('discovery-key-1').readOnly, false);
+  assert.equal(context.$('discovery-results')['aria-busy'], undefined);
+});
+
+test('browser surfaces a background job failure without reporting success', async () => {
+  let calls = 0;
+  const context = discoveryContext(async () => browserResponse(++calls === 1
+    ? { jobId } : { status: 'failed', error: 'Gemini quota exceeded' }));
+  await context.requestDiscovery({ preventDefault() {} });
+  assert.match(context.$('discovery-status').textContent, /Gemini quota exceeded/);
+  assert.equal(context.discoveryPicks.length, 0);
+  assert.equal(context.$('discovery-submit').disabled, false);
+});
+
+test('closing Discovery cancels polling immediately and restores the form', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let calls = 0;
+  const context = discoveryContext(async () => browserResponse(++calls === 1 ? { jobId } : { status: 'running' }));
+  const pending = context.requestDiscovery({ preventDefault() {} });
+  await flush();
+  context.discoveryController.abort();
+  await pending;
+  t.mock.timers.tick(5000);
+  assert.equal(calls, 2);
+  assert.match(context.$('discovery-status').textContent, /cancelled/);
+  assert.equal(context.$('discovery-submit').disabled, false);
+});
+
+test('browser bounds overall background polling time', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let calls = 0;
+  const context = discoveryContext(async () => browserResponse(++calls === 1 ? { jobId } : { status: 'running' }));
+  const pending = context.requestDiscovery({ preventDefault() {} });
+  await flush();
+  t.mock.timers.tick(180000);
+  await pending;
+  assert.match(context.$('discovery-status').textContent, /timed out/);
+  assert.equal(context.discoveryController, null);
+});
+
+test('browser bounds each request and explains platform gateway errors', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stalled = discoveryContext(async (url, options) => new Promise((resolve, reject) => {
+    options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true });
+  }));
+  const pending = stalled.requestDiscovery({ preventDefault() {} });
+  t.mock.timers.tick(15000);
+  await pending;
+  assert.match(stalled.$('discovery-status').textContent, /did not respond within 15 seconds/);
+  const gateway = discoveryContext(async () => browserResponse({ errorMessage: 'Task timed out after 30.00 seconds' }, 502));
+  await gateway.requestDiscovery({ preventDefault() {} });
+  assert.match(gateway.$('discovery-status').textContent, /Task timed out after 30.00 seconds/);
+});
 
 test('existing album summary requests preserve their response shape', async () => withAI(async () => {
   global.fetch = async () => response({ candidates: [{ content: { parts: [{ text: 'A short album summary.' }] } }] });

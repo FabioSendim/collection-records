@@ -63,3 +63,31 @@ assets are retained, so monitor storage usage as the collection grows.
 The free Supabase tier can pause inactive projects. Resume the project in
 Supabase if it becomes unavailable. Netlify deployment does not back up database
 contents; keep independent exports.
+
+## Background Discovery on Netlify
+
+Discovery keeps the configured `GEMINI_DISCOVERY_MODEL` (default
+`gemini-3.8-flash`). The `discovery` function queues work and returns a job ID
+immediately. `discovery-background` generates the 12 candidates; the page polls
+for results and still filters owned albums locally to show three suggestions.
+Album summaries remain synchronous and use their separate model setting.
+
+- Deploy the whole repository through Netlify's Git build, including
+  `package.json` and `package-lock.json`; uploading only the HTML is not enough.
+  The build uses Node.js 22 and installs `@netlify/blobs`.
+- The Netlify plan must support Background Functions and Netlify Blobs.
+  Modern function entry points are used for automatic Blobs credentials.
+  No new secret key or Supabase table is needed.
+- Keep `GEMINI_API_KEY` and any `GEMINI_DISCOVERY_MODEL` override available in
+  the **Functions** environment scope, including the background worker.
+- Generation has a two-minute deadline. The page polls every two seconds for
+  up to three minutes; individual submit/status requests time out after 15 seconds.
+  Keep the Discovery dialog open. Closing or reloading stops waiting and does
+  not cancel an already accepted server job.
+- Jobs use unguessable IDs, expire after ten minutes, and are deleted by the
+  hourly `discovery-cleanup` scheduled function. Clues are removed from the stored
+  job as soon as generation finishes. Cleanup runs automatically on the published
+  production deploy, not Deploy Previews.
+- If submission fails, inspect the `discovery` function logs. For generation
+  failures inspect `discovery-background`; job data is in the `discovery-jobs`
+  Blobs store. Do not share API keys or the contents of private jobs.
