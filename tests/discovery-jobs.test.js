@@ -41,7 +41,7 @@ function fixture() {
       } };
       return nodeRequire(name);
     },
-    process: { env: { GEMINI_API_KEY: 'test-key', DEPLOY_URL: 'https://deploy.netlify.app' } },
+    process: { env: { GEMINI_API_KEY: 'test-key', URL: 'https://crate.netlify.app' } },
     Date: class extends Date { static now() { return now; } },
     URL, AbortSignal,
     console: { error: (...args) => errors.push(args) },
@@ -68,7 +68,7 @@ test('submission queues work without generating and status exposes no clues', as
   const job = await f.jobs.start([' jazz ']);
   assert.equal(job.status, 'queued');
   assert.equal(f.generations, 0);
-  assert.equal(f.requests[0].url, 'https://deploy.netlify.app/.netlify/functions/discovery-background');
+  assert.equal(f.requests[0].url, 'https://crate.netlify.app/.netlify/functions/discovery-background');
   assert.equal(JSON.parse(f.requests[0].options.body).jobId, job.jobId);
   assert.equal(f.entries.get(job.jobId).data.keys[0], 'jazz');
   const queued = await f.jobs.status(job.jobId);
@@ -85,6 +85,20 @@ test('submission queues work without generating and status exposes no clues', as
   assert.equal(completed.status, 'complete');
   assert.equal(completed.recommendations.length, 12);
   assert.equal(f.entries.get(job.jobId).data.keys, undefined);
+});
+
+test('submission uses the runtime site URL without requiring build-only deploy variables', async () => {
+  const f = fixture();
+  f.context.process.env.URL = 'https://records.example.test';
+  f.context.process.env.DEPLOY_URL = 'https://build-only.netlify.app';
+  await f.jobs.start(['jazz']);
+  assert.equal(f.requests[0].url, 'https://records.example.test/.netlify/functions/discovery-background');
+  delete f.context.process.env.DEPLOY_URL;
+  await f.jobs.start(['jazz']);
+  assert.equal(f.requests.length, 2);
+  delete f.context.process.env.URL;
+  await assert.rejects(f.jobs.start(['jazz']), /Netlify runtime URL/);
+  assert.equal(f.requests.length, 2);
 });
 
 test('conditional claims prevent concurrent and redelivered jobs from generating twice', async () => {
@@ -179,7 +193,7 @@ test('submission, worker and polling integrate with the real local Netlify Blobs
   const directory = await mkdtemp(join(tmpdir(), 'collection-discovery-test-'));
   const server = new BlobsServer({ directory, token: 'test-token', logger() {} });
   const originalFetch = global.fetch, originalContext = global.netlifyBlobsContext;
-  const originalKey = process.env.GEMINI_API_KEY, originalDeploy = process.env.DEPLOY_URL;
+  const originalKey = process.env.GEMINI_API_KEY, originalURL = process.env.URL, originalDeploy = process.env.DEPLOY_URL;
   let dispatch, finishGeneration, generationStarted;
   const started = new Promise((resolve) => { generationStarted = resolve; });
   try {
@@ -187,9 +201,10 @@ test('submission, worker and polling integrate with the real local Netlify Blobs
     const base = 'http://127.0.0.1:' + address.port;
     setEnvironmentContext({ siteID: 'test-site', token: 'test-token', edgeURL: base, uncachedEdgeURL: base });
     process.env.GEMINI_API_KEY = 'test-key';
-    process.env.DEPLOY_URL = 'https://deploy.test';
+    process.env.URL = 'https://crate.test';
+    delete process.env.DEPLOY_URL;
     global.fetch = async (url, options) => {
-      if (String(url).startsWith('https://deploy.test/')) {
+      if (String(url).startsWith('https://crate.test/')) {
         dispatch = { url: String(url), options };
         return new Response(null, { status: 202 });
       }
@@ -223,6 +238,8 @@ test('submission, worker and polling integrate with the real local Netlify Blobs
     global.netlifyBlobsContext = originalContext;
     if (originalKey === undefined) delete process.env.GEMINI_API_KEY;
     else process.env.GEMINI_API_KEY = originalKey;
+    if (originalURL === undefined) delete process.env.URL;
+    else process.env.URL = originalURL;
     if (originalDeploy === undefined) delete process.env.DEPLOY_URL;
     else process.env.DEPLOY_URL = originalDeploy;
     await server.stop();

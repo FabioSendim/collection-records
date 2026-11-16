@@ -83,6 +83,9 @@ Album summaries remain synchronous and use their separate model setting.
   No new secret key or Supabase table is needed.
 - Keep `GEMINI_API_KEY` and any `GEMINI_DISCOVERY_MODEL` override available in
   the **Functions** environment scope, including the background worker.
+- Background dispatch uses Netlify's read-only runtime `URL` variable. Do not
+  substitute `DEPLOY_URL`, which is a build-time variable and is not guaranteed
+  in Functions. Dispatch targets the site's main published URL.
 - Generation has a two-minute deadline. The page polls every two seconds for
   up to three minutes; individual submit/status requests time out after 15 seconds.
   Keep the Discovery dialog open. Closing or reloading stops waiting and does

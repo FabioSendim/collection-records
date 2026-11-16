@@ -17,8 +17,8 @@ function validJobId(id) {
 
 async function start(keys) {
   if (!process.env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set on the server');
-  if (!process.env.DEPLOY_URL) throw new Error('Background Discovery requires a deployed Netlify site.');
-  const endpoint = new URL('/.netlify/functions/discovery-background', process.env.DEPLOY_URL);
+  if (!process.env.URL) throw new Error('Background Discovery requires the Netlify runtime URL.');
+  const endpoint = new URL('/.netlify/functions/discovery-background', process.env.URL);
   const store = getJobs(), now = Date.now();
   const jobId = (now + RETENTION_MS) + '-' + randomBytes(24).toString('hex');
   await store.setJSON(jobId, { status: 'queued', keys: keys.map((x) => x.trim()), createdAt: now });
