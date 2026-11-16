@@ -1,4 +1,4 @@
-import jobs from '../lib/discovery-jobs.js';
+import jobs from '../lib/discovery-jobs.mjs';
 
 export default async function (request) {
   if (request.method !== 'POST') {

@@ -5,8 +5,9 @@ const { join } = require('node:path');
 const { createRequire } = require('node:module');
 const { runInNewContext } = require('node:vm');
 
-const filename = join(__dirname, '..', 'netlify', 'lib', 'discovery-jobs.js');
+const filename = join(__dirname, '..', 'netlify', 'lib', 'discovery-jobs.mjs');
 const source = readFileSync(filename, 'utf8');
+const jobLogic = source.slice(source.indexOf('const RETENTION_MS'), source.indexOf('export default'));
 const nodeRequire = createRequire(filename);
 const albums = Array.from({ length: 12 }, (_, i) => ({ artist: 'Artist ' + i, title: 'Album ' + i, reason: 'Jazz.' }));
 const generated = (body, statusCode = 200) => ({ statusCode, body: JSON.stringify(body) });
@@ -51,7 +52,10 @@ function fixture() {
     dispatch: async () => ({ status: 202 }),
     generate: async () => generated({ recommendations: albums })
   };
-  runInNewContext(source, context);
+  runInNewContext(
+    "const { randomBytes } = require('node:crypto'); const { getStore } = require('@netlify/blobs');" +
+    "const { discover } = require('../functions/summary');" + jobLogic +
+    'module.exports = { start, status, run, cleanup, validJobId };', context);
   return {
     jobs: module.exports, entries, store, context, requests, writes, errors,
     advance(ms) { now += ms; },
@@ -137,7 +141,7 @@ test('cleanup removes expired abandoned jobs but keeps active jobs', async () =>
 });
 
 test('public endpoint validates input, protects origin, and reports storage failures', async (t) => {
-  const jobs = require('../netlify/lib/discovery-jobs');
+  const { default: jobs } = await import('../netlify/lib/discovery-jobs.mjs');
   const { default: handler } = await import('../netlify/functions/discovery.mjs');
   let submissions = 0;
   const jobId = Date.now() + '-' + 'a'.repeat(48);

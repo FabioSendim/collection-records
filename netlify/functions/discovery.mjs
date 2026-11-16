@@ -1,4 +1,4 @@
-import jobs from '../lib/discovery-jobs.js';
+import jobs from '../lib/discovery-jobs.mjs';
 import summary from './summary.js';
 
 function json(status, body) {

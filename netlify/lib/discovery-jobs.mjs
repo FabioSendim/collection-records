@@ -1,6 +1,8 @@
-const { randomBytes } = require('node:crypto');
-const { getStore } = require('@netlify/blobs');
-const { discover } = require('../functions/summary');
+import { randomBytes } from 'node:crypto';
+import { getStore } from '@netlify/blobs';
+import summary from '../functions/summary.js';
+
+const { discover } = summary;
 
 const RETENTION_MS = 10 * 60 * 1000;
 const MAX_WAIT_MS = 3 * 60 * 1000;
@@ -84,4 +86,4 @@ async function cleanup() {
   return deleted;
 }
 
-module.exports = { start, status, run, cleanup, validJobId };
+export default { start, status, run, cleanup, validJobId };

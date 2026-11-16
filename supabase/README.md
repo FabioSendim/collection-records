@@ -75,6 +75,9 @@ Album summaries remain synchronous and use their separate model setting.
 - Deploy the whole repository through Netlify's Git build, including
   `package.json` and `package-lock.json`; uploading only the HTML is not enough.
   The build uses Node.js 22 and installs `@netlify/blobs`.
+- Keep the Discovery storage helper as an ES module with a static import of
+  `@netlify/blobs`, so Netlify's dependency tracer includes the SDK in each
+  deployment archive.
 - The Netlify plan must support Background Functions and Netlify Blobs.
   Modern function entry points are used for automatic Blobs credentials.
   No new secret key or Supabase table is needed.
