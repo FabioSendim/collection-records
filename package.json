@@ -2,12 +2,17 @@
   "name": "collection-records",
   "private": true,
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium"
   },
   "engines": {
     "node": "22.x"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.9"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
   }
 }

@@ -377,6 +377,36 @@ dialog.form-dlg{width:min(560px,calc(100% - 24px));max-height:min(92vh,760px)}
 .discovery-wishlist summary{cursor:pointer;font-weight:600;margin-bottom:12px}
 #discovery-dlg .notice{position:sticky;bottom:0;left:auto;transform:none;margin:12px auto}
 .spinner{display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;vertical-align:-1px;margin-right:6px}
+#cloud-status.is-loading{display:grid;place-items:center;min-height:112px}
+#cloud-status.is-loading::before{
+  content:"";width:76px;height:76px;border-radius:50%;
+  background:
+    radial-gradient(circle,var(--bg) 0 3px,var(--accent) 3.5px 12px,transparent 12.5px),
+    repeating-radial-gradient(circle,transparent 0 3px,color-mix(in srgb,var(--bg) 22%,transparent) 3.5px 4px),
+    radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--ink) 78%,var(--surface)),var(--ink));
+  box-shadow:0 3px 12px rgb(0 0 0/.22);
+  animation:spin 1.8s linear infinite;
+}
+@media (prefers-reduced-motion:reduce){#cloud-status.is-loading::before{animation:none}}
+#loading-skeleton[hidden]{display:none}
+.loading-card{
+  min-width:0;aspect-ratio:1;border:1px solid var(--line-2);border-radius:var(--radius-xs);
+  padding:8px;display:grid;grid-template-rows:1fr 8px 6px;gap:6px;overflow:hidden;
+  background:var(--surface);position:relative;
+}
+.loading-card span{display:block;border-radius:3px;background:color-mix(in srgb,var(--ink) 9%,var(--surface))}
+.loading-card .loading-art{background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 15%,var(--surface)),color-mix(in srgb,var(--ink) 8%,var(--surface)))}
+.loading-card .loading-line{width:78%}
+.loading-card .loading-line.short{width:52%}
+.loading-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--ink) 5%,transparent) 48%,transparent 66%);
+  transform:translateX(-100%);animation:skeleton-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.loading-card::after{animation:none}}
+#out.collection-fade-in{animation:collection-fade-in .28s ease-out both}
+@keyframes collection-fade-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 .kv{display:grid;grid-template-columns:max-content 1fr;gap:5px 16px;font-size:12.5px;margin:0}
 .kv dt{font:500 10px/1.7 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
@@ -720,6 +750,14 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
   </section>
 
   <p class="count" id="count" aria-live="polite"></p>
+  <div id="loading-skeleton" class="grid" aria-hidden="true" hidden="">
+    <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
+    <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
+    <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
+    <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
+    <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
+    <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
+  </div>
   <div id="out"></div>
 </div>
 
@@ -1263,10 +1301,21 @@ async function idbDelete(key){
     knownAssets:new Set(), hashes:new Map(), persistence:Promise.resolve()
   };
   await cloudStart();
+  var fadeOnFirstRender = cloud.enabled;
   var BAKED_AT = DATA.META.bakedAt || '';
 
   function cloudStatus(message){
-    $('cloud-status').textContent = message;
+    var status = $('cloud-status'), loading = message === 'Loading cloud collection...';
+    status.classList.toggle('is-loading',loading);
+    $('loading-skeleton').hidden = !loading;
+    if(loading){
+      var label = document.createElement('span');
+      label.className = 'sr';
+      label.textContent = message;
+      status.replaceChildren(label);
+    }else{
+      status.textContent = message;
+    }
     $('cloud-login-btn').hidden = !cloud.enabled || !!cloud.session;
     $('cloud-logout-btn').hidden = !cloud.session;
     $('cloud-save-btn').hidden = !cloud.session;
@@ -2496,6 +2545,13 @@ async function idbDelete(key){
     dirEl.setAttribute('aria-label','Sort direction: '+(state.dir>0?'ascending':'descending'));
     buildQueue();
     saveState(); writeHash();
+    if(fadeOnFirstRender){
+      fadeOnFirstRender = false;
+      if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        out.classList.add('collection-fade-in');
+        out.addEventListener('animationend',function(){ out.classList.remove('collection-fade-in'); },{once:true});
+      }
+    }
   }
   function buildStats(){
     var comps={}, plays=0, s=0, minY=9999, maxY=0;
