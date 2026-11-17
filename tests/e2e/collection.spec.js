@@ -101,6 +101,25 @@ test('switches between sleeves, table, and jazz styles', async ({ page }) => {
   await expect(page.locator('#vgrid')).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('keeps listening controls in one compact row on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockCloud(page);
+  await openCollection(page);
+
+  const row = page.locator('.listening-row');
+  const label = await page.locator('#listening-label').boundingBox();
+  const randomButton = await page.locator('#random').boundingBox();
+  const queueButton = await page.locator('#queue-btn').boundingBox();
+
+  expect(label).toBeTruthy();
+  expect(randomButton).toBeTruthy();
+  expect(queueButton).toBeTruthy();
+  const labelCenter = label.y + label.height / 2;
+  expect(Math.abs(labelCenter - (randomButton.y + randomButton.height / 2))).toBeLessThan(8);
+  expect(Math.abs(labelCenter - (queueButton.y + queueButton.height / 2))).toBeLessThan(8);
+  await expect(row).toHaveAttribute('aria-labelledby', 'listening-label');
+});
+
 test('shows the record and skeletons while cloud loading is pending', async ({ page }) => {
   let requestStarted;
   let releaseResponse;

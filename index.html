@@ -73,7 +73,8 @@ button{cursor:pointer}
 .eyebrow{margin:0;font:500 11px/1.4 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
 .themebtn{height:30px;padding:0 12px;display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line);border-radius:999px;font:500 11px/1 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
 .themebtn:hover{border-color:var(--ink-2);color:var(--ink)}
-h1{margin:0;font-family:var(--font-display);font-weight:850;font-stretch:62%;font-size:clamp(38px,10vw,72px);line-height:.92;letter-spacing:.005em;text-transform:uppercase;overflow-wrap:anywhere}
+h1{margin:0;display:flex;align-items:center;gap:.18em;font-family:var(--font-display);font-weight:850;font-stretch:62%;font-size:clamp(38px,10vw,72px);line-height:.92;letter-spacing:.005em;text-transform:uppercase;overflow-wrap:anywhere}
+.brand-icon{width:clamp(40px,8vw,60px);height:clamp(40px,8vw,60px);flex:0 0 auto;border-radius:50%;object-fit:cover;object-position:center}
 .stats{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 20px;font:400 12px/1.4 var(--font-mono);color:var(--ink-2)}
 .stats li{display:inline-flex;gap:5px;align-items:baseline}
 .stats b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
@@ -586,13 +587,16 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
   .jazz-style-options{grid-template-columns:1fr}
 }
 @media(max-width:600px){
+  body{padding-top:max(16px,env(safe-area-inset-top,0px))}
+  .mast{gap:6px}
+  .bar{gap:8px}
   .mobile-only{display:inline-flex}
   .row1{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .row1 .search,.row1 .seg{grid-column:1 / -1}
   .row1 .seg button{flex:1;min-width:0}
   .row1 > .btn,.tools > summary{justify-content:center}
-  .listening-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch}
-  .listening-label{grid-column:1 / -1}
+  .listening-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;align-items:stretch}
+  .listening-label{grid-column:auto;margin:0;font-size:10px;align-self:center}
   .listening-row .btn{min-width:0;padding:8px;justify-content:center;text-align:center;white-space:normal}
   .search{flex-basis:100%}
   .search input,.fld input,.fld select,.fld textarea{font-size:16px}
@@ -657,7 +661,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <p class="eyebrow" id="subtitle">Fabio's collection</p>
       <button type="button" class="themebtn" id="theme" aria-label="Switch theme"><span id="theme-label">Dark</span></button>
     </div>
-    <h1>The Crate</h1>
+    <h1><img class="brand-icon" src="assets/the-crate-vinyl-logo.png" alt=""><span>The Crate</span></h1>
     <ul class="stats" id="stats"></ul>
   </header>
 
