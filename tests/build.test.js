@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { Script } = require('node:vm');
+const { execFileSync } = require('node:child_process');
 const { buildHostedHTML } = require('../scripts/build.js');
 
 const sourcePath = join(__dirname, '..', 'index.html');
@@ -43,4 +44,13 @@ test('hosted build rejects missing, duplicate and reversed data markers', () => 
       assert.throws(() => buildHostedHTML(invalid), new RegExp(name + ' data block'));
     }
   }
+});
+
+test('build includes the brand logo in the Netlify publish directory', () => {
+  const root = join(__dirname, '..');
+  execFileSync(process.execPath, [join(root, 'scripts', 'build.js')]);
+  assert.deepEqual(
+    readFileSync(join(root, 'dist', 'assets', 'the-crate-vinyl-logo.png')),
+    readFileSync(join(root, 'assets', 'the-crate-vinyl-logo.png'))
+  );
 });

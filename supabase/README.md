@@ -6,7 +6,8 @@ editable without sign-in.
 
 ## Hosted build and offline backups
 
-Netlify runs `npm run build` and publishes only `dist/index.html`. The build
+Netlify runs `npm run build` and publishes `dist/index.html` and the static
+`dist/assets/` directory, including the header logo. The build
 empties the embedded collection CSV, snapshot metadata, fetched metadata,
 covers and artist photos, retaining the placeholders needed by HTML export.
 Fixed reference content (such as jazz definitions and curated artist/album
@@ -20,10 +21,26 @@ export until loading succeeds. Use **Load latest cloud collection** to retry.
 An unpublished database starts empty; the signed-in owner can import an existing
 HTML backup or CSV to populate it.
 
+Records, filters and counts become available as soon as the collection metadata
+loads. Covers are fetched near the viewport; artist photos wait until their
+view is opened. Artwork requests are deduplicated and limited to three concurrent
+batches of up to ten images. An artwork status line reports loading or failures;
+**Retry artwork** retries failed images without reloading the collection.
+
+Immutable image content is cached in IndexedDB by its Supabase hash. Subsequent
+visits still fetch the latest collection metadata, but unchanged artwork is
+reused locally; a changed hash downloads a new image. Cache failures are reported
+and do not prevent browsing or downloading images.
+
 **Save HTML to...** still creates a standalone backup containing the currently
-loaded records, notes, scores, covers, artist photos and fetched metadata. Opening
+loaded records, notes, scores, covers, artist photos and fetched metadata.
+Exports from the hosted site also embed the header logo. Opening
 that exported file locally works offline without Supabase. Keep an export before
 switching an existing deployment to the hosted shell.
+Export waits for any remaining artwork, including photos not yet viewed. Missing
+images fail the export explicitly instead of creating an incomplete backup.
+Ordinary cloud saves and recovered pending edits preserve unresolved image
+references, so editing before artwork finishes cannot drop covers or photos.
 
 Deploy using Netlify's Git build, not a drag-and-drop upload of the source HTML.
 The publish directory must be `dist`; functions remain in `netlify/functions`.

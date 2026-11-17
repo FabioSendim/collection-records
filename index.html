@@ -743,6 +743,8 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     </div>
 
     <p id="cloud-status" role="status">Local file mode. Edits stay in this browser; save an HTML backup to transfer them.</p>
+    <p id="artwork-status" role="status" hidden=""></p>
+    <button type="button" class="btn ghost" id="artwork-retry" hidden="">Retry artwork</button>
     <div class="chips" id="chips" role="group" aria-label="Folder"></div>
 
     <div id="filter-home"><div class="filter-controls" id="filter-controls">
@@ -1439,7 +1441,8 @@ async function idbDelete(key){
     owner:'e585fe35-5450-4588-b33a-0098fbf93415',
     session:null, rememberSession:false, ready:false, published:false, version:0, dirty:false, saving:false,
     conflict:false, generation:0, timer:null, pendingKey:'collection-cloud-pending-v1',
-    knownAssets:new Set(), hashes:new Map(), persistence:Promise.resolve()
+    knownAssets:new Set(), hashes:new Map(), persistence:Promise.resolve(),
+    artwork:{assets:new Map(),pending:new Map(),failures:new Map(),queue:[],active:0,timer:null,observer:null,total:0,cacheError:false,exporting:false}
   };
   await cloudStart();
   var fadeOnFirstRender = cloud.enabled;
@@ -1451,7 +1454,6 @@ async function idbDelete(key){
     $('loading-skeleton').hidden = !loading;
     if(loading){
       var label = document.createElement('span');
-      label.className = 'sr';
       label.textContent = message;
       status.replaceChildren(label);
     }else{
@@ -1515,23 +1517,148 @@ async function idbDelete(key){
   async function cloudDecode(payload){
     if(!payload || typeof payload.CSV !== 'string' || !payload.EXTRA || !payload.META ||
        !payload.COVERS || !payload.PORTRAITS) throw new Error('Invalid cloud collection.');
-    var data = Object.assign({},payload), hashes = Array.from(new Set(Object.values(payload.COVERS).concat(Object.values(payload.PORTRAITS))));
-    var assets = {};
-    for(var i=0;i<hashes.length;i+=10){
-      var batch = hashes.slice(i,i+10);
-      if(batch.some(function(hash){ return typeof hash !== 'string' || !/^[0-9a-f]{64}$/.test(hash); })) throw new Error('Invalid cloud image reference.');
-      var rows = await cloudRequest('/rest/v1/collection_assets?select=hash,content&hash=in.(' + batch.join(',') + ')');
-      rows.forEach(function(row){ assets[row.hash] = row.content; cloud.knownAssets.add(row.hash); cloud.hashes.set(row.content,row.hash); });
-    }
+    var data = Object.assign({},payload), hashes = new Set();
     ['COVERS','PORTRAITS'].forEach(function(kind){
       data[kind] = {};
       Object.keys(payload[kind]).forEach(function(id){
         var hash = payload[kind][id];
-        if(!assets[hash]) throw new Error('A cloud backup image is missing.');
-        data[kind][id] = assets[hash];
+        if(typeof hash !== 'string' || !/^[0-9a-f]{64}$/.test(hash)) throw new Error('Invalid cloud image reference.');
+        hashes.add(hash); cloud.knownAssets.add(hash);
+        data[kind][id] = 'cloud-asset:'+hash;
       });
     });
+    cloud.artwork.total = hashes.size;
     return data;
+  }
+  function cloudAssetHash(value){
+    var match = /^cloud-asset:([0-9a-f]{64})$/.exec(value);
+    return match ? match[1] : '';
+  }
+  function cloudArtworkStatus(){
+    var artwork = cloud.artwork, status = $('artwork-status'), retry = $('artwork-retry');
+    status.hidden = !artwork.total && !artwork.cacheError && !artwork.exporting;
+    retry.hidden = !artwork.failures.size;
+    if(artwork.failures.size){
+      status.textContent = 'Some artwork could not load. '+artwork.failures.size+' images failed; retry artwork to try again.';
+    }else if(artwork.exporting){
+      status.textContent = 'Preparing complete HTML backup. Loading remaining artwork...';
+    }else{
+      status.textContent = (artwork.pending.size ? 'Loading artwork' : 'Artwork loads as you browse')+
+        ' · '+artwork.assets.size+' of '+artwork.total+' images ready. You can browse now.';
+    }
+    if(artwork.cacheError) status.textContent += ' Image caching is unavailable; images may download again next visit.';
+  }
+  function cloudArtworkCacheError(err){
+    if(!cloud.artwork.cacheError) console.warn('Cloud artwork cache unavailable:',err);
+    cloud.artwork.cacheError = true;
+    cloudArtworkStatus();
+  }
+  function cloudLoadAsset(hash){
+    var artwork = cloud.artwork;
+    if(artwork.assets.has(hash)) return Promise.resolve(artwork.assets.get(hash));
+    if(artwork.pending.has(hash)) return artwork.pending.get(hash);
+    var resolveAsset, rejectAsset;
+    var promise = new Promise(function(resolve,reject){ resolveAsset = resolve; rejectAsset = reject; });
+    artwork.pending.set(hash,promise);
+    artwork.failures.delete(hash);
+    (async function(){
+      var content;
+      try {
+        if(!await openIDB()) throw new Error('Browser image storage is unavailable.');
+        content = await htmlBackupStore('get',null,'cloud-asset:'+hash);
+        if(content && !/^data:image\/(?:jpeg|png|webp|gif);base64,[a-z0-9+/=\r\n]+$/i.test(content)){
+          throw new Error('Invalid cached artwork.');
+        }
+      }catch(err){ content = null; cloudArtworkCacheError(err); }
+      if(content){
+        artwork.assets.set(hash,content); cloud.hashes.set(content,hash);
+        artwork.pending.delete(hash); resolveAsset(content); cloudArtworkStatus();
+      }else{
+        artwork.queue.push({hash:hash,resolve:resolveAsset,reject:rejectAsset});
+        if(artwork.timer === null) artwork.timer = setTimeout(cloudPumpArtwork,0);
+      }
+    })();
+    cloudArtworkStatus();
+    return promise;
+  }
+  function cloudPumpArtwork(){
+    var artwork = cloud.artwork;
+    artwork.timer = null;
+    while(artwork.active < 3 && artwork.queue.length){
+      var batch = artwork.queue.splice(0,10);
+      artwork.active++;
+      cloudFetchArtwork(batch).finally(function(){
+        artwork.active--;
+        cloudPumpArtwork();
+      });
+    }
+  }
+  async function cloudFetchArtwork(batch){
+    var artwork = cloud.artwork;
+    try {
+      var rows = await cloudRequest('/rest/v1/collection_assets?select=hash,content&hash=in.('+
+        batch.map(function(item){ return item.hash; }).join(',')+')');
+      if(!Array.isArray(rows)) throw new Error('Invalid cloud artwork response.');
+      var assets = new Map(rows.map(function(row){ return [row.hash,row.content]; }));
+      batch.forEach(function(item){
+        if(!/^data:image\/(?:jpeg|png|webp|gif);base64,[a-z0-9+/=\r\n]+$/i.test(assets.get(item.hash) || '')){
+          throw new Error('A cloud collection image is missing or invalid.');
+        }
+      });
+      await Promise.all(batch.map(async function(item){
+        var content = assets.get(item.hash);
+        try { await htmlBackupStore('put',content,'cloud-asset:'+item.hash); }
+        catch(err){ cloudArtworkCacheError(err); }
+        artwork.assets.set(item.hash,content); cloud.hashes.set(content,item.hash);
+        artwork.pending.delete(item.hash); artwork.failures.delete(item.hash);
+        item.resolve(content);
+      }));
+    }catch(err){
+      console.error('Cloud artwork loading failed:',err);
+      batch.forEach(function(item){
+        artwork.pending.delete(item.hash); artwork.failures.set(item.hash,err.message); item.reject(err);
+      });
+    }
+    cloudArtworkStatus();
+  }
+  function cloudLoadImage(img){
+    var hash = img.dataset.cloudAsset;
+    delete img.dataset.artworkError;
+    cloudLoadAsset(hash).then(function(content){
+      if(img.dataset.cloudAsset === hash) img.src = content;
+    }).catch(function(){
+      img.dataset.artworkError = '1';
+    });
+  }
+  function setImageSource(img,source){
+    var hash = cloudAssetHash(source);
+    if(!hash){ img.src = source; return; }
+    img.dataset.cloudAsset = hash;
+    if(!('IntersectionObserver' in window)){ cloudLoadImage(img); return; }
+    if(!cloud.artwork.observer){
+      cloud.artwork.observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(!entry.isIntersecting) return;
+          cloud.artwork.observer.unobserve(entry.target);
+          cloudLoadImage(entry.target);
+        });
+      },{rootMargin:'200px'});
+    }
+    cloud.artwork.observer.observe(img);
+  }
+  async function cloudResolveImages(snapshot){
+    var hashes = new Set(), images = {COVERS:{},PORTRAITS:{}};
+    ['COVERS','PORTRAITS'].forEach(function(kind){
+      Object.values(snapshot[kind]).forEach(function(value){ var hash = cloudAssetHash(value); if(hash) hashes.add(hash); });
+    });
+    await Promise.all(Array.from(hashes).map(cloudLoadAsset));
+    ['COVERS','PORTRAITS'].forEach(function(kind){
+      Object.keys(snapshot[kind]).forEach(function(id){
+        var value = snapshot[kind][id], hash = cloudAssetHash(value);
+        images[kind][id] = hash ? cloud.artwork.assets.get(hash) : value;
+      });
+    });
+    return images;
   }
   async function cloudStart(){
     if(!cloud.enabled){ cloudStatus('Local file mode. Edits stay in this browser; save an HTML backup to transfer them.'); return; }
@@ -1612,6 +1739,8 @@ async function idbDelete(key){
       payload[kind] = {};
       for(var id of Object.keys(data[kind])){
         var content = data[kind][id], hash = cloud.hashes.get(content);
+        var reference = cloudAssetHash(content);
+        if(reference){ payload[kind][id] = reference; continue; }
         if(!/^data:image\/(?:jpeg|png|webp|gif);base64,[a-z0-9+/=]+$/i.test(content)) throw new Error('Unsupported image format in the collection.');
         if(!hash){
           var digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(content));
@@ -2515,7 +2644,7 @@ async function idbDelete(key){
     if(r.__userAdded) b.classList.add('is-user');
     if(r.img){
       b.classList.add('has-cover');
-      var img = el('img','cover'); img.src = r.img; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+      var img = el('img','cover'); setImageSource(img,r.img); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
       b.append(img); b.append(el('span','veil'));
     }
     var content = el('div','content');
@@ -2561,7 +2690,7 @@ async function idbDelete(key){
       if(r.__userAdded) tr.classList.add('user-add');
       var coverTd = el('td');
       if(r.img){
-        var im = el('img','tbl-cover'); im.src = r.img; im.alt = ''; im.loading = 'lazy'; coverTd.append(im);
+        var im = el('img','tbl-cover'); setImageSource(im,r.img); im.alt = ''; im.loading = 'lazy'; coverTd.append(im);
       } else {
         var fb = el('span','tbl-cover-fallback'); fb.style.setProperty('--h', r.hue); coverTd.append(fb);
       }
@@ -2588,7 +2717,7 @@ async function idbDelete(key){
     var classification = jazzClassification(r), b = el('button','jazz-card');
     b.type = 'button'; b.dataset.i = r.i; b.style.setProperty('--h',r.hue);
     b.setAttribute('aria-label',r.a + ' — ' + r.t + '. Open record details.');
-    if(r.img){ var img = el('img'); img.src = r.img; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; b.append(img); }
+    if(r.img){ var img = el('img'); setImageSource(img,r.img); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; b.append(img); }
     else b.append(el('span','no-cover'));
     b.append(el('strong','',r.a),el('span','record-title',r.t),el('small','jazz-evidence',jazzClassificationEvidence(classification,r,style)));
     return b;
@@ -2745,6 +2874,7 @@ async function idbDelete(key){
     if(state.lab && !labelIndex[state.lab]) state.lab = '';
     current = computeVisible();
     out.querySelectorAll('[data-jazz-group]').forEach(function(g){ jazzGroupOpen[g.dataset.jazzGroup] = g.open; });
+    if(cloud.artwork.observer) out.querySelectorAll('img[data-cloud-asset]').forEach(function(img){ cloud.artwork.observer.unobserve(img); });
     out.textContent = '';
     if(state.view === 'jazz'){ out.append(buildJazzStyles(current)); }
     else if(!current.length){
@@ -3258,7 +3388,7 @@ async function idbDelete(key){
     head.style.setProperty('--tile-s','34%'); head.style.setProperty('--tile-l','80%');
     if(r.img){
       head.classList.add('has-cover');
-      var im = el('img','cover-lg'); im.src = r.img; im.alt=''; im.loading='lazy'; im.decoding='async'; head.append(im); head.append(el('span','veil-lg'));
+      var im = el('img','cover-lg'); setImageSource(im,r.img); im.alt=''; im.loading='lazy'; im.decoding='async'; head.append(im); head.append(el('span','veil-lg'));
     }
     head.append(el('span','cat', r.c));
     headButtons(head);
@@ -3313,7 +3443,7 @@ async function idbDelete(key){
       sim.forEach(function(s){
         var card = el('button','simcard'); card.type='button'; card.dataset.i = s.r.i;
         var sw = el('span','swatch'); sw.style.setProperty('--h', s.r.hue);
-        if(s.r.img){ var swi = el('img'); swi.src = s.r.img; swi.alt=''; swi.loading='lazy'; swi.decoding='async'; sw.append(swi); }
+        if(s.r.img){ var swi = el('img'); setImageSource(swi,s.r.img); swi.alt=''; swi.loading='lazy'; swi.decoding='async'; sw.append(swi); }
         card.append(sw);
         var meta = el('span','meta');
         meta.append(el('span','a', s.r.a), el('span','t', s.r.t), el('span','why', s.why));
@@ -3518,7 +3648,7 @@ async function idbDelete(key){
       if(r.img){
         w.classList.add('has-cover');
         var th = el('span','thumb'); th.style.setProperty('--h', r.hue);
-        var ti = el('img'); ti.src = r.img; ti.alt=''; ti.loading = 'lazy'; th.append(ti);
+        var ti = el('img'); setImageSource(ti,r.img); ti.alt=''; ti.loading = 'lazy'; th.append(ti);
         w.append(th);
       }
       w.append(el('span','t', r.t));
@@ -3557,7 +3687,7 @@ async function idbDelete(key){
     var hero = heroShell(a.hue);
     var portrait = el('div','portrait');
     if(a.portrait){
-      var im = el('img'); im.src = a.portrait; im.alt = ''; im.loading='lazy'; im.decoding='async'; portrait.append(im);
+      var im = el('img'); setImageSource(im,a.portrait); im.alt = ''; im.loading='lazy'; im.decoding='async'; portrait.append(im);
       var rb = el('button','fetch redo','Re-fetch'); rb.type = 'button'; rb.dataset.fetchPortrait = a.key;
       portrait.append(rb);
     } else {
@@ -3660,10 +3790,10 @@ async function idbDelete(key){
     var portrait = el('div','portrait');
     var covers = L.records.filter(function(r){ return r.img; }).slice(0, 4);
     if(covers.length === 1){
-      var im = el('img'); im.src = covers[0].img; im.alt = ''; im.loading='lazy'; im.decoding='async'; portrait.append(im);
+      var im = el('img'); setImageSource(im,covers[0].img); im.alt = ''; im.loading='lazy'; im.decoding='async'; portrait.append(im);
     } else if(covers.length > 1){
       portrait.classList.add('mosaic');
-      covers.forEach(function(r){ var t = el('img'); t.src = r.img; t.alt = ''; t.loading='lazy'; t.decoding='async'; portrait.append(t); });
+      covers.forEach(function(r){ var t = el('img'); setImageSource(t,r.img); t.alt = ''; t.loading='lazy'; t.decoding='async'; portrait.append(t); });
     } else portrait.append(el('span','initials', artistInitials(L.name)));
     hero.append(portrait);
     var meta = el('div','meta');
@@ -3728,7 +3858,7 @@ async function idbDelete(key){
     entries.forEach(function(a){
       var li = el('li'); li.dataset.artistKey = a.key; li.style.setProperty('--h', a.hue);
       var pic = el('span','pic');
-      if(a.portrait){ var img = el('img'); img.src = a.portrait; img.alt = ''; img.loading = 'lazy'; pic.append(img); }
+      if(a.portrait){ var img = el('img'); setImageSource(img,a.portrait); img.alt = ''; img.loading = 'lazy'; pic.append(img); }
       else pic.textContent = artistInitials(a.name);
       li.append(pic);
       var body = el('div');
@@ -3763,7 +3893,7 @@ async function idbDelete(key){
       var li = el('li'); li.dataset.labelKey = L.key; li.style.setProperty('--h', L.hue);
       var pic = el('span','pic');
       var cv = labelCover(L);
-      if(cv){ var img = el('img'); img.src = cv; img.alt = ''; img.loading = 'lazy'; pic.append(img); }
+      if(cv){ var img = el('img'); setImageSource(img,cv); img.alt = ''; img.loading = 'lazy'; pic.append(img); }
       else pic.textContent = artistInitials(L.name);
       li.append(pic);
       var body = el('div');
@@ -4548,7 +4678,7 @@ async function idbDelete(key){
     addPreview.textContent = '';
     var wrap = el('div');
     var sw = el('div','cover'); sw.style.setProperty('--h', r.hue);
-    if(r.img){ var i = el('img'); i.src = r.img; i.alt=''; i.loading='lazy'; i.decoding='async'; sw.append(i); }
+    if(r.img){ var i = el('img'); setImageSource(i,r.img); i.alt=''; i.loading='lazy'; i.decoding='async'; sw.append(i); }
     wrap.append(sw);
     var head = el('div','head');
     head.append(el('div','artist', r.a), el('div','ttl', r.t));
@@ -4875,11 +5005,19 @@ async function idbDelete(key){
         notify('This browser cannot choose a save location here. Using a normal download instead; move the backup to your OneDrive folder.');
       }
       flushNotes();
-      var stamp = nowISO();
-      var covers = {}; recs.forEach(function(r){ if(r.img && r.id) covers[r.id] = r.img; });
-      var portraits = {}; Object.keys(artistIndex).forEach(function(k){ if(artistIndex[k].portrait) portraits[k] = artistIndex[k].portrait; });
-      Object.keys(PORTRAITS).forEach(function(k){ if(!portraits[k]) portraits[k] = PORTRAITS[k]; });
+      var snapshot = cloudSnapshot(), stamp = snapshot.META.bakedAt;
+      $('save-html-to-btn').disabled = true;
+      cloud.artwork.exporting = true; cloudArtworkStatus();
+      var images = await cloudResolveImages(snapshot), covers = images.COVERS, portraits = images.PORTRAITS;
       var root = document.documentElement.cloneNode(true);
+      var brand = document.querySelector('.brand-icon');
+      if(!onFileProtocol && !/^data:/i.test(brand.getAttribute('src'))){
+        await brand.decode();
+        var brandCanvas = document.createElement('canvas');
+        brandCanvas.width = brand.naturalWidth; brandCanvas.height = brand.naturalHeight;
+        brandCanvas.getContext('2d').drawImage(brand,0,0);
+        root.querySelector('.brand-icon').src = brandCanvas.toDataURL('image/png');
+      }
       root.querySelector('#filter-home').append(root.querySelector('#filter-controls'));
       var notice = root.querySelector('#notice'); notice.hidden = true;
       root.querySelector('body').insertBefore(notice, root.querySelector('body > script'));
@@ -4911,11 +5049,15 @@ async function idbDelete(key){
       root.querySelector('#cloud-remember').checked = false;
       root.querySelector('#cloud-remember').removeAttribute('checked');
       root.querySelector('#cloud-login-status').textContent = '';
+      root.querySelector('#artwork-status').textContent = '';
+      root.querySelector('#artwork-status').hidden = true;
+      root.querySelector('#artwork-retry').hidden = true;
+      root.querySelector('#save-html-to-btn').disabled = false;
       root.querySelectorAll('script[src], iframe, netlify-badge, #netlify-ds-badge').forEach(function(n){ n.remove(); });
       var html = '<!doctype html>\n' + root.outerHTML;
       html = replaceBlock(html, 'META', 'var DATA_META=' + jsJSON({ bakedAt: stamp }) + ';');
-      html = replaceBlock(html, 'CSV', 'var CSV=' + jsJSON(recordsToCSV(recs.map(function(r){ return r; }))) + ';');
-      html = replaceBlock(html, 'EXTRA', 'var EXTRA=' + jsJSON(mergedExtra()) + ';');
+      html = replaceBlock(html, 'CSV', 'var CSV=' + jsJSON(snapshot.CSV) + ';');
+      html = replaceBlock(html, 'EXTRA', 'var EXTRA=' + jsJSON(snapshot.EXTRA) + ';');
       html = replaceBlock(html, 'COVERS', 'var EMBEDDED_COVERS=' + jsJSON(covers) + ';');
       html = replaceBlock(html, 'PORTRAITS', 'var EMBEDDED_PORTRAITS=' + jsJSON(portraits) + ';');
       if(fileHandle){
@@ -4931,6 +5073,9 @@ async function idbDelete(key){
         Object.keys(portraits).length + ' artist photos to ' + filename));
     } catch(err){
       notify('Could not save the HTML backup: ' + err.message, null, true);
+    } finally {
+      $('save-html-to-btn').disabled = false;
+      cloud.artwork.exporting = false; cloudArtworkStatus();
     }
   }
   $('save-html-to-btn').addEventListener('click', saveAsHTML);
@@ -5393,6 +5538,16 @@ async function idbDelete(key){
   buildStats();
   buildChips();
   render();
+  cloudArtworkStatus();
+  $('artwork-retry').addEventListener('click',function(){
+    Array.from(cloud.artwork.failures.keys()).forEach(function(hash){
+      cloudLoadAsset(hash).then(function(){
+        document.querySelectorAll('img[data-artwork-error]').forEach(function(img){
+          if(img.dataset.cloudAsset === hash) cloudLoadImage(img);
+        });
+      }).catch(cloudArtworkStatus);
+    });
+  });
   updateDataButtons();
   if(importInfo.used){
     var at = lsRaw(LS_IMPORT_AT);
@@ -5406,6 +5561,7 @@ async function idbDelete(key){
 
   /* Images fetched earlier are cached in IndexedDB. */
   (async function hydrateFromIDB(){
+    if(cloud.enabled && (cloud.published || cloud.hostedShell)) return;
     try {
       var store = await idbGetAll();
       var covers = 0, portraits = 0;

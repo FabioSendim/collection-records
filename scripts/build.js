@@ -1,4 +1,4 @@
-const { mkdirSync, readFileSync, writeFileSync } = require('node:fs');
+const { cpSync, mkdirSync, readFileSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 
 function buildHostedHTML(html) {
@@ -28,6 +28,7 @@ if (require.main === module) {
   const html = buildHostedHTML(readFileSync(join(root, 'index.html'), 'utf8'));
   mkdirSync(join(root, 'dist'), { recursive: true });
   writeFileSync(join(root, 'dist', 'index.html'), html);
+  cpSync(join(root, 'assets'), join(root, 'dist', 'assets'), { recursive: true });
   console.log('Built hosted app shell: ' + Buffer.byteLength(html) + ' bytes.');
 }
 
