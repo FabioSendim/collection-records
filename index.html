@@ -378,6 +378,8 @@ dialog.form-dlg{width:min(560px,calc(100% - 24px));max-height:min(92vh,760px)}
 .discovery-wishlist summary{cursor:pointer;font-weight:600;margin-bottom:12px}
 #discovery-dlg .notice{position:sticky;bottom:0;left:auto;transform:none;margin:12px auto}
 .spinner{display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;vertical-align:-1px;margin-right:6px}
+.collection-status{display:grid;gap:4px}
+.collection-status p{margin:0;font:400 12px/1.5 var(--font-mono);color:var(--ink-2)}
 #cloud-status.is-loading{display:grid;place-items:center;min-height:112px}
 #cloud-status.is-loading::before{
   content:"";width:76px;height:76px;border-radius:50%;
@@ -617,6 +619,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
   .jazz-style-options{grid-template-columns:1fr}
 }
 @media(max-width:600px){
+  .seg #vtable{display:none}
   body{padding-top:max(16px,env(safe-area-inset-top,0px))}
   .mast{gap:6px}
   .bar{gap:8px}
@@ -742,9 +745,6 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <button type="button" class="btn ghost" id="queue-btn" aria-haspopup="dialog" aria-controls="queue-dlg">Play next (0)</button>
     </div>
 
-    <p id="cloud-status" role="status">Local file mode. Edits stay in this browser; save an HTML backup to transfer them.</p>
-    <p id="artwork-status" role="status" hidden=""></p>
-    <button type="button" class="btn ghost" id="artwork-retry" hidden="">Retry artwork</button>
     <div class="chips" id="chips" role="group" aria-label="Folder"></div>
 
     <div id="filter-home"><div class="filter-controls" id="filter-controls">
@@ -795,6 +795,11 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
   </div>
   <div id="out"></div>
+  <div class="collection-status">
+    <p id="cloud-status" role="status">Local file mode. Edits stay in this browser; save an HTML backup to transfer them.</p>
+    <p id="artwork-status" role="status" hidden=""></p>
+    <button type="button" class="btn ghost" id="artwork-retry" hidden="">Retry artwork</button>
+  </div>
 </div>
 
 <dialog id="dlg" aria-label="Record details" data-key="id:38459553"></dialog>

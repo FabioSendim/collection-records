@@ -43,7 +43,7 @@ test('all inline application scripts parse', () => {
 test('interface separates browsing, listening and administration without duplicating controls', () => {
   const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
   const browsing = html.slice(html.indexOf('<div class="row1">'), html.indexOf('<div class="listening-row"'));
-  const listening = html.slice(html.indexOf('<div class="listening-row"'), html.indexOf('<p id="cloud-status"'));
+  const listening = html.slice(html.indexOf('<div class="listening-row"'), html.indexOf('<div class="chips"'));
   const tools = browsing.slice(browsing.indexOf('<details class="tools"'));
   for (const id of ['random', 'discovery-btn', 'queue-btn']) {
     assert.ok(listening.includes('id="' + id + '"'));

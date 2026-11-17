@@ -133,6 +133,12 @@ test('keeps listening controls in one compact row on mobile', async ({ page }) =
   await page.setViewportSize({ width: 390, height: 844 });
   await mockCloud(page);
   await openCollection(page);
+  await expect(page.locator('#vtable')).toBeHidden();
+  const collection = await page.locator('#out').boundingBox();
+  const status = await page.locator('#cloud-status').boundingBox();
+  expect(collection).toBeTruthy();
+  expect(status).toBeTruthy();
+  expect(status.y).toBeGreaterThan(collection.y + collection.height);
 
   const row = page.locator('.listening-row');
   const label = await page.locator('#listening-label').boundingBox();
