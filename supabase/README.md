@@ -4,6 +4,33 @@ The hosted app reads the shared collection from Supabase. Only the configured
 owner can publish or change it. Local `file://` HTML backups remain offline and
 editable without sign-in.
 
+## Hosted build and offline backups
+
+Netlify runs `npm run build` and publishes only `dist/index.html`. The build
+empties the embedded collection CSV, snapshot metadata, fetched metadata,
+covers and artist photos, retaining the placeholders needed by HTML export.
+Fixed reference content (such as jazz definitions and curated artist/album
+background notes) remains part of the application.
+The source `index.html` is not overwritten or published directly.
+
+The hosted shell loads the current collection and images from Supabase. It does
+not use an embedded collection or old browser imports as a fallback. If Supabase
+is unavailable, it shows an explicit error and disables editing and HTML backup
+export until loading succeeds. Use **Load latest cloud collection** to retry.
+An unpublished database starts empty; the signed-in owner can import an existing
+HTML backup or CSV to populate it.
+
+**Save HTML to...** still creates a standalone backup containing the currently
+loaded records, notes, scores, covers, artist photos and fetched metadata. Opening
+that exported file locally works offline without Supabase. Keep an export before
+switching an existing deployment to the hosted shell.
+
+Deploy using Netlify's Git build, not a drag-and-drop upload of the source HTML.
+The publish directory must be `dist`; functions remain in `netlify/functions`.
+For local checks, run `npm run build`, `node --test tests/build.test.js`, and
+`npm run test:e2e`. The browser tests build and exercise the hosted shell as well
+as the original offline-capable source.
+
 ## Setup
 
 1. Run [setup.sql](./setup.sql) in the Supabase SQL Editor.
@@ -38,8 +65,9 @@ sign-ups can be disabled; creating another account does not grant owner access.
   **Load latest cloud collection** to fetch the latest version.
 - HTML import while signed in replaces the shared collection after an additional
   confirmation. CSV import merges records and saves the result to the cloud.
-- If cloud loading fails, the app clearly labels the local fallback and disables
-  edits. It does not silently publish that fallback over existing cloud data.
+- If cloud loading fails on the hosted shell, the app shows an error without
+  displaying stale collection data and disables edits. Older self-contained HTML
+  deployments can still show their clearly labeled local fallback.
 - Sign-in lasts for the current browser tab session by default. Select **Remember
   me on this device** when signing in to keep the session across closing and
   reopening the site, including an iPhone home-screen shortcut. Use this only on

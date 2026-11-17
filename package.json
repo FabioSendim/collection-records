@@ -2,6 +2,7 @@
   "name": "collection-records",
   "private": true,
   "scripts": {
+    "build": "node scripts/build.js",
     "test": "node --test",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium"

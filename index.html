@@ -555,19 +555,47 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
 .jazz-intro{display:grid;gap:10px}
 .jazz-intro h2{margin:0;font:800 28px/1.1 var(--font-display);text-transform:uppercase}
 .jazz-intro p{margin:0;max-width:80ch;color:var(--ink-2)}
+.jazz-overview,.jazz-learning{display:grid;gap:12px;padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.jazz-overview > h3,.jazz-learning > h3{margin:0;font:700 18px/1.3 var(--font-display)}
+.jazz-overview-intro{margin:0;max-width:80ch;color:var(--ink-2);line-height:1.55}
+.jazz-timeline,.jazz-paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.jazz-era,.jazz-path,.jazz-lenses{min-width:0;padding:12px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2)}
+.jazz-era h4,.jazz-path h4,.jazz-lenses h4{margin:0 0 6px;font-size:15px}
+.jazz-era > p,.jazz-path > p,.jazz-lenses > p{margin:0 0 10px;color:var(--ink-2);font-size:13px;line-height:1.5}
+.jazz-era .jazz-period{font:500 11px/1.4 var(--font-mono);color:var(--accent)}
+.jazz-style-links{display:flex;flex-wrap:wrap;gap:6px}
+.jazz-map-link{min-height:36px;display:inline-flex;align-items:center;padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--accent);text-decoration:none;font-size:12px;line-height:1.3}
+.jazz-map-link:hover,.jazz-map-link:focus-visible{border-color:var(--accent);text-decoration:underline}
+.jazz-lenses{display:grid;gap:6px}
 .jazz-jump{display:flex;gap:8px;flex-wrap:wrap}
 .jazz-jump a{min-height:44px;display:inline-flex;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent);text-decoration:none;font-size:13px}
+.jazz-jump h3{width:100%;margin:0;font-size:16px}
+.jazz-tools{border:1px solid var(--line);border-radius:var(--radius-s);padding:10px}
+.jazz-tools > summary{cursor:pointer;min-height:44px;align-content:center;font-weight:600}
+.jazz-tools-body{display:grid;gap:10px}
+.jazz-tools-body p{margin:0;max-width:80ch;color:var(--ink-2);font-size:13px;line-height:1.5}
 .jazz-group{border:1px solid var(--line);border-left:4px solid var(--style-color,var(--accent));border-radius:var(--radius);padding:14px;scroll-margin-top:16px}
 .jazz-group > summary{cursor:pointer;min-height:44px;font-weight:700;font-size:18px;overflow-wrap:anywhere}
+.jazz-summary-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.jazz-style-name{line-height:1.3}
+.jazz-style-count{flex-shrink:0;padding:3px 8px;border:1px solid var(--line);border-radius:999px;color:var(--ink-2);font:500 11px/1.3 var(--font-mono)}
 .jazz-group > summary .origin{display:block;font:400 12px/1.5 var(--font-mono);color:var(--ink-2);margin-top:5px}
-.jazz-group > p{color:var(--ink-2);max-width:80ch;line-height:1.6}
-.jazz-group > a{display:inline-flex;align-items:center;min-height:44px;color:var(--accent);font-size:13px;margin-bottom:10px}
+.jazz-dek{display:block;max-width:80ch;margin-top:8px;color:var(--ink-2);font:400 14px/1.5 var(--font-body)}
+.jazz-body{padding-top:2px}
+.jazz-group h3{margin:14px 0 6px;font-size:13px}
+.jazz-notes{margin:0;padding-left:22px;max-width:80ch;color:var(--ink-2);line-height:1.6}
+.jazz-notes li+li{margin-top:4px}
+.jazz-body > .jazz-note{margin:8px 0;max-width:80ch;color:var(--ink-2);line-height:1.6}
+.jazz-body > a{display:inline-flex;align-items:center;min-height:44px;color:var(--accent);font-size:13px}
 .jazz-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .jazz-card{display:flex;flex-direction:column;gap:6px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2);color:var(--ink);text-align:left}
 .jazz-card:hover{border-color:var(--accent)}
 .jazz-card img,.jazz-card .no-cover{width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;background:hsl(var(--h) var(--tile-s) var(--tile-l))}
 .jazz-card strong,.jazz-card .record-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;line-height:1.35}
-.jazz-card small{font-size:11px;color:var(--ink-2);margin-top:auto}
+.jazz-card small{font-size:11px;color:var(--ink-2);margin-top:auto;line-height:1.35;overflow-wrap:anywhere}
+.jazz-key-match{display:flex;flex-direction:column;align-items:flex-start;gap:3px;max-width:100%;margin:5px 0 0;padding:7px 9px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2);color:var(--ink);text-align:left}
+.jazz-key-match:hover{border-color:var(--accent)}
+.jazz-key-match small{font-size:11px;color:var(--ink-2);line-height:1.35;overflow-wrap:anywhere}
 .jazz-editor{display:grid;gap:12px}
 .jazz-editor fieldset{margin:0;padding:12px;border:1px solid var(--line);border-radius:var(--radius-s)}
 .jazz-style-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}
@@ -581,6 +609,8 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
 .recording-editor a{color:var(--accent)}
 @media(max-width:600px){
   .seg button{padding:0 9px}
+  .jazz-overview,.jazz-learning{padding:10px}
+  .jazz-timeline,.jazz-paths{grid-template-columns:1fr}
   .jazz-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .jazz-group{padding:10px}
   .jazz-card{padding:8px;font-size:13px}
@@ -1181,42 +1211,147 @@ async function idbDelete(key){
   var TIER = { S:5, A:4, B:3, C:2, D:1 };
   var SCORE_OPTIONS = ['S-Tier (Superb)','A-Tier (Amazing)','B-Tier (Good)','C-Tier (Average)','D-Tier (Below Average)'];
   var JAZZ_STYLES = [
-    {id:'traditional',name:'Traditional / New Orleans',origin:'Early 1900s–1920s · New Orleans',color:'#A77727',page:'Dixieland',aliases:['dixieland','new orleans jazz','ragtime','traditional jazz'],
-      description:'Collective improvisation, lively ensemble playing and roots in blues, ragtime and brass-band music. These early approaches remain alive in later recordings.'},
-    {id:'vocal',name:'Vocal jazz',origin:'Early 20th century onward · international',color:'#985F77',page:'Vocal_jazz',aliases:['vocal jazz','jazz vocal','jazz vocals','vocal'],
-      description:'The voice takes a leading role through jazz phrasing, interpretation and improvisation, sometimes including scat singing. Vocal jazz spans eras and can overlap with swing, cool jazz, bossa nova and other styles.'},
-    {id:'swing',name:'Swing / Big band',origin:'1930s · United States',color:'#AF6F18',page:'Swing_music',aliases:['swing','big band'],
-      description:'A flowing dance pulse, arranged ensemble passages and room for soloists. Closely associated with the big-band era, though small groups swing too.'},
-    {id:'bebop',name:'Bebop',origin:'Early–mid 1940s · United States',color:'#A94F42',page:'Bebop',aliases:['bop','bebop','be-bop'],
-      description:'Agile melodies, rich chord changes and improvisation built for close listening. Small groups and quick exchanges between soloists are common.'},
-    {id:'latin',name:'Latin / Afro-Cuban jazz',origin:'1940s · Cuba and the United States',color:'#AA653A',page:'Afro-Cuban_jazz',aliases:['latin jazz','afro-cuban jazz','afro cuban jazz'],
-      description:'Jazz improvisation meets Afro-Cuban and other Latin American rhythmic traditions. Percussion patterns and interlocking rhythms are central; this is a broad family, not a single sound.'},
-    {id:'cool',name:'Cool / West Coast jazz',origin:'Late 1940s–1950s · United States',color:'#28788B',page:'Cool_jazz',aliases:['cool jazz','cool','west coast jazz','west coast'],
-      description:'Often a lighter tone, measured phrasing and carefully shaped arrangements. West Coast jazz overlaps with cool jazz, but the terms are not exact synonyms.'},
-    {id:'hard-bop',name:'Hard bop',origin:'Mid-1950s · United States',color:'#8B5F9E',page:'Hard_bop',aliases:['hard bop','hard-bop'],
-      description:'Bebop language with strong blues, gospel and rhythm-and-blues connections. Expect earthy grooves, memorable themes and forceful small-group playing.'},
-    {id:'modal',name:'Modal jazz',origin:'Mid–late 1950s · United States',color:'#397A52',page:'Modal_jazz',aliases:['modal','modal jazz'],
-      description:'Improvisation explores scales or modes rather than constantly changing chords. This can leave more space for melody, repetition and gradual development.'},
-    {id:'soul',name:'Soul jazz',origin:'1950s–1960s · United States',color:'#9E6334',page:'Soul_jazz',aliases:['soul-jazz','soul jazz'],
-      description:'Blues, gospel and rhythm-and-blues feeling with direct, groove-led improvisation. Organ groups are a familiar sound, but the style is not limited to them.'},
-    {id:'free',name:'Free / Avant-garde jazz',origin:'Late 1950s–1960s · United States',color:'#AE4972',page:'Free_jazz',aliases:['free jazz','avant-garde jazz','avant garde jazz','free improvisation','free jazz improvisation'],
-      description:'Musicians explore alternatives to fixed chord progressions, regular metre or familiar song forms. Free jazz and the wider avant-garde overlap without being identical.'},
-    {id:'bossa',name:'Bossa nova / Brazilian jazz',origin:'Late 1950s–1960s · Brazil',color:'#4A8275',page:'Bossa_nova',aliases:['bossa nova','brazilian jazz','samba-jazz','samba jazz'],
-      description:'Brazilian samba-derived rhythms meet intimate phrasing and jazz harmony. Bossa nova and Brazilian jazz intersect, while Brazilian jazz also reaches well beyond bossa.'},
-    {id:'post-bop',name:'Post-bop',origin:'1960s · United States (a flexible term)',color:'#6875A2',page:'Post-bop',aliases:['post bop','post-bop'],
-      description:'An open-ended meeting of bop, modal and freer approaches. The label has several meanings, so it is best treated as a useful guide rather than a strict formula.'},
-    {id:'spiritual',name:'Spiritual jazz',origin:'1960s · United States',color:'#967C3B',page:'Spiritual_jazz',aliases:['spiritual jazz'],
-      description:'Jazz connected with spiritual exploration, often using recurring motifs, modal playing and influences from several musical traditions. It can overlap with free jazz and post-bop.'},
+    {id:'traditional',name:'Traditional / New Orleans',origin:'New Orleans, c. 1900–1920s',color:'#A77727',page:'Dixieland',aliases:['dixieland','new orleans jazz','ragtime','traditional jazz'],
+      description:'The first jazz: several horns improvise together over a marching-band two-beat feel.',
+      traits:['Collective improvisation: cornet carries the melody, clarinet weaves above, and trombone plays tailgate slides and lower counter-lines.','Banjo, tuba or string bass, piano and drums play a two-beat feel.','Forms include ragtime multi-strain pieces, 12-bar blues, marches and popular songs; solos are often short breaks or stop-time passages.','The sound uses vocal-like growls, bends, smears and wide vibrato.'],
+      distinctions:['Compared with swing: several horns improvise at once over two beats rather than arranged sections over 4/4.'],
+      legacy:'Grew from ragtime, blues, spirituals, brass bands and Caribbean rhythms—the “Spanish tinge” described by Jelly Roll Morton. Buddy Bolden is often named as the first bandleader, though he was never recorded. The Original Dixieland Jass Band made the first jazz record, “Livery Stable Blues” (1917); after Storyville closed that year, Chicago became a center. Armstrong’s Hot Five and Hot Seven moved the soloist forward. Related styles include Chicago jazz, the 1940s revival, UK trad and living brass bands.',
+      listening:'Pre-1925 acoustic recordings have very limited bass and treble because they were recorded into a horn without microphones; revival-era and modern recordings sound fuller.',
+      records:['King Oliver’s Creole Jazz Band (1923)','The Hot Fives & Hot Sevens','Jelly Roll Morton’s Red Hot Peppers','Sidney Bechet’s Blue Note sides','George Lewis: Jazz at Vespers']},
+    {id:'vocal',name:'Vocal jazz',origin:'A format spanning every era · roots in blues and the 1920s',color:'#985F77',page:'Vocal_jazz',aliases:['vocal jazz','jazz vocal','jazz vocals','vocal'],
+      description:'Jazz led by a singer who improvises on the song through phrasing, melody, scat or vocalese, rather than simply delivering it.',
+      traits:['The singer bends, compresses and sometimes reharmonizes the written melody.','Phrasing can sit behind or ahead of the beat; Billie Holiday is a model.','Scat is wordless improvisation; vocalese sets lyrics to recorded instrumental solos.','Settings include combos, big bands, strings and duos; repertoire draws on the Great American Songbook and blues.'],
+      distinctions:['Compared with traditional pop and crossover, the singer improvises rather than giving a polished delivery. Frank Sinatra sits in the gray zone.'],
+      legacy:'Bessie Smith and Armstrong are early roots; swing-era singers included Ella Fitzgerald with Chick Webb and Billie Holiday with Basie. Postwar bebop-trained singers included Sarah Vaughan and Betty Carter. Later singers include Johnny Hartman, Chet Baker, Cassandra Wilson, Cécile McLorin Salvant and Gregory Porter.',
+      listening:'The voice is a revealing test of midrange accuracy. John Coltrane and Johnny Hartman is a reference-grade Van Gelder recording.',
+      records:['Ella Fitzgerald Sings the Cole Porter Songbook','Ella and Louis','Sarah Vaughan with Clifford Brown','Lady in Satin','John Coltrane and Johnny Hartman','Sing a Song of Basie']},
+    {id:'swing',name:'Swing / Big band',origin:'c. 1930–1945 · New York and Kansas City',color:'#AF6F18',page:'Swing_music',aliases:['swing','big band'],
+      description:'America’s dance music of the 1930s and ’40s: big arranged bands playing riffs in call-and-response over a smooth four-beat swing.',
+      traits:['The even four-beat pulse is exemplified by Basie’s “All-American Rhythm Section” (Freddie Green, Walter Page and Jo Jones); hi-hat takes over timekeeping.','Saxophone, trumpet and trombone sections play call-and-response, with riffs stacked behind soloists.','Kansas City bands often worked out head arrangements by ear.','Arrangers such as Fletcher Henderson, Sy Oliver and Billy Strayhorn shape the sound; star soloists include Lester Young, Coleman Hawkins and Johnny Hodges.','Harmony commonly uses triads, sixths and dominant sevenths.'],
+      distinctions:['Compared with traditional jazz: arranged sections rather than collective polyphony.','Compared with bebop: dance music with simpler harmony.'],
+      legacy:'Groundwork came from Fletcher Henderson’s 1920s orchestra. The swing era is usually dated from Benny Goodman at the Palomar Ballroom in 1935; New York and Kansas City were key centers. It faded around 1942–46 amid the recording ban, wartime draft, cabaret taxes, solo singers and bebop. Goodman’s small groups, Ellington’s player-specific writing, Basie’s “New Testament” band and the Thad Jones/Mel Lewis Orchestra carried it forward.',
+      listening:'Many 1930s sides are mono 78s. For a full-range big-band sound, try late-1950s hi-fi recordings.',
+      records:['Duke Ellington: Blanton–Webster Band','Count Basie’s Decca sides (1937–39)','Benny Goodman: Live at Carnegie Hall 1938','Ellington at Newport 1956','The Atomic Mr. Basie']},
+    {id:'bebop',name:'Bebop',origin:'Early 1940s · Harlem and 52nd Street, New York',color:'#A94F42',page:'Bebop',aliases:['bop','bebop','be-bop'],
+      description:'Fast, harmonically complex small-group jazz from the 1940s that turned jazz from dance music into art music.',
+      traits:['Harmony uses 9ths, 11ths and 13ths, the flatted fifth and tritone substitutions.','Contrafacts set new melodies over borrowed changes: “Ko-Ko” uses “Cherokee” and “Donna Lee” uses “Indiana.”','Long chromatic eighth-note phrases start and end in unexpected places.','Ride-cymbal time, bass-drum “bombs,” walking bass and sparse comping drive the music.','Extreme tempos and the unison head–solos–head form are common.'],
+      distinctions:['Compared with swing: small-group music built for listening.','Compared with hard bop: faster and more angular, with less blues and fewer arrangements.'],
+      legacy:'Early-1940s after-hours sessions at Minton’s and Monroe’s in Harlem shaped the style. Parker and Gillespie developed its language in the Earl Hines and Billy Eckstine big bands; it went public in 1945 and later moved to the 52nd Street clubs. Monk became a distinctive voice; Bud Powell translated Parker’s language to piano, Fats Navarro to trumpet, and Gillespie’s big band and “Cubop” carried it further.',
+      listening:'Most 1945–50 recordings are mono 78s with limited fidelity. On Jazz at Massey Hall, the poorly recorded bass was later overdubbed by Mingus.',
+      records:['Charlie Parker’s Savoy and Dial sessions','Jazz at Massey Hall','The Amazing Bud Powell Vol. 1','Thelonious Monk: Genius of Modern Music','The Fabulous Fats Navarro']},
+    {id:'latin',name:'Latin / Afro-Cuban jazz',origin:'1940s · New York',color:'#AA653A',page:'Afro-Cuban_jazz',aliases:['latin jazz','afro-cuban jazz','afro cuban jazz'],
+      description:'Jazz harmony and improvisation over Afro-Cuban rhythm, organized by the clave and powered by percussion.',
+      traits:['Clave (3–2 or 2–3) governs every part.','Montuno piano figures repeat while tumbao bass lines anticipate the beat.','Congas, bongos, timbales and güiro join the rhythm section.','Tunes may switch between Latin feel and swing; mambo horn riffs and 6/8 Afro-Cuban feels are common.'],
+      distinctions:['Compared with bossa nova: clave and high energy rather than samba and a whisper.','Compared with salsa: improvisation comes first rather than the song.'],
+      legacy:'Mario Bauzá and Machito’s Afro-Cubans recorded “Tanga” (1943); Gillespie and Chano Pozo followed with “Manteca” and “Cubana Be, Cubana Bop” (1947). The Palladium mambo era kept the music on the dance floor. The West Coast added Cal Tjader, Mongo Santamaría and Willie Bobo; 1970s Cuba produced Irakere. Later players include Gonzalo Rubalcaba, Michel Camilo, Danilo Pérez, Chucho and Bebo Valdés.',
+      listening:'Timbale rimshots and conga slaps test transient speed and image focus.',
+      records:['Afro-Cuban Jazz Suite (Machito with Parker; arranged by Chico O’Farrill)','Dizzy Gillespie: Afro','Cal Tjader: Soul Sauce','Mongo Santamaría: Afro Roots','Irakere']},
+    {id:'cool',name:'Cool / West Coast jazz',origin:'1949–1950 · Miles Davis’s nonet; 1950s Los Angeles scene',color:'#28788B',page:'Cool_jazz',aliases:['cool jazz','cool','west coast jazz','west coast'],
+      description:'Bebop’s language played with a light tone, restrained dynamics and carefully arranged counterpoint.',
+      traits:['Light tone with little vibrato, mostly middle register and restrained dynamics.','Counterpoint includes two horns weaving lines and Baroque forms.','Unusual instruments include French horn, tuba, flute and cello.','Meter experiments include Time Out (5/4 and 9/8); classical influence helped lead to Third Stream.'],
+      distinctions:['Compared with bebop: similar harmony, but cooler and more arranged.','Compared with hard bop: restrained rather than heavy and churchy.'],
+      legacy:'Descends from Lester Young and the Claude Thornhill Orchestra. East Coast cool included Tristano, Konitz and the Modern Jazz Quartet. West Coast players included the Mulligan–Baker quartet, Shorty Rogers, Shelly Manne, Jimmy Giuffre and Art Pepper; Brubeck and Desmond came from San Francisco. West Coast also produced hard-swinging players, so “white cool vs. Black hard bop” is too simple.',
+      listening:'Contemporary’s Roy DuNann recordings have an open, natural sound and are audiophile favorites.',
+      records:['Birth of the Cool','Chet Baker Sings','The Gerry Mulligan Quartet sessions','Time Out','Art Pepper Meets the Rhythm Section','Django','Subconscious-Lee']},
+    {id:'hard-bop',name:'Hard bop',origin:'c. 1954–1965 · New York, Detroit and Philadelphia',color:'#8B5F9E',page:'Hard_bop',aliases:['hard bop','hard-bop'],
+      description:'Bebop made earthier and heavier, at medium tempos, with blues and gospel feeling and arranged heads—the classic Blue Note sound.',
+      traits:['Medium and medium-up tempos favor a groove.','Blues and gospel bring minor keys, amen cadences and a backbeat.','Composed heads use intros, interludes, shout choruses and backgrounds.','Big tenor, brassy trumpet and Blakey’s press rolls shape the sound; some swing tunes include Latin sections.'],
+      distinctions:['Compared with bebop: earthier and more arranged.','Compared with soul jazz: still works through chord changes.','Compared with post-bop: standard forms and functional harmony.'],
+      legacy:'Early landmarks include Walkin’, A Night at Birdland, the Brown–Roach Quintet and the Jazz Messengers. Many players came from Detroit and Philadelphia. Blue Note paid for rehearsals; Prestige and Riverside were also central, and the 12-inch LP allowed longer performances. Miles’s Prestige quintet, “The Sidewinder” and the 1980s Young Lions revival are part of its legacy.',
+      listening:'Van Gelder’s sound is close-miked and punchy, and piano can sound boxy. Mid-1950s sessions are often best in mono. Notable reissue series include Tone Poet, Blue Note Classic Vinyl, Music Matters and Analogue Productions.',
+      records:['Moanin’','Saxophone Colossus','Clifford Brown & Max Roach','Soul Station','Somethin’ Else','Blue Train','Song for My Father','The Sidewinder']},
+    {id:'modal',name:'Modal jazz',origin:'Early 1950s theory · Milestones (1958) and Kind of Blue (1959)',color:'#397A52',page:'Modal_jazz',aliases:['modal','modal jazz'],
+      description:'Improvising on scales held for long stretches instead of fast-moving chords creates space, openness and room to explore.',
+      traits:['“So What” is 16 bars of D Dorian, 8 of E♭ Dorian, then 8 of D Dorian.','Modes such as Dorian, Mixolydian and Lydian become the material; “Flamenco Sketches” moves through five scales.','Quartal voicings, pedals, drones and suspended chords keep tension in the soloist rather than chord motion.','Pentatonics, sidestepping outside the mode and Elvin Jones’s polyrhythms are common.'],
+      distinctions:['Compared with hard bop: a few chords held for a long time rather than many moving quickly.','Compared with post-bop: static rather than ambiguous harmony.','Compared with spiritual jazz: no devotional intent is required.'],
+      legacy:'George Russell’s Lydian Chromatic Concept (1953) informed the style. Miles Davis’s “Milestones” and Kind of Blue, Bill Evans’s impressionist harmony, and Coltrane’s Classic Quartet were central; it became a foundation for spiritual jazz, post-bop and fusion vamps.',
+      listening:'Side one of the original Kind of Blue runs slightly fast and sharp, which some reissues correct. Columbia’s 30th Street Studio, a converted church, has a famously natural room sound.',
+      records:['Milestones','Kind of Blue','My Favorite Things','Impressions','Crescent','Maiden Voyage','The Real McCoy']},
+    {id:'soul',name:'Soul jazz',origin:'Late 1950s–early 1970s · United States',color:'#9E6334',page:'Soul_jazz',aliases:['soul-jazz','soul jazz'],
+      description:'The groove-first, gospel-soaked branch of hard bop, often led by Hammond organ: simple forms and big riffs.',
+      traits:['Organ trios pair organ, guitar and drums; the organist plays bass on pedals or left hand.','Hammond drawbars, percussion click and Leslie swirl create its signature sound.','Texas tenors and blues-based, single-note guitar lines often join the organ group.','Shuffle and boogaloo grooves, 12-bar blues, vamps and riff heads shape the music; solos build by intensity, not complexity.'],
+      distinctions:['Compared with hard bop: simpler harmony and heavier groove.','Compared with jazz-funk: acoustic organ shuffle rather than electric sixteenth-note funk.'],
+      legacy:'Jimmy Smith joined Blue Note in 1956. Bobby Timmons wrote “Moanin’” and “This Here,” and Cannonball Adderley’s In San Francisco (1959) popularized the sound. Prestige became an organ label; Argo/Cadet had Ramsey Lewis. Soul jazz fed jazz-funk, rare groove and sampling.',
+      listening:'Organ pedal bass tests low-end articulation, and the Leslie creates a moving sense of space.',
+      records:['The Sermon!','Back at the Chicken Shack','Midnight Blue','Mercy, Mercy, Mercy!','The In Crowd','Alligator Bogaloo','Idle Moments']},
+    {id:'free',name:'Free / Avant-garde jazz',origin:'1959 onward · United States and beyond',color:'#AE4972',page:'Free_jazz',aliases:['free jazz','avant-garde jazz','avant garde jazz','free improvisation','free jazz improvisation'],
+      description:'Jazz that drops fixed chords, meter and form in favor of collective improvisation, texture and raw energy.',
+      traits:['No fixed chord changes: Ornette Coleman’s harmolodics, often without piano.','Pulse may replace meter; Sunny Murray and Milford Graves are landmarks.','Extended techniques include overblowing, multiphonics, screams and clusters.','Collective improvisation echoes New Orleans; texture can include “little instruments” and graphic scores.'],
+      distinctions:['“Free” fully loosens harmony and meter; “avant-garde” is broader and includes structured, adventurous records such as Out to Lunch!.','Compared with post-bop: free jazz may abandon fixed time altogether.','Compared with spiritual jazz: it need not return to a vamp or hymn.'],
+      legacy:'The movement grew from Cecil Taylor’s work in 1956, Ornette Coleman’s records and Five Spot residency, then spread through New York’s October Revolution, ESP-Disk and Impulse!’s “New Thing,” Chicago’s AACM, European free improvisation and later loft and downtown scenes. It was tied to Black Power and musician self-determination.',
+      listening:'Extreme dynamics and dense textures are common; small-label sound quality varies widely.',
+      records:['The Shape of Jazz to Come','Free Jazz','Spiritual Unity','Ascension','Unit Structures','Out to Lunch!','Point of Departure','Machine Gun']},
+    {id:'bossa',name:'Bossa nova / Brazilian jazz',origin:'Late 1950s · Rio de Janeiro',color:'#4A8275',page:'Bossa_nova',aliases:['bossa nova','brazilian jazz','samba-jazz','samba jazz'],
+      description:'A soft, intimate Brazilian style that scales samba rhythm down to one guitar and pairs it with jazz harmony.',
+      traits:['Guitar batida: thumb plays the surdo pattern while fingers play syncopated chords.','Harmony uses maj7, m7♭5, 9ths, 13ths and chromatic voice leading.','Vocals are close-miked and nearly spoken, with little or no vibrato.','Brushes, rim clicks and sparse arrangements are common, sometimes with strings.'],
+      distinctions:['Compared with Afro-Cuban jazz: samba and softness rather than clave and percussion.','Compared with cool jazz: shared restraint, but samba rhythm rather than swing.'],
+      legacy:'Influenced by samba-canção and American cool jazz. João Gilberto’s Chega de Saudade (1959) used songs by Jobim and Vinicius de Moraes. Jazz Samba (1962) reached No. 1 in the US; Getz/Gilberto (1964), produced by Creed Taylor, won Album of the Year. After the 1964 coup, Brazilian music moved toward MPB and Tropicália. Brazilian jazz also includes samba-jazz trios, Elis Regina, Milton Nascimento, Hermeto Pascoal, Airto and Flora Purim, and Native Dancer.',
+      listening:'Intimate recordings work well at low volume. Getz/Gilberto was engineered by Phil Ramone.',
+      records:['Chega de Saudade','Jazz Samba','Getz/Gilberto','The Composer of Desafinado, Plays','Wave','Elis & Tom']},
+    {id:'post-bop',name:'Post-bop',origin:'Mid-1960s · Miles Davis’s Second Quintet and Blue Note',color:'#6875A2',page:'Post-bop',aliases:['post bop','post-bop'],
+      description:'1960s acoustic jazz that opens up forms and harmony and makes the rhythm elastic without going fully free.',
+      traits:['Irregular forms: in Nefertiti the horns repeat the melody while the rhythm section improvises.','Non-functional harmony uses suspended and slash chords for color rather than ii–V–I.','“Time, no changes” keeps tempo while dropping the chord cycle.','An interactive rhythm section makes sudden dynamic shifts; the mood can be dark and cinematic.'],
+      distinctions:['Compared with modal: ambiguous rather than static harmony.','Compared with hard bop: abstract rather than bluesy song forms.','Compared with free jazz: still keeps time and form.'],
+      legacy:'Miles Davis’s Second Great Quintet (1964–68) and Blue Note albums by Shorter, Hancock, Joe Henderson, Hutcherson and Sam Rivers were central. The term is retrospective and can also mean modern acoustic jazz, including 1980s neo-bop; many players later founded fusion.',
+      listening:'Miles’s 30th Street recordings sound roomier than Van Gelder’s Blue Note sessions from the same years.',
+      records:['E.S.P.','Miles Smiles','Nefertiti','JuJu','Speak No Evil','Empyrean Isles','Maiden Voyage','Inner Urge']},
+    {id:'spiritual',name:'Spiritual jazz',origin:'Mid-1960s–1970s · United States',color:'#967C3B',page:'Spiritual_jazz',aliases:['spiritual jazz'],
+      description:'Modal and free jazz used as prayer and meditation, with drones, non-Western sounds, chant and ecstatic peaks.',
+      traits:['Modal drones, pedal points and bass ostinatos build a trance.','Raga and tanpura, African percussion, harp, bells, flutes and gongs add non-Western color.','A calm hymn can rise to a free-jazz climax and return to the groove.','Chants, mantras and devotional traditions shape the voice and intent.'],
+      distinctions:['Compared with modal jazz: similar harmony, but devotional and colored by non-Western sounds.','Compared with free jazz: often returns to a vamp.'],
+      legacy:'A Love Supreme (1965) and late Coltrane were early landmarks. Pharoah Sanders, Alice Coltrane and Sun Ra carried it forward, alongside Impulse!, Strata-East, Black Jazz and Tribe. The style was tied to civil rights and Black consciousness movements. Yusef Lateef’s Eastern Sounds (1961) was an early precursor; later artists include Kamasi Washington, Shabaka Hutchings, Matthew Halsall and Angel Bat Dawid.',
+      listening:'Long builds and wide dynamics combine with dense percussion and harp detail.',
+      records:['A Love Supreme','Karma','Thembi','Journey in Satchidananda','Astral Traveling','Infant Eyes']},
     {id:'fusion',name:'Fusion / Jazz-rock',origin:'Late 1960s · United States and beyond',color:'#797326',page:'Jazz_fusion',aliases:['fusion','jazz fusion','jazz-rock','jazz rock'],
-      description:'Jazz improvisation combines with rock rhythms, electric instruments and studio experimentation. The family includes both forceful electric bands and quieter hybrids.'},
-    {id:'jazz-funk',name:'Jazz-funk',origin:'Late 1960s–1970s · United States',color:'#9E5373',page:'Jazz-funk',aliases:['jazz-funk','jazz funk'],
-      description:'Funk bass lines, syncopated grooves and jazz improvisation, often with electric keyboards and danceable rhythms. It overlaps with fusion and soul jazz.'},
-    {id:'contemporary',name:'Contemporary jazz',origin:'Late 20th century onward · international; a broad label',color:'#487C9A',page:'Jazz',aliases:['contemporary jazz'],
-      description:'A broad metadata label for modern jazz approaches, not a single movement with one birth date. A new recording of hard bop still belongs under Hard bop, not here merely because it is recent.'},
-    {id:'crossover',name:'Crossover jazz',origin:'Late 20th century onward · international; a broad label',color:'#587D91',page:'Jazz',aliases:['crossover jazz','smooth jazz','jazz-pop','jazz pop'],
-      description:'Jazz blended with pop and other accessible styles, often aimed at audiences beyond jazz. This group also includes smooth jazz and jazz-pop metadata; it can overlap with Contemporary jazz without being the same category.'},
-    {id:'nu-jazz',name:'Nu jazz / Jazztronica',origin:'1990s onward · international',color:'#637D48',page:'Nu_jazz',aliases:['nu jazz','nu-jazz','jazztronica','future jazz'],
-      description:'Jazz ideas meet electronic production, sampling and club rhythms. Acoustic playing and programmed sounds often share the same space.'}
+      description:'Jazz improvisation with rock’s electric instruments, volume and straight-eighth rhythms, often focused on virtuosity.',
+      traits:['Electric Rhodes, Moog and ARP, distorted guitar and fretless bass.','Rock and funk feels, odd meters and double bass drums.','Fast unison lines, high volume and long vamps.','Through-composed textures, studio editing, and Indian and Brazilian influences.'],
+      distinctions:['Compared with jazz-funk: rock energy rather than the dance-floor pocket.','Compared with post-bop: often the same players, but electric.'],
+      legacy:'Gary Burton’s Duster, Tony Williams Lifetime and Miles Davis’s path from Miles in the Sky to Bitches Brew helped establish the style, influenced by Hendrix, Sly Stone and James Brown. Miles’s sidemen formed Mahavishnu Orchestra, Weather Report and Return to Forever; rock-side fusion includes Zappa and Jeff Beck. Later paths include Pat Metheny, the Brecker Brothers, Allan Holdsworth and smooth jazz.',
+      listening:'Loud, dense mixes test amplifier headroom.',
+      records:['In a Silent Way','Bitches Brew','Emergency!','The Inner Mounting Flame','Birds of Fire','Heavy Weather','Romantic Warrior']},
+    {id:'jazz-funk',name:'Jazz-funk',origin:'1970s · United States; UK club scene later',color:'#9E5373',page:'Jazz-funk',aliases:['jazz-funk','jazz funk'],
+      description:'Jazz musicianship over sixteenth-note funk grooves, where the groove comes first and solos are short.',
+      traits:['Grooves on “the one,” slap bass and tightly locked rhythm sections.','Clavinet, phased Rhodes, ARP and Minimoog bass color the sound.','One- or two-chord Dorian vamps, horn stabs, layered percussion, vocal hooks and polished production.','Solos tend to be short and melodic.'],
+      distinctions:['Compared with fusion: groove rather than virtuosity.','Compared with soul jazz: electric funk rather than organ shuffle.','Compared with crossover: dance-floor focus rather than radio melody.','Compared with nu jazz: live band rather than programmed beats.'],
+      legacy:'Grew from soul jazz and boogaloo; On the Corner (1972) was an experimental extreme. Head Hunters and Black Byrd (1973) helped define it. Other figures include Roy Ayers, Lonnie Liston Smith and CTI/Kudu. UK club culture led to rare groove and acid jazz; hip-hop sampled tracks such as “Nautilus” and “Everybody Loves the Sunshine.”',
+      listening:'Bass- and kick-drum-driven records show how tight the low end is.',
+      records:['Head Hunters','Thrust','Black Byrd','Places and Spaces','Blacks and Blues','Everybody Loves the Sunshine','Expansions','Mister Magic']},
+    {id:'crossover',name:'Crossover jazz',origin:'Late 1960s onward · jazz meets pop, R&B and classical music',color:'#587D91',page:'Jazz',aliases:['crossover jazz','smooth jazz','jazz-pop','jazz pop'],
+      description:'Jazz blended with pop, R&B or classical for a mass audience, with melody and production ahead of improvisation.',
+      traits:['Recognizable tunes and short, lyrical solos put melody first.','Pop, R&B and rock covers become core repertoire.','Lush strings and horns, soft-funk grooves and ballads use radio-length forms.','Production is polished and layered.'],
+      distinctions:['Compared with jazz-funk: aimed at radio rather than the dance floor.','Compared with contemporary jazz: accessibility over exploration.','Compared with vocal jazz: polished pop delivery rather than improvisation.'],
+      legacy:'Creed Taylor shaped the formula with Wes Montgomery at Verve, then A&M and CTI. Deodato, Bob James, George Benson and Grover Washington Jr. helped carry it toward smooth jazz. Vocal jazz-pop artists such as Norah Jones, Diana Krall and Jamie Cullum fit the broader idea. Third Stream is a separate art-music crossover. Wes Montgomery and George Benson were also first-rate improvisers.',
+      listening:'CTI’s Van Gelder recordings are lush; notable audiophile reissues are available.',
+      records:['Bumpin’','A Day in the Life','Prelude','Bob James: One','Breezin’','Winelight','Come Away with Me']},
+    {id:'contemporary',name:'Contemporary jazz',origin:'1980s–1990s industry term · critical term from the 1990s to today',color:'#487C9A',page:'Jazz',aliases:['contemporary jazz'],
+      description:'A broad label for post-1980 jazz: either polished, radio-friendly electric jazz or today’s genre-blending improvised music.',
+      traits:['Today’s music may use odd meters, J Dilla-style behind-the-beat feel and straight eighths.','Radiohead, Björk and Nirvana can serve as new standards alongside original music.','Harmony ranges from pop progressions and modal pedals to through-composed forms.','Electronics and processing can be part of the band’s sound.'],
+      distinctions:['Compared with nu jazz: band-led rather than producer-led.','Compared with crossover: improvisation still comes first.'],
+      legacy:'The industry term covered GRP and radio formats such as Spyro Gyra, the Yellowjackets, David Sanborn and the Pat Metheny Group, overlapping with smooth jazz. The critical sense includes Brad Mehldau, E.S.T., The Bad Plus, Robert Glasper, Kamasi Washington, the UK scene and large-ensemble composers. In collection tagging it can be a catch-all, so a group of nine may be a mixed bag.',
+      listening:'Sound quality varies. ECM recordings are known for a clean, reverberant sound associated with Jan Erik Kongshaug’s work at Rainbow Studio.',
+      records:['Brad Mehldau: Art of the Trio Vol. 3','E.S.T.: Seven Days of Falling','The Bad Plus: These Are the Vistas','Vijay Iyer: Historicity','Maria Schneider: Concert in the Garden','Robert Glasper: Black Radio','Kamasi Washington: The Epic','Shabaka Hutchings: Your Queen Is a Reptile']},
+    {id:'nu-jazz',name:'Nu jazz / Jazztronica',origin:'Mid-1990s–2000s · international',color:'#637D48',page:'Nu_jazz',aliases:['nu jazz','nu-jazz','jazztronica','future jazz'],
+      description:'Producer-built electronic music—house, broken beat or downtempo—with jazz instruments and samples, made for clubs and late-night listening.',
+      traits:['House, drum and bass, broken beat and trip-hop underpin jazz instruments.','Loops, samples and studio layering make it producer-led rather than a single live take.','Atmosphere can matter more than improvisation; short solos may act as texture.','Club and lounge settings, including remix projects, are common.'],
+      distinctions:['Compared with jazz-funk: programmed rather than played live.','Compared with contemporary jazz: the producer builds the track rather than a band improvising.'],
+      legacy:'Grew from UK acid jazz labels and acts such as Talkin’ Loud, Incognito and US3. Scenes include Bugge Wesseltoft and Nils Petter Molvær in Norway; Jazzanova and Compost in Germany; St Germain in France; and the Cinematic Orchestra and 4hero in the UK. It feeds today’s UK jazz and electronic crossover.',
+      listening:'Sound depends on production and mastering rather than capturing a room—the opposite of Van Gelder-era hard bop.',
+      records:['St Germain: Tourist','The Cinematic Orchestra: Every Day','Jazzanova: In Between','Nils Petter Molvær: Khmer','Bugge Wesseltoft: New Conception of Jazz','Koop: Waltz for Koop','A Livingroom Hush']}
+  ];
+  var JAZZ_ERAS = [
+    {period:'c. 1900–1920s',title:'Jazz takes shape',description:'New Orleans ensemble traditions grow from blues, ragtime, brass bands and other musical roots.',styles:['traditional']},
+    {period:'1930s–1940s',title:'Jazz becomes popular music',description:'Swing and big bands bring arranged jazz to dance halls; vocalists move between bands and small groups.',styles:['swing']},
+    {period:'1940s–1950s',title:'Modern jazz branches out',description:'Bebop shifts attention to small-group improvisation, while cool and hard bop develop distinct ensemble sounds.',styles:['bebop','cool','hard-bop']},
+    {period:'1940s–1960s',title:'New rhythmic and harmonic directions',description:'Players explore Afro-Cuban rhythm, Brazilian song, modal harmony, freer forms, spiritual expression and groove-led soul jazz. These strands overlap rather than form a single sequence.',styles:['latin','bossa','modal','free','spiritual','soul']},
+    {period:'1950s–1960s',title:'Post-bop opens the form',description:'Acoustic groups stretch familiar structures and harmony without necessarily abandoning time or form.',styles:['post-bop']},
+    {period:'late 1960s onward',title:'Electric, groove-led and hybrid sounds',description:'Jazz meets rock, funk, pop and electronic production in several overlapping scenes and approaches.',styles:['fusion','jazz-funk','crossover','nu-jazz','contemporary']}
+  ];
+  var JAZZ_CROSSCUTTING_STYLES = ['vocal','crossover','contemporary'];
+  var JAZZ_LEARNING_PATHS = [
+    {title:'From ensemble to soloist',question:'How does the music move from several horns improvising together to arranged sections and then small-group soloing?',styles:['traditional','swing','bebop','hard-bop']},
+    {title:'How much can harmony loosen?',question:'Compare fast-moving changes, long modal spaces, post-bop ambiguity and free improvisation.',styles:['bebop','modal','post-bop','free']},
+    {title:'Different ways to build a groove',question:'Listen for clave, samba guitar, gospel-inflected organ, funk pocket and rock energy. These are comparisons, not one family tree.',styles:['latin','bossa','soul','jazz-funk','fusion']},
+    {title:'Styles, formats and broad labels',question:'Some labels describe a way of singing; others describe a market category or a blend of traditions.',styles:['vocal','crossover','contemporary','nu-jazz']}
   ];
   var JAZZ_STYLE_SEEDS = {
     34125637:{ids:['vocal'],page:'All_or_Nothing_at_All_(album)'},
@@ -1255,6 +1390,7 @@ async function idbDelete(key){
     COVERS: typeof EMBEDDED_COVERS !== 'undefined' ? EMBEDDED_COVERS : {},
     PORTRAITS: typeof EMBEDDED_PORTRAITS !== 'undefined' ? EMBEDDED_PORTRAITS : {}
   };
+  var hostedShell = location.protocol !== 'file:' && DATA.META.hostedShell === true;
   var HTML_BACKUP_KEY = 'collection-html-backup', HTML_RESTORE_KEY = 'rcHTMLRestore_v1';
   function htmlBackupStore(action, value, key){
     key = key || HTML_BACKUP_KEY;
@@ -1276,7 +1412,7 @@ async function idbDelete(key){
   }
   var importedHTML;
   try {
-    importedHTML = await htmlBackupStore('get');
+    importedHTML = hostedShell ? null : await htmlBackupStore('get');
     if(importedHTML){
       if(localStorage.getItem(HTML_RESTORE_KEY) !== importedHTML.restoredAt){
         ['rcEdits_v1','rcImportedCSV','rcImportedAt','fs-user-records-v4','rcRemoved_v1','rcCache_v1',
@@ -1297,6 +1433,7 @@ async function idbDelete(key){
   }
   var cloud = {
     enabled:location.protocol !== 'file:',
+    hostedShell:hostedShell,
     url:'https://jrrhnegaokissvkrkted.supabase.co',
     key:'sb_publishable_00u5O-4JNKSOh2J2zA9A3w_TjnwZUPE',
     owner:'e585fe35-5450-4588-b33a-0098fbf93415',
@@ -1432,7 +1569,8 @@ async function idbDelete(key){
         cloud.published ? 'Cloud collection loaded. ' + (cloud.session ? 'Owner signed in; edits save automatically.' : 'Public read-only view. Sign in to edit.') :
         'No cloud collection published yet. Sign in and publish your current collection.');
     } catch(err){
-      cloudStatus('Cloud unavailable. Showing a local backup, not necessarily the latest collection. ' + err.message);
+      cloudStatus((cloud.hostedShell ? 'Cloud unavailable. No collection loaded. ' :
+        'Cloud unavailable. Showing a local backup, not necessarily the latest collection. ') + err.message);
       notify('Could not load cloud data. Editing is disabled: ' + err.message,null,true);
     }
   }
@@ -1642,7 +1780,7 @@ async function idbDelete(key){
 
   /* ---------- caches (credits, summaries, Discogs bios / artist ids) ---------- */
   var CACHE_KINDS = ['credits','summaries','bios','dgArtists'];
-  var cache = cloud.enabled && cloud.published ? {} : lsGet(LS_CACHE, {}) || {};
+  var cache = cloud.enabled && (cloud.published || cloud.hostedShell) ? {} : lsGet(LS_CACHE, {}) || {};
   CACHE_KINDS.forEach(function(k){ if(!cache[k] || typeof cache[k] !== 'object') cache[k] = {}; });
   var cacheTimer;
   function saveCache(){
@@ -1829,6 +1967,12 @@ async function idbDelete(key){
     }
     return ids.filter(function(id,i){ return ids.indexOf(id) === i; });
   }
+  function jazzStyleMatchesMetadata(style,label,r){
+    if(typeof label !== 'string') return false;
+    var name = label.toLowerCase().trim();
+    if(style.id === 'vocal' && name === 'vocal' && r.g !== 'Jazz') return false;
+    return style.aliases.indexOf(name) >= 0;
+  }
   function jazzClassification(r){
     if(Array.isArray(r.jazzStyles)) return {ids:r.jazzStyles,source:'Your classification',raw:[]};
     var credits = cacheGet('credits',r.id), sum = cacheGet('summaries',editKey(r));
@@ -1837,11 +1981,7 @@ async function idbDelete(key){
     if(!raw.length && !(credits && credits.stylesChecked)){ raw = sum && sum.styles || []; source = 'Cached summary style metadata'; }
     raw = raw.filter(function(s,i){ return typeof s === 'string' && raw.indexOf(s) === i; });
     var ids = JAZZ_STYLES.filter(function(style){
-      return raw.some(function(s){
-        var name = s.toLowerCase().trim();
-        if(style.id === 'vocal' && name === 'vocal' && r.g !== 'Jazz') return false;
-        return style.aliases.indexOf(name) >= 0;
-      });
+      return raw.some(function(s){ return jazzStyleMatchesMetadata(style,s,r); });
     }).map(function(s){ return s.id; });
     var seed = JAZZ_STYLE_SEEDS[r.id];
     if(!ids.length && seed) return {ids:seed.ids.slice(),source:'Album reference',url:'https://en.wikipedia.org/wiki/'+seed.page,raw:raw};
@@ -1912,14 +2052,15 @@ async function idbDelete(key){
   var importInfo = { used:false, rows:0 };
   var bakedKeys = {};
   function loadCollection(){
+    if(cloud.hostedShell && !cloud.ready) return;
     var baked = parseTable(DATA.CSV).rows.map(makeRecord).filter(Boolean);
     baked.forEach(function(r){ bakedKeys[r.key] = 1; });
-    var impText = cloud.enabled && cloud.published ? null : lsRaw(LS_IMPORT), impAt = lsRaw(LS_IMPORT_AT) || '';
+    var impText = cloud.enabled && (cloud.published || cloud.hostedShell) ? null : lsRaw(LS_IMPORT), impAt = lsRaw(LS_IMPORT_AT) || '';
     var imported = [];
     if(impText){ try { imported = parseTable(impText).rows.map(makeRecord).filter(Boolean); } catch(e){ imported = []; } }
     var importNewer = !!impAt && impAt > BAKED_AT;
     /* Records you removed here stay removed unless a copy edited after the removal comes back. */
-    var removed = cloud.enabled && cloud.published ? {} : lsGet(LS_REMOVED, {}) || {};
+    var removed = cloud.enabled && (cloud.published || cloud.hostedShell) ? {} : lsGet(LS_REMOVED, {}) || {};
     function wasRemoved(r){ var t = removed[r.key]; return !!t && !bakedKeys[r.key] && !((r.mt || '') > t); }
     function consider(r, newerSource){
       if(wasRemoved(r)) return false;
@@ -1956,14 +2097,14 @@ async function idbDelete(key){
       r.i = recs.length; recs.push(r); byKey[r.key] = r;
     });
     recs.forEach(function(r){ r.__userAdded = !bakedKeys[r.key] || !!(cloud.enabled && DATA.USER_KEYS && DATA.USER_KEYS.indexOf(r.key) >= 0); });
-    if(!cloud.enabled || !cloud.published) migrateLegacy();
+    if(!cloud.enabled || (!cloud.published && !cloud.hostedShell)) migrateLegacy();
     applyEdits();
     recs.forEach(refreshRecord);
     if(recs.some(function(r){ return r.__userAdded; })) saveUserRecords();
   }
 
   function loadUserRecords(){
-    if(cloud.enabled && cloud.published) return [];
+    if(cloud.enabled && (cloud.published || cloud.hostedShell)) return [];
     var arr = lsGet(LS_USER, []);
     return Array.isArray(arr) ? arr : [];
   }
@@ -1980,7 +2121,7 @@ async function idbDelete(key){
 
   /* ---------- edits made in this browser ---------- */
   var EDIT_FIELDS = ['g','sl','n','x','p','recording','jazzStyles'];
-  var edits = cloud.enabled && cloud.published ? {} : lsGet(LS_EDITS, {}) || {};
+  var edits = cloud.enabled && (cloud.published || cloud.hostedShell) ? {} : lsGet(LS_EDITS, {}) || {};
   function editKey(r){ return r.id ? String(r.id) : r.key; }
   function saveEdits(){ return lsSet(LS_EDITS, edits); }
   function applyEdits(){
@@ -2438,24 +2579,41 @@ async function idbDelete(key){
     tb.append(f); t.append(thead, tb); wrap.append(t); return wrap;
   }
   var jazzGroupOpen = {};
-  function jazzCard(r){
+  function jazzClassificationEvidence(classification,r,style){
+    if(classification.source === 'Your classification') return classification.source;
+    var matched = classification.raw.filter(function(label){ return jazzStyleMatchesMetadata(style,label,r); });
+    return matched.length ? classification.source+' · matched: '+matched.join(', ') : classification.source;
+  }
+  function jazzCard(r,style){
     var classification = jazzClassification(r), b = el('button','jazz-card');
     b.type = 'button'; b.dataset.i = r.i; b.style.setProperty('--h',r.hue);
     b.setAttribute('aria-label',r.a + ' — ' + r.t + '. Open record details.');
     if(r.img){ var img = el('img'); img.src = r.img; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; b.append(img); }
     else b.append(el('span','no-cover'));
-    b.append(el('strong','',r.a),el('span','record-title',r.t),el('small','',classification.source));
+    b.append(el('strong','',r.a),el('span','record-title',r.t),el('small','jazz-evidence',jazzClassificationEvidence(classification,r,style)));
     return b;
+  }
+  function jazzNormalizedTitle(value){
+    return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+  }
+  function jazzKeyRecordMatches(reference,record){
+    var referenceTitle = String(reference || '').trim(), colon = referenceTitle.indexOf(':');
+    if(colon >= 0){
+      var artistPrefix = jazzNormalizedTitle(referenceTitle.slice(0,colon));
+      var recordArtist = jazzNormalizedTitle(record.a);
+      if(artistPrefix && recordArtist.indexOf(artistPrefix) >= 0) referenceTitle = referenceTitle.slice(colon+1).trim();
+    }
+    var title = jazzNormalizedTitle(record.t);
+    return !!title && jazzNormalizedTitle(referenceTitle) === title;
   }
   function buildJazzStyles(list){
     var section = el('section','jazz-styles'); section.setAttribute('aria-label','Explore jazz styles');
     var intro = el('div','jazz-intro');
-    intro.append(el('h2','','Your jazz, by style'),
-      el('p','','Follow the development of jazz through your collection. Sections follow approximate origins, not album dates: a modern hard-bop recording belongs with Hard bop.'),
-      el('p','','Styles overlap and branch, rather than replacing one another. Albums may appear in several sections; counts describe records, not unique album titles. Search, filters and sorting still apply.'));
-    var fetch = el('button','btn','Fetch missing style metadata'); fetch.type = 'button'; fetch.dataset.fetchMissingJazz = '1';
-    intro.append(fetch,el('p','','Classification uses available style metadata or linked album references, never the album date. Your manual choices take precedence. Missing metadata can be fetched on the hosted site.'));
+    intro.append(el('h2','','A map of jazz styles'),
+      el('p','','Learn what the styles sound like, how they connect, and which records in your collection illustrate them. Jazz is a network of overlapping ideas, not a ladder of styles that replaced one another.'),
+      el('p','','The timeline is approximate. Some labels describe a period or movement; others describe a musical approach, a cross-era format or a broad category.'));
     section.append(intro);
+    var fetch = el('button','btn','Fetch missing style metadata'); fetch.type = 'button'; fetch.dataset.fetchMissingJazz = '1';
     var buckets = {};
     JAZZ_STYLES.forEach(function(s){ buckets[s.id] = []; });
     var unclassified = [];
@@ -2465,29 +2623,114 @@ async function idbDelete(key){
       ids.forEach(function(id){ if(buckets[id]) buckets[id].push(r); });
     });
     section.append(el('p','count',list.length+' matching jazz records · '+(list.length-unclassified.length)+' classified · '+unclassified.length+' unclassified. Multi-style records count once in each relevant section.'));
-    var jump = el('nav','jazz-jump'); jump.setAttribute('aria-label','Jump to jazz style');
-    JAZZ_STYLES.concat([{id:'unclassified',name:'Unclassified'}]).forEach(function(s){
-      var records = s.id === 'unclassified' ? unclassified : buckets[s.id];
-      if(!records.length) return;
-      var a = el('a','',s.name+' ('+records.length+')'); a.href = '#jazz-style-'+s.id; a.dataset.jazzJump = s.id; jump.append(a);
-    });
-    section.append(jump);
+    var tools = el('details','jazz-tools');
+    var toolsBody = el('div','jazz-tools-body');
+    toolsBody.append(el('p','', 'Classification uses available style metadata or linked album references, never the album date. Your manual choices take precedence. Missing metadata can be fetched on the hosted site.'),fetch);
+    tools.append(el('summary','','Collection classification tools'),toolsBody);
+    section.append(tools);
     if(!list.length){
       section.append(el('p','','No jazz records match these filters.'));
       var reset = el('button','btn','Clear collection filters'); reset.type = 'button'; reset.dataset.clear = '1'; section.append(reset);
     }
+    function styleLinks(ids){
+      var links = el('div','jazz-style-links');
+      ids.forEach(function(id){
+        var style = JAZZ_STYLES.find(function(candidate){ return candidate.id === id; });
+        if(!style) return;
+        var a = el('a','jazz-map-link',style.name+' · '+buckets[id].length);
+        a.href = '#jazz-style-'+id; a.dataset.jazzJump = id; links.append(a);
+      });
+      return links;
+    }
+    var overview = el('section','jazz-overview'); overview.id = 'jazz-map'; overview.setAttribute('aria-labelledby','jazz-map-title');
+    overview.append(el('h3','','Jazz in eras')); overview.lastChild.id = 'jazz-map-title';
+    overview.append(el('p','jazz-overview-intro','These are orientation points, not strict boundaries. Styles overlap, develop in parallel and continue in later recordings.'));
+    var timeline = el('div','jazz-timeline');
+    JAZZ_ERAS.forEach(function(era){
+      var card = el('article','jazz-era');
+      card.append(el('p','jazz-period',era.period),el('h4','',era.title),el('p','',era.description),styleLinks(era.styles));
+      timeline.append(card);
+    });
+    overview.append(timeline);
+    var lenses = el('div','jazz-lenses');
+    lenses.append(el('h4','','A few labels work across the timeline'),
+      el('p','','Vocal jazz describes a format; crossover describes a way of blending music for wider audiences; contemporary jazz can mean either a radio category or a current critical umbrella.'),
+      styleLinks(JAZZ_CROSSCUTTING_STYLES));
+    overview.append(lenses); section.append(overview);
+    var learning = el('section','jazz-learning'); learning.id = 'jazz-learning'; learning.setAttribute('aria-labelledby','jazz-learning-title');
+    learning.append(el('h3','','Try a listening path')); learning.lastChild.id = 'jazz-learning-title';
+    learning.append(el('p','jazz-overview-intro','Choose a question and compare the linked styles. These paths are ways into the music, not definitive genealogies.'));
+    var paths = el('div','jazz-paths');
+    JAZZ_LEARNING_PATHS.forEach(function(path){
+      var card = el('article','jazz-path');
+      card.append(el('h4','',path.title),el('p','',path.question),styleLinks(path.styles));
+      paths.append(card);
+    });
+    learning.append(paths); section.append(learning);
+    var jump = el('nav','jazz-jump'); jump.id = 'jazz-index'; jump.setAttribute('aria-label','Browse all jazz styles');
+    jump.append(el('h3','','Browse all styles'));
+    JAZZ_STYLES.concat([{id:'unclassified',name:'Unclassified'}]).forEach(function(style){
+      var records = style.id === 'unclassified' ? unclassified : buckets[style.id];
+      var a = el('a','',style.name+' · '+records.length); a.href = '#jazz-style-'+style.id; a.dataset.jazzJump = style.id; jump.append(a);
+    });
+    section.append(jump);
     JAZZ_STYLES.concat([{id:'unclassified',name:'Unclassified',origin:'Needs a style review',description:'No supported subgenre classification yet, or deliberately left unclassified by you. Open an album and expand Jazz styles to fetch its Discogs styles or choose one or more subgenres. Dates and artist names are never used to guess a style.'}]).forEach(function(style){
       var records = style.id === 'unclassified' ? unclassified : buckets[style.id];
       var group = el('details','jazz-group'); group.id = 'jazz-style-'+style.id; group.dataset.jazzGroup = style.id;
       group.style.setProperty('--style-color',style.color || 'var(--accent)');
-      group.open = style.id in jazzGroupOpen ? jazzGroupOpen[style.id] : records.length > 0;
-      var summary = el('summary','',style.name+' · '+plural(records.length,'record'));
-      summary.append(el('span','origin',style.origin)); group.append(summary,el('p','',style.description));
-      if(style.page){ var source = el('a','','Style background & origins'); source.href = 'https://en.wikipedia.org/wiki/'+style.page; source.target = '_blank'; source.rel = 'noopener'; group.append(source); }
+      group.open = style.id in jazzGroupOpen ? jazzGroupOpen[style.id] : false;
+      var summary = el('summary','jazz-summary'), summaryTop = el('span','jazz-summary-top');
+      summaryTop.append(el('span','jazz-style-name',style.name),el('span','jazz-style-count',plural(records.length,'record')));
+      summary.append(summaryTop,el('span','origin',style.origin),el('span','jazz-dek',style.description));
+      var body = el('div','jazz-body');
+      if(style.page){ var source = el('a','','Style background & origins'); source.href = 'https://en.wikipedia.org/wiki/'+style.page; source.target = '_blank'; source.rel = 'noopener'; body.append(source); }
+      if(style.traits && style.traits.length){
+        body.append(el('h3','','What to listen for'));
+        var traits = el('ul','jazz-notes');
+        style.traits.forEach(function(trait){ traits.append(el('li','',trait)); });
+        body.append(traits);
+      }
+      if(style.distinctions && style.distinctions.length){
+        body.append(el('h3','','How it differs'));
+        var distinctions = el('ul','jazz-notes');
+        style.distinctions.forEach(function(distinction){ distinctions.append(el('li','',distinction)); });
+        body.append(distinctions);
+      }
+      if(style.legacy){
+        body.append(el('h3','','History and connections'),el('p','jazz-note',style.legacy));
+      }
+      if(style.listening){
+        body.append(el('h3','','Recording note'),el('p','jazz-note',style.listening));
+      }
+      if(style.records && style.records.length){
+        body.append(el('h3','','Key listening'));
+        var recordsList = el('ul','jazz-notes');
+        var linkedCollectionRecords = {};
+        style.records.forEach(function(record){
+          var item = el('li'), matches = records.filter(function(r){
+            return !linkedCollectionRecords[r.key] && jazzKeyRecordMatches(record,r);
+          });
+          item.append(el('span','',record));
+          matches.forEach(function(r){
+            linkedCollectionRecords[r.key] = true;
+            var link = el('button','jazz-key-match'), classification = jazzClassification(r);
+            link.type = 'button'; link.dataset.i = r.i;
+            link.setAttribute('aria-label','Open collection record '+r.a+' — '+r.t);
+            link.append(el('span','','In your collection · '+r.a+' — '+r.t),
+              el('small','jazz-evidence',jazzClassificationEvidence(classification,r,style)));
+            item.append(link);
+          });
+          recordsList.append(item);
+        });
+        body.append(recordsList);
+      }
       if(records.length){
-        var cards = el('div','jazz-cards'); records.forEach(function(r){ cards.append(jazzCard(r)); }); group.append(cards);
-      } else group.append(el('p','','No matching records in this section.'));
-      section.append(group);
+        body.append(el('h3','','In your collection · '+plural(records.length,'record')));
+        var cards = el('div','jazz-cards');
+        records.forEach(function(r){ if(!linkedCollectionRecords || !linkedCollectionRecords[r.key]) cards.append(jazzCard(r,style)); });
+        if(cards.childNodes.length) body.append(cards);
+      } else body.append(el('h3','','In your collection'),el('p','jazz-note','No matching records in this section.'));
+      group.append(summary,body); section.append(group);
     });
     return section;
   }
@@ -4611,6 +4854,10 @@ async function idbDelete(key){
     return out;
   }
   async function saveAsHTML(){
+    if(cloud.hostedShell && (!cloud.ready || !recs.length)){
+      notify('Cannot export a backup before the cloud collection has loaded. Load the latest cloud collection and retry.',null,true);
+      return;
+    }
     try {
       var filename = 'Records Collection ' + todayStamp() + '.html', fileHandle = null;
       if(typeof window.showSaveFilePicker === 'function'){
@@ -5168,12 +5415,12 @@ async function idbDelete(key){
         var val = store[key];
         if(key.indexOf('cover:') === 0){
           var r = byKey['id:' + parseInt(key.slice(6), 10)];
-          if(r && !r.img && !(cloud.enabled && cloud.published)){ r.img = val; covers++; }
+          if(r && !r.img && !(cloud.enabled && (cloud.published || cloud.hostedShell))){ r.img = val; covers++; }
         } else if(key.indexOf('portrait:') === 0){
           var raw = key.slice(9);
           if(!badPurged && BAD_PORTRAITS.indexOf(raw) >= 0){ idbDelete(key).catch(function(){}); return; }
           var a = artistIndex[artistKey(raw)];
-          if(a && !a.portrait && !(cloud.enabled && cloud.published)){ a.portrait = val; portraits++; }
+          if(a && !a.portrait && !(cloud.enabled && (cloud.published || cloud.hostedShell))){ a.portrait = val; portraits++; }
         }
       });
       lsSet('rcBadPortraitsPurged_v1', '1');

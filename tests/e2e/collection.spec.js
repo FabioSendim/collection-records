@@ -95,6 +95,34 @@ test('switches between sleeves, table, and jazz styles', async ({ page }) => {
   await page.locator('#vjazz').click();
   await expect(page.locator('#out .jazz-styles')).toBeVisible();
   await expect(page.locator('#vjazz')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#jazz-map .jazz-era')).toHaveCount(6);
+  await expect(page.locator('#jazz-learning .jazz-path')).toHaveCount(4);
+  await expect(page.locator('#jazz-index a')).toHaveCount(19);
+  expect(await page.locator('#jazz-map .jazz-map-link').evaluateAll((links) => new Set(links.map((link) => link.dataset.jazzJump)).size)).toBe(18);
+  await expect(page.locator('#jazz-style-vocal > summary')).toContainText('Jazz led by a singer');
+  expect(await page.locator('#jazz-style-vocal').evaluate((group) => group.open)).toBe(false);
+  await page.locator('#jazz-map .jazz-map-link').filter({ hasText: 'Traditional / New Orleans' }).click();
+  expect(await page.locator('#jazz-style-traditional').evaluate((group) => group.open)).toBe(true);
+  await page.locator('#jazz-style-vocal > summary').click();
+  await expect(page.locator('#jazz-style-vocal')).toContainText('What to listen for');
+  await expect(page.locator('#jazz-style-vocal')).toContainText('Key listening');
+  await expect(page.locator('#jazz-style-vocal')).toContainText('In your collection');
+  const modalKeyRecord = page.locator('#jazz-style-modal .jazz-key-match').filter({ hasText: /kind of blue/i });
+  expect(await modalKeyRecord.count()).toBeGreaterThan(0);
+  await expect(modalKeyRecord.first().locator('.jazz-evidence')).not.toBeEmpty();
+  await expect(page.locator('#jazz-style-modal .jazz-card .record-title').filter({ hasText: /birth of the blue/i })).toHaveCount(1);
+  await expect(page.locator('#jazz-style-vocal .jazz-card .jazz-evidence').first()).not.toBeEmpty();
+  for (const id of ['traditional', 'swing', 'vocal', 'bebop', 'contemporary', 'crossover', 'nu-jazz']) {
+    await page.locator('#jazz-style-' + id).evaluate((group) => { group.open = true; });
+  }
+  await expect(page.locator('#jazz-style-vocal')).toContainText('Heebie Jeebies');
+  await expect(page.locator('#jazz-style-swing')).toContainText('head arrangements');
+  await expect(page.locator('#jazz-style-bebop')).toContainText('Donna Lee');
+  await expect(page.locator('#jazz-style-contemporary')).toContainText('post-1980 jazz');
+  await expect(page.locator('#jazz-style-crossover')).toContainText('Third Stream');
+  await expect(page.locator('#jazz-style-traditional')).toContainText('two-beat feel');
+  await expect(page.locator('#jazz-style-nu-jazz')).toContainText('producer-led');
+  await expect(page.locator('#jazz-style-vocal .jazz-notes li')).toHaveCount(11);
 
   await page.locator('#vgrid').click();
   await expect(page.locator('#out .grid')).toBeVisible();

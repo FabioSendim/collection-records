@@ -13,7 +13,7 @@ module.exports = defineConfig({
     trace: 'retain-on-failure'
   },
   webServer: {
-    command: 'node tests/e2e/server.js',
+    command: 'npm run build && node tests/e2e/server.js',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: false,
     timeout: 30000
