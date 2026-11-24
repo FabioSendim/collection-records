@@ -53,4 +53,12 @@ test('build includes the brand logo in the Netlify publish directory', () => {
     readFileSync(join(root, 'dist', 'assets', 'the-crate-vinyl-logo.png')),
     readFileSync(join(root, 'assets', 'the-crate-vinyl-logo.png'))
   );
+  assert.deepEqual(
+    readFileSync(join(root, 'dist', 'assets', 'zxing-browser.min.js')),
+    readFileSync(join(root, 'node_modules', '@zxing', 'browser', 'umd', 'zxing-browser.min.js'))
+  );
+  assert.deepEqual(
+    readFileSync(join(root, 'dist', 'assets', 'zxing-browser-LICENSE.txt')),
+    readFileSync(join(root, 'node_modules', '@zxing', 'browser', 'LICENSE'))
+  );
 });

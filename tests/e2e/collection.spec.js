@@ -79,6 +79,7 @@ test('folder chips filter the collection', async ({ page }) => {
   const folder = await selectedChip.getAttribute('data-folder');
   await selectedChip.click();
   await expect(selectedChip).toHaveAttribute('aria-pressed', 'true');
+  await expect(selectedChip).toBeFocused();
   await expect(page.locator('#count')).toContainText('Folder: ' + folder);
   expect(shownCount(await page.locator('#count').innerText())).toBeLessThan(initialCount);
 });
@@ -127,6 +128,28 @@ test('switches between sleeves, table, and jazz styles', async ({ page }) => {
   await page.locator('#vgrid').click();
   await expect(page.locator('#out .grid')).toBeVisible();
   await expect(page.locator('#vgrid')).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('CD view includes labelled bonus CDs without adding duplicate records', async ({ page }) => {
+  await mockCloud(page);
+  await openCollection(page);
+  const initialCount = await page.locator('#out .tile').count();
+
+  await page.locator('#vcd').click();
+  await expect(page.locator('#out .cd-collection')).toBeVisible();
+  await expect(page.locator('#vcd')).toHaveAttribute('aria-pressed', 'true');
+  const cdCount = await page.locator('#out .cd-item').count();
+  expect(cdCount).toBeGreaterThan(0);
+  expect(cdCount).toBeLessThan(initialCount);
+  await expect(page.locator('#fmt')).toBeHidden();
+  await page.locator('#q').fill('e2e-no-matching-cd-91827');
+  await expect(page.locator('#out .cd-item')).toHaveCount(0);
+  await expect(page.locator('#out .empty')).toContainText(cdCount ? 'No CDs match' : 'No CDs in your collection yet');
+  await page.locator('#reset-filters-btn').click();
+  await expect(page.locator('#out .cd-item')).toHaveCount(cdCount);
+
+  await page.locator('#vgrid').click();
+  await expect(page.locator('#out .tile')).toHaveCount(initialCount);
 });
 
 test('keeps listening controls in one compact row on mobile', async ({ page }) => {

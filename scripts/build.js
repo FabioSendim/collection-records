@@ -29,6 +29,14 @@ if (require.main === module) {
   mkdirSync(join(root, 'dist'), { recursive: true });
   writeFileSync(join(root, 'dist', 'index.html'), html);
   cpSync(join(root, 'assets'), join(root, 'dist', 'assets'), { recursive: true });
+  cpSync(join(root, 'node_modules', '@zxing', 'browser', 'umd', 'zxing-browser.min.js'),
+    join(root, 'dist', 'assets', 'zxing-browser.min.js'));
+  cpSync(join(root, 'node_modules', '@zxing', 'browser', 'LICENSE'),
+    join(root, 'dist', 'assets', 'zxing-browser-LICENSE.txt'));
+  cpSync(join(root, 'node_modules', '@zxing', 'library', 'LICENSE'),
+    join(root, 'dist', 'assets', 'zxing-library-LICENSE.txt'));
+  cpSync(join(root, 'node_modules', 'ts-custom-error', 'LICENSE'),
+    join(root, 'dist', 'assets', 'ts-custom-error-LICENSE.txt'));
   console.log('Built hosted app shell: ' + Buffer.byteLength(html) + ' bytes.');
 }
 

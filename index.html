@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>Records Collection</title>
+<title>The Crate - Records and CDs</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 dialog:not([open]) { 
@@ -127,9 +127,38 @@ h1{margin:0;display:flex;align-items:center;gap:.18em;font-family:var(--font-dis
 .linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:2px;font:inherit}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,158px),1fr));gap:12px}
+.cd-collection{display:grid;gap:12px}
+.cd-intro{display:grid;gap:8px}
+.cd-intro .btn{justify-self:start}
+.cd-intro h2{margin:0;font:800 22px/1.1 var(--font-display);text-transform:uppercase}
+.cd-intro p{margin:0;color:var(--ink-2);font-size:13px}
+.cd-shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:18px}
+.cd-item{min-width:0;display:grid;align-content:start;gap:8px}
+.cd-case{position:relative;display:block;width:100%;aspect-ratio:1/1;padding:6px;border:1px solid color-mix(in srgb,var(--ink) 24%,transparent);border-radius:5px;background:linear-gradient(135deg,color-mix(in srgb,var(--surface-2) 85%,white),color-mix(in srgb,var(--line) 32%,var(--surface)));color:var(--ink);text-align:left;overflow:hidden;box-shadow:0 2px 3px rgb(0 0 0/.12),0 8px 18px rgb(0 0 0/.12);transition:transform .14s ease,box-shadow .14s ease}
+.cd-case:hover{transform:translateY(-3px) rotate(-.5deg);box-shadow:0 4px 8px rgb(0 0 0/.14),0 14px 26px rgb(0 0 0/.16)}
+.cd-case::after{content:"";position:absolute;inset:0;border:1px solid color-mix(in srgb,var(--ink) 16%,transparent);border-radius:inherit;box-shadow:inset 4px 0 color-mix(in srgb,var(--ink) 10%,transparent),inset -3px 0 color-mix(in srgb,var(--ink) 7%,transparent);pointer-events:none}
+.cd-art{position:relative;display:grid;place-items:center;width:100%;height:100%;overflow:hidden;background:var(--surface);color:var(--ink-2)}
+.cd-art img{width:100%;height:100%;object-fit:cover;display:block}
+.cd-no-cover{padding:10px;font:800 18px/1.05 var(--font-display);text-align:center;text-transform:uppercase;overflow-wrap:anywhere}
+.cd-spine{position:absolute;z-index:1;left:8px;top:10px;bottom:10px;width:4px;background:linear-gradient(90deg,rgb(255 255 255/.62),rgb(0 0 0/.12));border-left:1px solid rgb(0 0 0/.14);pointer-events:none}
+.cd-meta{min-width:0;display:grid;gap:2px}
+.cd-meta .cd-artist{font:700 13px/1.2 var(--font-display);text-transform:uppercase;overflow-wrap:anywhere}
+.cd-meta .cd-title{font-size:12px;line-height:1.3;color:var(--ink-2);overflow-wrap:anywhere}
+.cd-meta .cd-year{font:400 10px var(--font-mono);color:var(--ink-3)}
+.barcode-tools{display:flex;gap:8px;flex-wrap:wrap}
+.barcode-camera{display:grid;gap:8px}
+.barcode-camera video{display:block;width:100%;max-height:260px;object-fit:contain;background:#111;border-radius:var(--radius-s)}
+.barcode-results{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.barcode-result{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;width:100%;padding:10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s)}
+.barcode-result:hover{border-color:var(--accent)}
+.barcode-result img,.barcode-result .no-cover{width:52px;height:52px;object-fit:cover;background:var(--surface-2)}
+.barcode-result strong,.barcode-result small{display:block;overflow-wrap:anywhere}
+.barcode-result small{margin-top:4px;color:var(--ink-2);font-size:12px}
 /* smaller tiles on phones */
 @media (max-width:600px){
   .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,108px),1fr));gap:8px}
+  .cd-shelf{grid-template-columns:repeat(auto-fill,minmax(min(100%,132px),1fr));gap:12px}
+  .cd-meta .cd-artist{font-size:12px}
   .tile{contain-intrinsic-size:108px}
   .tile .content{padding:8px;gap:4px}
   .tile .artist{font-size:16px;-webkit-line-clamp:3}
@@ -708,6 +737,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <div class="seg" role="group" aria-label="View">
         <button type="button" id="vgrid" aria-pressed="true">Sleeves</button>
         <button type="button" id="vtable" aria-pressed="false">Table</button>
+        <button type="button" id="vcd" aria-pressed="false">CDs</button>
         <button type="button" id="vjazz" aria-pressed="false">Jazz styles</button>
       </div>
       <button type="button" class="btn mobile-only" id="filters-btn" aria-haspopup="dialog" aria-controls="filters-dlg">Filters · 1</button>
@@ -715,6 +745,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <summary class="btn">Collection tools</summary>
       <div class="tools-panel">
       <button type="button" class="btn primary" id="add-btn" title="Add a record by Discogs URL or ID (N)">+ Add record</button>
+      <button type="button" class="btn" id="add-cd-btn" aria-haspopup="dialog" aria-controls="add-dlg">+ Add CD</button>
       <button type="button" class="btn ghost" id="artists-btn" title="Browse artists (A)">Browse artists</button>
       <button type="button" class="btn ghost" id="labels-btn" title="Browse labels (B)">Browse labels</button>
       <button type="button" class="btn" id="covers-btn" title="Fetch missing covers from Discogs">Fetch covers</button>
@@ -886,10 +917,30 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
   <form id="add-form" method="dialog" novalidate="">
     <div class="form-hero">
       <button type="button" class="x" id="add-close" aria-label="Close">✕</button>
-      <h2>Add a record</h2>
-      <p>Paste a Discogs release URL — for example <code>https://www.discogs.com/release/15796599</code> — or just the numeric ID. The cover, credits, and tracklist are fetched from Discogs.</p>
+      <h2 id="add-title">Add a record</h2>
+      <p id="add-record-help">Paste a Discogs release URL — for example <code>https://www.discogs.com/release/15796599</code> — or just the numeric ID. The cover, credits, and tracklist are fetched from Discogs.</p>
+      <p id="add-cd-help" hidden="">Scan the CD's barcode with your phone or tablet, or type the digits below. Barcodes can match several editions: choose the release that matches your CD, then preview and confirm. No camera images leave this device.</p>
     </div>
     <div class="form-body">
+      <div id="add-barcode-fields" hidden="">
+        <div class="fld">
+          <label for="add-barcode">CD barcode</label>
+          <input id="add-barcode" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="8, 12, 13 or 14 digits">
+        </div>
+        <div class="barcode-tools">
+          <button type="button" class="btn" id="add-scan">Scan with camera</button>
+          <button type="button" class="btn" id="add-barcode-search">Find CD releases</button>
+        </div>
+        <div class="barcode-camera" id="add-camera" hidden="">
+          <video id="add-video" autoplay="" muted="" playsinline="" aria-label="Barcode camera preview"></video>
+          <p class="hint">Point the rear camera at the barcode. Hold it steady with the bars in focus. Camera access needs the hosted HTTPS site and your permission. You can always enter the barcode manually.</p>
+          <button type="button" class="btn" id="add-scan-stop">Stop camera</button>
+        </div>
+        <p class="status" id="add-camera-status" aria-live="polite"></p>
+        <ul class="barcode-results" id="add-barcode-results" aria-label="Matching CD releases"></ul>
+        <button type="button" class="btn" id="add-barcode-more" hidden="">More releases</button>
+        <p class="hint">No match, or no barcode? You can still paste a Discogs CD release URL or ID below.</p>
+      </div>
       <div class="fld">
         <label for="add-url">Discogs URL or release ID</label>
         <input id="add-url" type="text" autocomplete="off" spellcheck="false" placeholder="https://www.discogs.com/release/15796599" required="">
@@ -1840,7 +1891,7 @@ async function idbDelete(key){
     return true;
   }
   function buildQueue(){
-    var keys = listeningQueue.filter(function(k){ return !!byKey[k]; });
+    var keys = listeningQueue.filter(function(k){ return byKey[k] && !isCdFormat(byKey[k].f); });
     $('queue-btn').textContent = 'Play next (' + keys.length + ')';
     var list = $('queue-list'), focused = document.activeElement;
     var focusedKey = list.contains(focused) && (focused.dataset.queueOpen || focused.dataset.key);
@@ -1873,6 +1924,7 @@ async function idbDelete(key){
     }
   }
   function addToQueue(r){
+    if(isCdCatalogue(r)){ notify('CDs are catalogue-only. Play next is available in Records.',null,true); return; }
     if(listeningQueue.indexOf(r.key) >= 0) return;
     if(setQueue(listeningQueue.concat(r.key))){
       notify('Added "' + r.t + '" to Play next.', function(){
@@ -1978,7 +2030,8 @@ async function idbDelete(key){
     ['recordedTo','Recording Year End',/^recording year end$/i],
     ['recordedSource','Recording Source URL',/^recording source url$/i],
     ['recordedStatus','Recording Date Status',/^recording date status$/i],
-    ['jazzStyles','Jazz Style Override',/^jazz style override$/i]
+    ['jazzStyles','Jazz Style Override',/^jazz style override$/i],
+    ['cdComments','CD Comments',/^cd comments$/i]
   ];
   function parseTable(text){
     var rows = parseCSV(text);
@@ -2032,7 +2085,33 @@ async function idbDelete(key){
       .filter(function(p){ if(!p) return false; var k = labelKey(p); if(seen[k]) return false; seen[k] = 1; return true; });
   }
   function cleanLabel(s){ return splitLabels(s).join(', '); }
+  function hasCdFormat(f){
+    return /(?:^|[,+;])\s*(?:\d+x)?CD(?:-R)?(?=\s*(?:[,;+]|$))/i.test(String(f||''));
+  }
+  function isCdFormat(f){
+    var formats = String(f||'').split(/[,+;]/);
+    // Skip container labels and descriptions; the first physical medium determines the collection.
+    for(var i=0;i<formats.length;i++){
+      var format = formats[i].trim();
+      if(/^(?:\d+x)?CD(?:-R)?$/i.test(format)) return true;
+      if(/^(?:\d+x)?(?:Vinyl|LP|Shellac|SACD|CD-ROM|DVD(?:-[\w]+)?|Blu-ray|Cassette|(?:7|10|12)")$/i.test(format)) return false;
+    }
+    return false;
+  }
+  function isCdCatalogue(r){
+    return isCdFormat(r.f) || (state.view === 'cd' && hasCdFormat(r.f));
+  }
+  function collectionSummary(list){
+    var cds = list.filter(function(r){ return isCdFormat(r.f); }).length;
+    var bonus = list.filter(function(r){ return hasCdFormat(r.f) && !isCdFormat(r.f); }).length;
+    return plural(list.length-cds,'record') + ' · ' + plural(cds,'CD release') + ' · ' + plural(bonus,'bonus CD');
+  }
+  function collectionForView(){
+    var cds = state.view === 'cd';
+    return recs.filter(function(r){ return cds ? hasCdFormat(r.f) : !isCdFormat(r.f); });
+  }
   function fmtGroup(f){
+    if(isCdFormat(f)) return 'CD';
     var first=String(f||'').split('+')[0].trim();
     if(/^2xLP/i.test(first)) return '2xLP';
     if(/^LP/i.test(first)) return 'LP';
@@ -2144,7 +2223,7 @@ async function idbDelete(key){
       r:rating, cond:trim(f.cond), buy:trim(f.buy), clean:trim(f.clean),
       s:scoreLetter(sl), sl:scoreLetter(sl) ? sl : '',
       p:plays, m:/^yes/i.test(monoRaw)?'Yes':(/^no/i.test(monoRaw)?'No':''),
-      n:trim(f.n), x:trim(f.x),
+      n:trim(f.n), x:trim(f.x), cdComments:trim(f.cdComments),
       g:trim(f.g) || 'Unfiled',
       mt:trim(f.mt), xc:f.xc || {},
       comp:'', pers:[], trk:[], hist:'', hasKB:false, img:'',
@@ -2173,7 +2252,7 @@ async function idbDelete(key){
     r.fg = fmtGroup(r.f);
     r.sortArtist = artistKey(r.a);
     r.sortComp = (r.comp||'\uffff').toLowerCase();
-    r.hay = [r.af,r.t,r.l,r.c,r.g,r.n,r.x,r.comp,(r.trk||[]).join(' '),
+    r.hay = [r.af,r.t,r.l,r.c,r.g,r.n,r.x,r.cdComments,r.comp,(r.trk||[]).join(' '),
              (r.pers||[]).map(function(p){ return p.n+' '+p.r; }).join(' ')].join(' ').toLowerCase();
     r.hayf = foldAccents(r.hay);
   }
@@ -2242,7 +2321,7 @@ async function idbDelete(key){
     var arr = lsGet(LS_USER, []);
     return Array.isArray(arr) ? arr : [];
   }
-  var USER_FIELDS = ['id','key','a','araw','af','t','l','lraw','c','f','fg','y','d','r','cond','buy','clean','s','sl','p','m','n','x','g','mt','xc','comp','pers','trk','hist','hasKB','styles','recording','jazzStyles'];
+  var USER_FIELDS = ['id','key','a','araw','af','t','l','lraw','c','f','fg','y','d','r','cond','buy','clean','s','sl','p','m','n','x','cdComments','g','mt','xc','comp','pers','trk','hist','hasKB','styles','recording','jazzStyles'];
   function saveUserRecords(){
     var slim = recs.filter(function(r){ return r.__userAdded; }).map(function(r){
       var o = {}; USER_FIELDS.forEach(function(k){ if(r[k] !== undefined) o[k] = r[k]; }); o.img = r.img || ''; return o;
@@ -2254,7 +2333,7 @@ async function idbDelete(key){
   }
 
   /* ---------- edits made in this browser ---------- */
-  var EDIT_FIELDS = ['g','sl','n','x','p','recording','jazzStyles'];
+  var EDIT_FIELDS = ['g','sl','n','x','cdComments','p','recording','jazzStyles'];
   var edits = cloud.enabled && (cloud.published || cloud.hostedShell) ? {} : lsGet(LS_EDITS, {}) || {};
   function editKey(r){ return r.id ? String(r.id) : r.key; }
   function saveEdits(){ return lsSet(LS_EDITS, edits); }
@@ -2461,10 +2540,11 @@ async function idbDelete(key){
   function statsFor(o, list){
     var folders = {}, plays = 0, sTier = 0, minY = 9999, maxY = 0;
     list.forEach(function(r){
-      folders[r.g] = (folders[r.g]||0) + 1; plays += r.p||0; if(r.s === 'S') sTier++;
+      folders[r.g] = (folders[r.g]||0) + 1;
+      if(!isCdFormat(r.f)){ plays += r.p||0; if(r.s === 'S') sTier++; }
       if(r.y){ if(r.y < minY) minY = r.y; if(r.y > maxY) maxY = r.y; }
     });
-    o.folders = folders; o.plays = plays; o.sTier = sTier; o.minY = minY === 9999 ? 0 : minY; o.maxY = maxY;
+    o.folders = folders; o.plays = plays; o.sTier = sTier; o.hasRecords = list.some(function(r){ return !isCdFormat(r.f); }); o.minY = minY === 9999 ? 0 : minY; o.maxY = maxY;
   }
   function primaryArtists(){ return Object.keys(artistIndex).map(function(k){ return artistIndex[k]; }).filter(function(a){ return a.primary; }); }
   function findArtist(name){ return artistIndex[artistKey(name)] || null; }
@@ -2528,7 +2608,7 @@ async function idbDelete(key){
         case 'tier': state.tier = v; break; case 'fmt': state.fmt = v; break;
         case 'mono': state.mono = v==='1'; break; case 'least': state.least = v==='1'; break;
         case 'sort': if(KEYS[v]) state.sort = v; break; case 'dir': state.dir = v==='1'?1:-1; break;
-        case 'view': if(v==='timeline') state.view = 'jazz'; else if(v==='grid'||v==='table'||v==='jazz') state.view = v; break;
+        case 'view': if(v==='timeline') state.view = 'jazz'; else if(v==='cdmockup') state.view = 'cd'; else if(v==='grid'||v==='table'||v==='jazz'||v==='cd') state.view = v; break;
         case 'theme': if(v==='light'||v==='dark'||v==='auto') state.theme = v; break;
         case 'artist': state.who = artistKey(v); break;
         case 'label': state.lab = labelKey(v); break;
@@ -2542,6 +2622,7 @@ async function idbDelete(key){
       if(typeof s[k] === typeof DEFAULTS[k]) state[k] = s[k];
     });
     if(state.view === 'timeline') state.view = 'jazz';
+    if(state.view === 'cdmockup') state.view = 'cd';
   }
   var lsTimer;
   function saveState(){
@@ -2595,30 +2676,34 @@ async function idbDelete(key){
   var chipsEl = $('chips');
   var qEl = $('q'), sortEl = $('sort'), dirEl = $('dir'), tierElSel = $('tier'),
       fmtEl = $('fmt'), monoEl = $('mono'), lessEl = $('less');
-  var vGrid = $('vgrid'), vTable = $('vtable'), vJazz = $('vjazz');
+  var vGrid = $('vgrid'), vTable = $('vtable'), vCd = $('vcd'), vJazz = $('vjazz');
   var artistsDlg = $('artists-dlg'), labelsDlg = $('labels-dlg');
 
   function computeVisible(){
+    var cds = state.view === 'cd';
     var terms = foldAccents(state.q.trim().toLowerCase()).split(/\s+/).filter(Boolean);
     var base = [];
     for(var i=0;i<recs.length;i++){
       var r = recs[i];
+      if(cds ? !hasCdFormat(r.f) : isCdFormat(r.f)) continue;
       if(state.view === 'jazz' && !isJazzRecord(r)) continue;
       if(state.folder!=='All' && r.g!==state.folder) continue;
       if(state.who && r.ek.indexOf(state.who)<0 && r.pk.indexOf(state.who)<0) continue;
       if(state.lab && r.lk.indexOf(state.lab)<0) continue;
-      if(state.tier==='none'){ if(r.s) continue; }
-      else if(state.tier==='CD'){ if(r.s!=='C' && r.s!=='D') continue; }
-      else if(state.tier!=='any' && r.s!==state.tier) continue;
-      if(state.fmt!=='any' && r.fg!==state.fmt) continue;
-      if(state.mono && r.m!=='Yes') continue;
+      if(!cds){
+        if(state.tier==='none'){ if(r.s) continue; }
+        else if(state.tier==='CD'){ if(r.s!=='C' && r.s!=='D') continue; }
+        else if(state.tier!=='any' && r.s!==state.tier) continue;
+        if(state.fmt!=='any' && r.fg!==state.fmt) continue;
+        if(state.mono && r.m!=='Yes') continue;
+      }
       var ok = true;
       for(var k=0;k<terms.length;k++) if(r.hayf.indexOf(terms[k])<0){ ok=false; break; }
       if(!ok) continue;
       base.push(r);
     }
     var minP = null;
-    for(var j=0;j<base.length;j++){ var p = base[j].p; if(p!=null && (minP===null || p<minP)) minP = p; }
+    if(!cds) for(var j=0;j<base.length;j++){ var p = base[j].p; if(p!=null && (minP===null || p<minP)) minP = p; }
     lastMin = minP;
     var list;
     if(state.least && minP!==null){ list = []; for(var m=0;m<base.length;m++) if(base[m].p===minP) list.push(base[m]); }
@@ -2671,6 +2756,43 @@ async function idbDelete(key){
     var g = el('div','grid'); var f = frag();
     for(var i=0;i<list.length;i++) f.append(buildTile(list[i]));
     g.append(f); return g;
+  }
+  function buildCdCollection(list){
+    var section = el('section','cd-collection'); section.setAttribute('aria-labelledby','cd-collection-title');
+    var intro = el('div','cd-intro');
+    var heading = el('h2','','CD collection'); heading.id = 'cd-collection-title';
+    var add = el('button','btn','+ Add CD'); add.type = 'button'; add.dataset.addCd = '1';
+    intro.append(heading,el('p','','CD releases and bonus CDs from vinyl or mixed-format sets. Bonus-CD sets appear here and in Records, but share one saved release. Counts are per release, not individual discs.'),add);
+    section.append(intro);
+    if(!list.length){
+      var empty = el('div','empty');
+      if(!collectionForView().length){
+        empty.append(el('p','','No CDs in your collection yet. Add your first CD using its barcode.'));
+      } else {
+        empty.append(el('p','','No CDs match these filters.'));
+        var reset = el('button','btn ghost','Clear filters'); reset.type = 'button'; reset.dataset.clear = '1';
+        empty.append(reset);
+      }
+      section.append(empty);
+    }
+    var shelf = el('div','cd-shelf');
+    list.forEach(function(r){
+      var item = el('article','cd-item');
+      var button = el('button','cd-case'); button.type = 'button'; button.dataset.i = r.i;
+      button.setAttribute('aria-label',r.a+' — '+r.t+'. Open CD details.');
+      var art = el('span','cd-art');
+      if(r.img){
+        var image = el('img'); setImageSource(image,r.img); image.alt = ''; image.loading = 'lazy'; image.decoding = 'async';
+        art.append(image);
+      } else art.append(el('span','cd-no-cover',r.a));
+      button.append(art,el('span','cd-spine'));
+      var meta = el('div','cd-meta');
+      meta.append(el('strong','cd-artist',r.a),el('span','cd-title',r.t));
+      if(!isCdFormat(r.f)) meta.append(el('span','cd-year','Bonus CD · shared with Records'));
+      if(r.y) meta.append(el('span','cd-year',String(r.y)));
+      item.append(button,meta); shelf.append(item);
+    });
+    section.append(shelf); return section;
   }
   var COLS = [
     {k:null,h:'',cover:true}, {k:'artist',h:'Artist'}, {k:'title',h:'Title'}, {k:'comp',h:'Composer'},
@@ -2875,13 +2997,24 @@ async function idbDelete(key){
     return b;
   }
   function render(){
+    var cds = state.view === 'cd', unit = cds ? 'CD' : 'record';
+    if(cds && (state.sort === 'score' || state.sort === 'plays')){ state.sort = DEFAULTS.sort; state.dir = DEFAULTS.dir; }
+    if(state.fmt === 'CD') state.fmt = DEFAULTS.fmt;
     if(state.who && !artistIndex[state.who]) state.who = '';
     if(state.lab && !labelIndex[state.lab]) state.lab = '';
     current = computeVisible();
+    buildChips(); syncChips();
+    var collection = collectionForView();
+    tierElSel.closest('label').hidden = cds; fmtEl.closest('label').hidden = cds; monoEl.closest('label').hidden = cds; lessEl.hidden = cds;
+    sortEl.querySelectorAll('option[value="score"], option[value="plays"]').forEach(function(option){ option.hidden = cds; option.disabled = cds; });
+    $('random').hidden = cds; $('queue-btn').hidden = cds;
+    $('listening-label').textContent = cds ? 'Explore' : 'Listening';
+    document.querySelector('.bar').setAttribute('aria-label',cds ? 'Find CDs' : 'Find records');
     out.querySelectorAll('[data-jazz-group]').forEach(function(g){ jazzGroupOpen[g.dataset.jazzGroup] = g.open; });
     if(cloud.artwork.observer) out.querySelectorAll('img[data-cloud-asset]').forEach(function(img){ cloud.artwork.observer.unobserve(img); });
     out.textContent = '';
     if(state.view === 'jazz'){ out.append(buildJazzStyles(current)); }
+    else if(state.view === 'cd'){ out.append(buildCdCollection(current)); }
     else if(!current.length){
       var empty = el('div','empty');
       empty.append(el('p','','🔍 No records match these filters.'));
@@ -2892,33 +3025,34 @@ async function idbDelete(key){
     else { out.append(buildTable(current)); }
 
     countEl.textContent = '';
-    countEl.append(el('span','','Showing '+current.length+' of '+recs.length+' records'));
+    countEl.append(el('span','','Showing '+current.length+' of '+collection.length+' '+(cds ? 'CD entries' : 'records')));
     [
       ['q', state.q ? 'Search: ' + state.q : ''],
       ['folder', state.folder !== DEFAULTS.folder ? 'Folder: ' + state.folder : ''],
-      ['tier', state.tier !== DEFAULTS.tier ? 'Score: ' + state.tier : ''],
-      ['fmt', state.fmt !== DEFAULTS.fmt ? 'Format: ' + state.fmt : ''],
-      ['mono', state.mono ? 'Mono only' : ''],
-      ['least', state.least ? 'Least played' : '']
+      ['tier', !cds && state.tier !== DEFAULTS.tier ? 'Score: ' + state.tier : ''],
+      ['fmt', !cds && state.fmt !== DEFAULTS.fmt ? 'Format: ' + state.fmt : ''],
+      ['mono', !cds && state.mono ? 'Mono only' : ''],
+      ['least', !cds && state.least ? 'Least played' : '']
     ].forEach(function(pair){ if(pair[1]) countEl.append(filterPill(pair[1], pair[0])); });
-    var activeCount = ['q','folder','tier','fmt','mono','least','who','lab'].filter(function(k){ return state[k] !== DEFAULTS[k]; }).length;
+    var activeCount = (cds ? ['q','folder','who','lab'] : ['q','folder','tier','fmt','mono','least','who','lab']).filter(function(k){ return state[k] !== DEFAULTS[k]; }).length;
     $('filters-btn').textContent = 'Filters' + (activeCount ? ' · ' + activeCount : '');
-    $('filters-show').textContent = 'Show ' + plural(current.length, 'record');
+    $('filters-show').textContent = 'Show ' + plural(current.length, unit);
     if(state.who){ countEl.append(el('span','sep','·')); countEl.append(filterPill('Artist: ' + artistIndex[state.who].name, 'who')); }
     if(state.lab){ countEl.append(el('span','sep','·')); countEl.append(filterPill('Label: ' + labelIndex[state.lab].name, 'lab')); }
-    var withCovers = recs.filter(function(r){ return !!r.img; }).length;
+    var withCovers = collection.filter(function(r){ return !!r.img; }).length;
     if(withCovers){ countEl.append(el('span','sep','·')); countEl.append(el('span','', withCovers+' covers')); }
     var prim = primaryArtists();
     var withPortraits = prim.filter(function(a){ return !!a.portrait; }).length;
     countEl.append(el('span','sep','·')); countEl.append(el('span','', withPortraits+' of '+prim.length+' artist photos'));
     if(state.least && lastMin!==null){ countEl.append(el('span','sep','·')); countEl.append(el('span','flag','least played — '+plural(lastMin,'play'))); }
-    var userCount = recs.filter(function(r){ return r.__userAdded; }).length;
+    var userCount = collection.filter(function(r){ return r.__userAdded; }).length;
     if(userCount){ countEl.append(el('span','sep','·')); countEl.append(el('span','', userCount+' added by you')); }
 
     lessEl.setAttribute('aria-pressed', String(state.least));
     lessEl.querySelector('.n').textContent = lastMin==null?'–':String(lastMin);
     vGrid.setAttribute('aria-pressed', String(state.view==='grid'));
     vTable.setAttribute('aria-pressed', String(state.view==='table'));
+    vCd.setAttribute('aria-pressed', String(state.view==='cd'));
     vJazz.setAttribute('aria-pressed', String(state.view==='jazz'));
     sortEl.value = state.sort; tierElSel.value = state.tier;
     fmtEl.value = state.fmt; monoEl.checked = state.mono;
@@ -2939,11 +3073,13 @@ async function idbDelete(key){
     var comps={}, plays=0, s=0, minY=9999, maxY=0;
     for(var i=0;i<recs.length;i++){
       var r = recs[i];
-      plays += r.p||0; if(r.s==='S') s++;
+      if(!isCdFormat(r.f)){ plays += r.p||0; if(r.s==='S') s++; }
       if(r.comp) creditNames(r.comp).forEach(function(t){ comps[t.key]=1; });
       if(r.y){ if(r.y<minY) minY=r.y; if(r.y>maxY) maxY=r.y; }
     }
-    var items = [[recs.length,'records'],[primaryArtists().length,'artists'],[Object.keys(comps).length,'composers'],
+    var cds = recs.filter(function(r){ return isCdFormat(r.f); }).length;
+    var bonus = recs.filter(function(r){ return hasCdFormat(r.f) && !isCdFormat(r.f); }).length;
+    var items = [[recs.length-cds,'records'],[cds,'CD releases'],[bonus,'bonus CDs'],[primaryArtists().length,'artists'],[Object.keys(comps).length,'composers'],
       [Object.keys(labelIndex).length,'labels'],[minY===9999?'–':minY+'–'+maxY,'released'],[plays,'plays logged'],[s,'S-tier']];
     var ul = $('stats'); ul.textContent=''; var f = frag();
     items.forEach(function(it){
@@ -2952,16 +3088,21 @@ async function idbDelete(key){
     ul.append(f);
   }
   function buildChips(){
-    var counts = {};
-    for(var i=0;i<recs.length;i++){ var g = recs[i].g; counts[g] = (counts[g]||0)+1; }
+    var counts = {}, collection = collectionForView();
+    var focusedFolder = chipsEl.contains(document.activeElement) ? document.activeElement.dataset.folder : null;
+    for(var i=0;i<collection.length;i++){ var g = collection[i].g; counts[g] = (counts[g]||0)+1; }
     var names = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a] || a.localeCompare(b); });
     chipsEl.textContent = ''; var f = frag();
-    [['All', recs.length]].concat(names.map(function(n){ return [n, counts[n]]; })).forEach(function(p){
+    [['All', collection.length]].concat(names.map(function(n){ return [n, counts[n]]; })).forEach(function(p){
       var b = el('button','chip', p[0]); b.type='button'; b.dataset.folder = p[0];
       b.setAttribute('aria-pressed', String(p[0]===state.folder));
       b.append(el('span','n', String(p[1]))); f.append(b);
     });
     chipsEl.append(f);
+    if(focusedFolder){
+      var focusedChip = Array.from(chipsEl.children).find(function(button){ return button.dataset.folder === focusedFolder; });
+      if(focusedChip) focusedChip.focus({preventScroll:true});
+    }
     var dl = $('folder-suggest');
     if(dl){ dl.textContent=''; names.forEach(function(n){ var o=el('option'); o.value=n; dl.append(o); }); }
     var inline = $('folder-list-inline');
@@ -2981,7 +3122,7 @@ async function idbDelete(key){
   function refreshNow(){
     clearTimeout(refreshTimer);
     if(needIndex){ rebuildIndexes(); needIndex = false; }
-    buildStats(); buildChips(); syncChips(); render();
+    buildStats(); render();
   }
 
 
@@ -3056,7 +3197,8 @@ async function idbDelete(key){
     var scored = [];
     var rComp = creditNames(r.comp).map(function(t){ return t.key; });
     for(var i=0;i<recs.length;i++){
-      var o = recs[i]; if(o===r) continue;
+      var o = recs[i];
+      if(o===r || (isCdCatalogue(r) ? !hasCdFormat(o.f) : isCdFormat(o.f) !== isCdFormat(r.f))) continue;
       var s = 0, why = [];
       if(rComp.length && o.comp && creditNames(o.comp).some(function(t){ return rComp.indexOf(t.key) >= 0; })){ s+=5; why.push('same composer'); }
       if(r.lk.some(function(k){ return o.lk.indexOf(k) >= 0; })){ s+=3; why.push('same label'); }
@@ -3211,7 +3353,7 @@ async function idbDelete(key){
   }
   function aboutBox(r){
     var box = el('div','note about');
-    box.append(el('h3','','About this record'));
+    box.append(el('h3','',isCdCatalogue(r) ? 'About this CD' : 'About this record'));
     var sum = cacheGet('summaries', editKey(r));
     if(sum && sum.text){
       sum.text.split(/\n{2,}/).forEach(function(par){ box.append(el('p','', par)); });
@@ -3380,6 +3522,7 @@ async function idbDelete(key){
 
   function renderDetail(key, opts){
     var r = byKey[key]; if(!r) return;
+    var cd = isCdCatalogue(r), bonus = cd && !isCdFormat(r.f);
     flushNotes();
     var keepScroll = opts && opts.keepScroll ? dlg.scrollTop : 0;
     idx = current.indexOf(r);
@@ -3387,6 +3530,7 @@ async function idbDelete(key){
     document.body.append($('notice'));
     dlg.textContent = '';
     dlg.dataset.key = r.key;
+    dlg.setAttribute('aria-label',cd ? 'CD details' : 'Record details');
 
     var head = el('div','d-head');
     head.style.setProperty('--h', r.hue);
@@ -3400,21 +3544,25 @@ async function idbDelete(key){
     if(r.__userAdded){ head.append(el('span','badge','added by you')); }
     var h = el('h2','artist'); h.append(creditNodes(r.a, 'hlink')); head.append(h);
     head.append(el('p','ttl', r.t));
+    if(bonus) head.append(el('p','comp','Bonus CD · shared with Records'));
     if(r.comp){ var cp = el('p','comp'); cp.append(creditNodes(r.comp, 'hlink')); head.append(cp); }
 
     var body = el('div','d-body');
-    var actions = el('div','record-actions');
-    var scoreLabel = el('label','record-score','Score');
-    scoreLabel.append(scoreSelect(r));
-    var logBtn = el('button','btn primary','+ Log a play'); logBtn.type = 'button'; logBtn.dataset.play = '1';
-    var queueBtn = el('button','btn', listeningQueue.indexOf(r.key) >= 0 ? 'In Play next' : 'Play next');
-    queueBtn.type = 'button'; queueBtn.dataset.queueAdd = '1'; queueBtn.disabled = listeningQueue.indexOf(r.key) >= 0;
-    actions.append(scoreLabel, logBtn, queueBtn);
-    body.append(actions);
+    if(!cd){
+      var actions = el('div','record-actions');
+      var scoreLabel = el('label','record-score','Score');
+      scoreLabel.append(scoreSelect(r));
+      var logBtn = el('button','btn primary','+ Log a play'); logBtn.type = 'button'; logBtn.dataset.play = '1';
+      var queueBtn = el('button','btn', listeningQueue.indexOf(r.key) >= 0 ? 'In Play next' : 'Play next');
+      queueBtn.type = 'button'; queueBtn.dataset.queueAdd = '1'; queueBtn.disabled = listeningQueue.indexOf(r.key) >= 0;
+      actions.append(scoreLabel, logBtn, queueBtn);
+      body.append(actions);
+    }
     var dl = el('dl','facts');
     if(r.l) fact(dl,'Label', labelNodes(r, 'p'));
     fact(dl,'Format', r.f); fact(dl,'Released', r.y?String(r.y):'');
-    var recordedDate = recordingDate(r);
+    if(cd){ fact(dl,'Catalogue number',r.c); fact(dl,'Country',r.xc && r.xc.Country); fact(dl,'Barcode',r.xc && r.xc.Barcode); }
+    var recordedDate = cd ? null : recordingDate(r);
     if(recordedDate){ var recorded = fact(dl,'Recorded',recordingLabel(recordedDate)); recorded.dataset.recorded = '1'; }
     var fb = el('button','p', r.g); fb.type = 'button'; fb.dataset.folder = r.g; fb.title = 'Show this folder';
     var folderField = el('div','fld'), folderSelect = el('select');
@@ -3425,21 +3573,29 @@ async function idbDelete(key){
     folderSelect.value = r.g;
     folderField.append(folderSelect,fb);
     fact(dl,'Folder', folderField);
-    fact(dl,'Added', fmtDate(r.d)); fact(dl,'Condition', r.cond);
-    fact(dl,'Rating', r.r?r.r+' of 5':'');
-    var pd = fact(dl,'Plays', r.p!=null?String(r.p):'0'); if(pd) pd.dataset.plays = '1';
-    fact(dl,'Mono', r.m==='Yes'?'Yes':'');
+    fact(dl,'Added', fmtDate(r.d)); fact(dl,bonus ? 'Release condition (shared)' : 'Condition', r.cond);
+    if(!cd){
+      fact(dl,'Rating', r.r?r.r+' of 5':'');
+      var pd = fact(dl,'Plays', r.p!=null?String(r.p):'0'); if(pd) pd.dataset.plays = '1';
+      fact(dl,'Mono', r.m==='Yes'?'Yes':'');
+    }
     if(r.mt) fact(dl,'Last edited', fmtDate(r.mt.slice(0,10)));
     var technical = el('details','fold');
     technical.append(el('summary','','Release details'), dl);
     var credits = el('details','fold');
     credits.append(el('summary','','Credits & tracks'), hasCredits(r) ? buildCredits(r) : buildCreditsPlaceholder(r));
     body.append(aboutBox(r));
-    body.append(phonoNote(r));
-    body.append(noteBox(r, 'n', 'Listening notes', 'How it sounds, clicks, pressing quirks…'));
-    body.append(noteBox(r, 'x', 'Other notes', 'Anything else worth remembering'));
+    if(!cd) body.append(phonoNote(r));
+    if(cd){
+      body.append(noteBox(r, 'cdComments', 'Comments', 'CD edition, packaging, disc condition...'));
+      if(bonus) body.append(el('p','hint','This is the same saved release as in Records. Release metadata and condition are shared; these comments are CD-specific and do not change your vinyl notes.'));
+    } else {
+      body.append(noteBox(r, 'n', 'Listening notes', 'How it sounds, clicks, pressing quirks…'));
+      body.append(noteBox(r, 'x', 'Other notes', 'Anything else worth remembering'));
+    }
     if(r.g === 'Jazz') body.append(jazzStyleEditor(r));
-    body.append(recordingEditor(r), technical, credits);
+    if(!cd) body.append(recordingEditor(r));
+    body.append(technical, credits);
 
     var sim = similarRecords(r, 4);
     if(sim.length){
@@ -3465,7 +3621,8 @@ async function idbDelete(key){
     prev.dataset.step = '-1'; next.dataset.step = '1'; close.dataset.close = '1';
     prev.disabled = idx<=0; next.disabled = idx<0 || idx>=current.length-1;
     var q = encodeURIComponent(r.a+' '+r.t);
-    navBar.append(undoBtn, el('span','sp'), prev, next);
+    if(!cd) navBar.append(undoBtn);
+    navBar.append(el('span','sp'), prev, next);
     if(r.id){ var dg = el('a','primary','Discogs'); dg.href = 'https://www.discogs.com/release/'+r.id; dg.target='_blank'; dg.rel='noopener'; navBar.append(dg); }
     var wp = el('a','lk','Wikipedia'); wp.href = 'https://en.wikipedia.org/w/index.php?search='+q; wp.target='_blank'; wp.rel='noopener';
     navBar.append(wp);
@@ -3490,6 +3647,7 @@ async function idbDelete(key){
     go({ t:'rec', k:current[j].key }, { noPush:true });
   }
   function logPlay(r, delta){
+    if(isCdCatalogue(r)){ notify('CDs are catalogue-only. Play counts are available in Records.',null,true); return false; }
     var before = r.p || 0, next = Math.max(0, before + delta);
     if(before === next) return false;
     if(!recordEdit(r, { p: next })) return false;
@@ -3528,7 +3686,7 @@ async function idbDelete(key){
     var v = p.v.replace(/\s+$/,'');
     if((p.r[p.f] || '') === v) return;
     var patch = {}; patch[p.f] = v;
-    if(recordEdit(p.r, patch)) notify('Notes saved on this device.');
+    if(recordEdit(p.r, patch)) notify(p.f === 'cdComments' ? 'Comments saved on this device.' : 'Notes saved on this device.');
   }
 
   function removeUserRecord(r){
@@ -3681,9 +3839,9 @@ async function idbDelete(key){
     var dg = cacheGet('bios', a.key);
     if(dg && dg.text) return { text: dg.text, note: 'Profile from Discogs.', dg: dg.id };
     var n = a.records.length, m = a.appears.length, bits = [];
-    if(n) bits.push(plural(n,'record') + ' credited to ' + a.name);
-    if(m) bits.push((n ? '' : a.name + ' ') + 'plays on ' + plural(m,'other record'));
-    return { text: 'The collection holds ' + (bits.join(', and ') || 'no records for ' + a.name) + '.', none:true };
+    if(n) bits.push(collectionSummary(a.records) + ' credited to ' + a.name);
+    if(m) bits.push((n ? '' : a.name + ' ') + 'plays on ' + plural(m,'other release'));
+    return { text: 'The collection holds ' + (bits.join(', and ') || 'no releases for ' + a.name) + '.', none:true };
   }
   function buildSpotlight(key){
     var a = artistIndex[key]; if(!a) return;
@@ -3704,10 +3862,10 @@ async function idbDelete(key){
     var meta = el('div','meta');
     meta.append(el('span','role', a.primary ? 'Artist spotlight' : 'Musician spotlight'), el('h2','', a.name));
     var counts = el('div','counts');
-    if(a.records.length) counts.append(el('span','', plural(a.records.length,'record')));
+    if(a.records.length) counts.append(el('span','', collectionSummary(a.records)));
     if(a.appears.length) counts.append(el('span','', 'on ' + plural(a.appears.length,'more')));
     if(a.minY) counts.append(el('span','', yearSpan(a)));
-    counts.append(el('span','', plural(a.plays,'play')));
+    if(a.hasRecords) counts.append(el('span','', plural(a.plays,'play')));
     if(a.sTier) counts.append(el('span','', a.sTier+' S-tier'));
     meta.append(counts);
     var bio = artistBio(a);
@@ -3769,7 +3927,7 @@ async function idbDelete(key){
     }));
     body.append(ts);
     if(a.records.length){
-      var ws = section('Records');
+      var ws = section('Releases');
       ws.append(worksGrid(a.records, function(r){ var m = []; if(r.y) m.push(String(r.y)); if(r.l) m.push(r.l); return m.join(' · '); }));
       body.append(ws);
     }
@@ -3804,13 +3962,13 @@ async function idbDelete(key){
     var meta = el('div','meta');
     meta.append(el('span','role','Label spotlight'), el('h2','', L.name));
     var counts = el('div','counts');
-    counts.append(el('span','', plural(L.records.length,'record')));
+    counts.append(el('span','', collectionSummary(L.records)));
     if(L.minY) counts.append(el('span','', yearSpan(L)));
-    counts.append(el('span','', plural(L.plays,'play')));
+    if(L.hasRecords) counts.append(el('span','', plural(L.plays,'play')));
     if(L.sTier) counts.append(el('span','', L.sTier + ' S-tier'));
     meta.append(counts);
     var na = Object.keys(L.artists).length;
-    meta.append(el('p','bio','Every record in the collection released on ' + L.name + ' — ' + plural(L.records.length,'record') + ' by ' + plural(na,'artist') + '.'));
+    meta.append(el('p','bio','Every release in the collection on ' + L.name + ' — ' + collectionSummary(L.records) + ' by ' + plural(na,'artist') + '.'));
     var acts = el('div','a-actions');
     var show = el('button','linkbtn','Show in collection'); show.type = 'button'; show.dataset.showLabel = L.key; acts.append(show);
     var dl = el('a','linkbtn','Discogs'); dl.target = '_blank'; dl.rel = 'noopener';
@@ -3876,9 +4034,8 @@ async function idbDelete(key){
       if(a.sTier) bits.push(a.sTier + ' S-tier');
       body.append(el('div','meta', bits.length ? bits.join(' · ') : '—'));
       li.append(body);
-      var n = a.primary ? a.records.length : a.appears.length;
       var cnt = el('span','count');
-      cnt.append(el('b','', String(n)), document.createTextNode(n === 1 ? 'record' : 'records'));
+      cnt.append(el('span','', collectionSummary(a.primary ? a.records : a.appears)));
       li.append(cnt);
       f.append(li);
     });
@@ -3910,14 +4067,15 @@ async function idbDelete(key){
       body.append(el('div','meta', bits.join(' · ')));
       li.append(body);
       var cnt = el('span','count');
-      cnt.append(el('b','', String(L.records.length)), document.createTextNode(L.records.length === 1 ? 'record' : 'records'));
+      cnt.append(el('span','', collectionSummary(L.records)));
       li.append(cnt);
       f.append(li);
     });
     list.append(f);
   }
   function randomPick(mode){
-    var pool = current.slice();
+    if(state.view === 'cd'){ notify('CDs are catalogue-only. Switch to records to use Random.',null,true); return; }
+    var pool = current.filter(function(r){ return !isCdFormat(r.f); });
     if(mode === 'unplayed') pool = pool.filter(function(r){ return !(r.p > 0); });
     if(mode === 'least' && pool.length){
       var min = Math.min.apply(null, pool.map(function(r){ return r.p || 0; }));
@@ -3985,6 +4143,7 @@ async function idbDelete(key){
   function dgRelease(id){ return dgGet('id=' + encodeURIComponent(id)); }
   function dgArtist(id){ return dgGet('artist=' + encodeURIComponent(id)); }
   function dgSearchArtist(name){ return dgGet('search=' + encodeURIComponent(name)); }
+  function dgSearchCd(barcode,page){ return dgGet('barcode=' + encodeURIComponent(barcode) + '&page=' + page); }
   function fetchError(err, fallbackMessage){
     var msg = String(err && err.message || '') || fallbackMessage || 'Unknown error';
     if(/^file:\/\/$/.test(msg) || onFileProtocol) return 'Not available when the page is opened from file:// — use the hosted site.';
@@ -4634,6 +4793,10 @@ async function idbDelete(key){
   var addDlg = $('add-dlg'), addForm = $('add-form'), addUrl = $('add-url'), addFolder = $('add-folder'),
       addStatus = $('add-status'), addSubmit = $('add-submit'), addLookup = $('add-lookup'), addPreview = $('add-preview');
   var lastPreview = null;
+  var addMode = 'record', addEpoch = 0, barcodePage = 0, barcodePages = 0, searchedBarcode = '';
+  var addBarcode = $('add-barcode'), barcodeResults = $('add-barcode-results'), barcodeMore = $('add-barcode-more');
+  var scanEpoch = 0, scanStream = null, scanTimer = null, scannerLibrary = null;
+  var addVideo = $('add-video'), cameraStatus = $('add-camera-status');
   wireDialogClose(addDlg, ['add-close','add-cancel']);
   function setAddStatus(text, kind, busy){
     addStatus.className = 'status' + (kind ? ' ' + kind : '');
@@ -4641,11 +4804,173 @@ async function idbDelete(key){
     if(busy) addStatus.append(el('span','spinner'));
     addStatus.append(document.createTextNode(text || ''));
   }
-  function resetAddDialog(){
-    lastPreview = null; addForm.reset();
+  function setAddBusy(busy){
+    addLookup.disabled = busy;
+    $('add-barcode-search').disabled = busy;
+    barcodeMore.disabled = busy;
+    barcodeResults.querySelectorAll('button').forEach(function(b){ b.disabled = busy || b.dataset.duplicate === '1'; });
+  }
+  function invalidateAddPreview(){
+    addEpoch++; lastPreview = null;
     addPreview.hidden = true; addPreview.textContent = '';
+    setAddBusy(false);
     addSubmit.disabled = true; setAddStatus('');
   }
+  function resetAddDialog(){
+    stopBarcodeCamera();
+    invalidateAddPreview(); addForm.reset();
+    barcodeResults.textContent = ''; barcodeMore.hidden = true;
+    barcodePage = 0; barcodePages = 0; searchedBarcode = '';
+    cameraStatus.textContent = '';
+  }
+  addDlg.addEventListener('close', resetAddDialog);
+  addForm.addEventListener('submit', function(e){ e.preventDefault(); });
+  function openAddDialog(mode){
+    if(!cloudCanEdit()) return;
+    resetAddDialog(); addMode = mode;
+    var cd = mode === 'cd';
+    $('add-title').textContent = cd ? 'Add a CD' : 'Add a record';
+    addDlg.setAttribute('aria-label',cd ? 'Add a CD' : 'Add a record');
+    $('add-barcode-fields').hidden = !cd;
+    $('add-cd-help').hidden = !cd; $('add-record-help').hidden = cd;
+    addDlg.showModal();
+    if(onFileProtocol) setAddStatus('Adding records needs the hosted site (Discogs is reached through a Netlify function).','err');
+    requestAnimationFrame(function(){ (cd ? addBarcode : addUrl).focus(); });
+  }
+  function normalizedBarcode(value){
+    var barcode = String(value||'').replace(/[\s-]/g,'');
+    return /^(?:\d{8}|\d{12,14})$/.test(barcode) ? barcode : '';
+  }
+  function stopBarcodeCamera(){
+    scanEpoch++; clearTimeout(scanTimer); scanTimer = null;
+    if(scanStream) scanStream.getTracks().forEach(function(track){ track.stop(); });
+    scanStream = null; addVideo.pause(); addVideo.srcObject = null;
+    $('add-camera').hidden = true; $('add-scan').disabled = false;
+  }
+  function loadScannerLibrary(){
+    if(window.ZXingBrowser) return Promise.resolve(window.ZXingBrowser);
+    if(scannerLibrary) return scannerLibrary;
+    scannerLibrary = new Promise(function(resolve,reject){
+      var script = document.createElement('script'); script.id = 'barcode-scanner-library'; script.src = 'assets/zxing-browser.min.js';
+      script.onload = function(){
+        if(window.ZXingBrowser) resolve(window.ZXingBrowser);
+        else { script.remove(); scannerLibrary = null; reject(new Error('Barcode scanner could not initialize. Enter the barcode manually.')); }
+      };
+      script.onerror = function(){ script.remove(); scannerLibrary = null; reject(new Error('Barcode scanner could not load. Enter the barcode manually.')); };
+      document.head.append(script);
+    });
+    return scannerLibrary;
+  }
+  $('add-scan').addEventListener('click', async function(){
+    stopBarcodeCamera();
+    if(onFileProtocol || !window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      cameraStatus.textContent = 'Camera scanning needs a supported browser on the hosted HTTPS site. Enter the barcode manually instead.';
+      return;
+    }
+    var epoch = scanEpoch;
+    $('add-scan').disabled = true;
+    cameraStatus.textContent = 'Starting camera...';
+    try {
+      var library = await loadScannerLibrary();
+      if(epoch !== scanEpoch || !addDlg.open) return;
+      var stream = await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+      if(epoch !== scanEpoch || !addDlg.open){ stream.getTracks().forEach(function(track){ track.stop(); }); return; }
+      scanStream = stream; addVideo.srcObject = stream; $('add-camera').hidden = false;
+      stream.getVideoTracks().forEach(function(track){
+        track.addEventListener('ended',function(){
+          if(epoch !== scanEpoch) return;
+          stopBarcodeCamera(); cameraStatus.textContent = 'Camera disconnected. Scan again or enter the barcode manually.';
+        });
+      });
+      await addVideo.play();
+      if(epoch !== scanEpoch || !addDlg.open) return;
+      var reader = new library.BrowserMultiFormatOneDReader();
+      cameraStatus.textContent = 'Point the camera at the barcode, or enter it manually below.';
+      function scan(){
+        if(epoch !== scanEpoch || !addDlg.open) return;
+        try {
+          if(addVideo.readyState >= 2){
+            var barcode = normalizedBarcode(reader.decode(addVideo).getText());
+            if(barcode){
+              stopBarcodeCamera(); invalidateAddPreview();
+              addBarcode.value = barcode; cameraStatus.textContent = 'Barcode scanned: ' + barcode;
+              $('add-barcode-search').click(); return;
+            }
+            cameraStatus.textContent = 'That code is not a supported CD barcode. Scan the printed retail barcode or enter its digits manually.';
+          }
+        } catch(err){
+          var kind = typeof err.getKind === 'function' ? err.getKind() : err.name;
+          if(['NotFoundException','ChecksumException','FormatException'].indexOf(kind) < 0){
+            stopBarcodeCamera(); cameraStatus.textContent = 'Camera scanning failed: ' + fetchError(err) + ' Enter the barcode manually.';
+            return;
+          }
+        }
+        scanTimer = setTimeout(scan,300);
+      }
+      scan();
+    } catch(err){
+      if(epoch !== scanEpoch) return;
+      stopBarcodeCamera();
+      var reason = err.name === 'NotAllowedError' ? 'Camera permission was denied.' :
+        err.name === 'NotFoundError' ? 'No camera was found.' :
+        err.name === 'NotReadableError' ? 'The camera is unavailable or in use.' : fetchError(err);
+      cameraStatus.textContent = reason + ' Enter the barcode manually instead.';
+    }
+  });
+  $('add-scan-stop').addEventListener('click', function(){ stopBarcodeCamera(); cameraStatus.textContent = 'Camera stopped. You can enter the barcode manually.'; });
+  window.addEventListener('pagehide', stopBarcodeCamera);
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden' && scanStream){
+      stopBarcodeCamera(); cameraStatus.textContent = 'Camera stopped while the page was in the background. Scan again or enter the barcode manually.';
+    }
+  });
+  addBarcode.addEventListener('input', function(){
+    stopBarcodeCamera(); invalidateAddPreview();
+    barcodeResults.textContent = ''; barcodeMore.hidden = true; searchedBarcode = '';
+  });
+  addUrl.addEventListener('input', invalidateAddPreview);
+  addFolder.addEventListener('input', invalidateAddPreview);
+  addBarcode.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); $('add-barcode-search').click(); } });
+  async function searchCdBarcode(more){
+    stopBarcodeCamera(); invalidateAddPreview();
+    var barcode = normalizedBarcode(addBarcode.value);
+    if(!barcode){ setAddStatus('Enter an 8, 12, 13 or 14 digit barcode. Spaces and hyphens are allowed.','err'); return; }
+    var page = more && barcode === searchedBarcode ? barcodePage + 1 : 1;
+    if(page === 1){ barcodeResults.textContent = ''; barcodeMore.hidden = true; }
+    var epoch = addEpoch;
+    setAddBusy(true); setAddStatus('Looking up CD releases for ' + barcode + '...',null,true);
+    try {
+      var result = await dgSearchCd(barcode,page);
+      if(epoch !== addEpoch || !addDlg.open) return;
+      if(!result || !Array.isArray(result.results) || !result.pagination ||
+        !Number.isInteger(result.pagination.pages) || result.pagination.pages < 0){
+        throw new Error('Discogs returned an invalid search result. Try again.');
+      }
+      result.results.forEach(function(r){
+        if(r.type !== 'release' || !Number.isInteger(r.id) || r.id < 1 || !Array.isArray(r.format) || !isCdFormat(r.format.join(', '))) return;
+        if(barcodeResults.querySelector('[data-release-id="'+r.id+'"]')) return;
+        var item = el('li'), button = el('button','barcode-result'); button.type = 'button'; button.dataset.releaseId = r.id;
+        if(r.thumb){ var image = el('img'); setImageSource(image,r.thumb); image.alt = ''; image.loading = 'lazy'; button.append(image); }
+        else button.append(el('span','no-cover'));
+        var details = el('span');
+        details.append(el('strong','',r.title || 'Untitled release'),el('small','',[r.year,r.country,(r.label||[]).join(', '),r.catno,r.format.join(', ')].filter(Boolean).join(' · ')));
+        if(byKey['id:'+r.id]){ button.dataset.duplicate = '1'; details.append(el('small','','Already in your collection')); }
+        button.append(details); item.append(button); barcodeResults.append(item);
+      });
+      searchedBarcode = barcode; barcodePage = page; barcodePages = result.pagination.pages;
+      barcodeMore.hidden = page >= barcodePages || page >= 1000;
+      setAddStatus(barcodeResults.children.length ? 'Choose the edition that matches your CD. Check the country, label, catalogue number and year.' :
+        'No CD releases found. Check the barcode, try another search, or paste a Discogs CD release URL or ID.','');
+    } catch(err){
+      if(epoch === addEpoch && addDlg.open) setAddStatus('Could not search: ' + fetchError(err),'err');
+    } finally { if(epoch === addEpoch) setAddBusy(false); }
+  }
+  $('add-barcode-search').addEventListener('click', function(){ searchCdBarcode(false); });
+  barcodeMore.addEventListener('click', function(){ searchCdBarcode(true); });
+  barcodeResults.addEventListener('click', function(e){
+    var button = e.target.closest('button[data-release-id]'); if(!button) return;
+    addUrl.value = button.dataset.releaseId; previewRelease(button.dataset.releaseId);
+  });
   function parseDiscogsId(input){
     var s = String(input||'').trim(); if(!s) return null;
     var m = s.match(/discogs\.com\/(?:[^\/]+\/)*release\/(\d+)/i); if(m) return m[1];
@@ -4671,7 +4996,8 @@ async function idbDelete(key){
     var cr = creditsFromRelease(d);
     var mono = fmtDescs.some(function(x){ return /mono/i.test(x); }) ? 'Yes' : fmtDescs.some(function(x){ return /stereo/i.test(x); }) ? 'No' : '';
     var r = makeRecord({ id:String(d.id), a:artist, t:title || 'Untitled', l:labels.join(', '), c:catno, f:format,
-      y:String(year||''), g:folder, d:nowISO(), p:'0', m:mono, mt:nowISO() });
+      y:String(year||''), g:folder, d:nowISO(), p:'0', m:mono, mt:nowISO(),
+      xc:{Country:d.country || '',Barcode:(d.identifiers||[]).filter(function(i){ return i.type === 'Barcode'; }).map(function(i){ return i.value; }).join('; ')} });
     r.comp = cr.comp; r.pers = cr.pers; r.trk = cr.trk; r.styles = cr.styles;
     r.img = d.cover_image || (d.images && d.images[0] && d.images[0].uri) || d.thumb || '';
     r.__userAdded = true;
@@ -4692,41 +5018,49 @@ async function idbDelete(key){
     var dl = el('dl','kv');
     function k(kk,v){ if(v==null||v==='') return; dl.append(el('dt','',kk), el('dd','',v)); }
     k('Label', r.l); k('Format', r.f); k('Year', r.y?String(r.y):''); k('Folder', r.g);
+    k('Catalogue number',r.c); k('Country',r.xc.Country); k('Barcode',r.xc.Barcode);
     k('Tracks', r.trk.length ? r.trk.length + ' listed' : '');
     k('Personnel', r.pers.length ? r.pers.length + ' credited' : '');
     k('Composer', r.comp); k('Cover', r.img ? 'yes' : 'no');
     addPreview.append(dl);
     addPreview.hidden = false;
   }
-  $('add-btn').addEventListener('click', function(){
-    if(!cloudCanEdit()) return;
-    resetAddDialog(); addDlg.showModal();
-    if(onFileProtocol) setAddStatus('Adding records needs the hosted site (Discogs is reached through a Netlify function).','err');
-    requestAnimationFrame(function(){ addUrl.focus(); });
-  });
+  $('add-btn').addEventListener('click', function(){ openAddDialog('record'); });
+  $('add-cd-btn').addEventListener('click', function(){ openAddDialog('cd'); });
   addUrl.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); addLookup.click(); } });
-  addLookup.addEventListener('click', async function(){
-    var id = parseDiscogsId(addUrl.value);
+  async function previewRelease(id){
+    stopBarcodeCamera(); invalidateAddPreview();
     if(!id){ setAddStatus('That does not look like a Discogs release URL or ID.','err'); addSubmit.disabled = true; addPreview.hidden = true; return; }
     if(byKey['id:' + id]){ setAddStatus('That release is already in the collection.','err'); addSubmit.disabled = true; addPreview.hidden = true; return; }
-    addLookup.disabled = true;
+    var epoch = addEpoch;
+    setAddBusy(true);
     setAddStatus('Fetching release ' + id + ' from Discogs…', null, true);
     try {
-      var r = discogsReleaseToRecord(await dgRelease(id), addFolder.value);
+      var release = await dgRelease(id);
+      if(epoch !== addEpoch || !addDlg.open) return;
+      if(!release || String(release.id) !== String(id)) throw new Error('Discogs returned an unexpected release. Try again.');
+      if(addMode === 'cd' && !isCdFormat((release.formats||[]).map(function(f){ return f.name; }).join(', '))){
+        throw new Error('This release is not a CD by its main format. Choose a CD edition, or use Add record for a vinyl set with a bonus CD.');
+      }
+      var r = discogsReleaseToRecord(release, addFolder.value), coverWarning = '';
       if(r.img){
         setAddStatus('Fetching cover…', null, true);
-        try { r.img = await imageToDataURL(r.img, 400, 0.78); } catch(e){ r.img = ''; }
+        try { r.img = await imageToDataURL(r.img, 400, 0.78); }
+        catch(err){ r.img = ''; coverWarning = ' Cover could not load: ' + fetchError(err) + ' You can fetch it later.'; }
       }
+      if(epoch !== addEpoch || !addDlg.open) return;
       lastPreview = r;
       renderPreview(r);
-      setAddStatus('Looks good. Ready to add.','ok');
+      setAddStatus('Ready to add. Confirm this is your edition.' + coverWarning,coverWarning ? '' : 'ok');
       addSubmit.disabled = false;
     } catch(err){
+      if(epoch !== addEpoch || !addDlg.open) return;
       lastPreview = null; addPreview.hidden = true;
       setAddStatus('Could not fetch: ' + fetchError(err),'err');
       addSubmit.disabled = true;
-    } finally { addLookup.disabled = false; }
-  });
+    } finally { if(epoch === addEpoch) setAddBusy(false); }
+  }
+  addLookup.addEventListener('click', function(){ previewRelease(parseDiscogsId(addUrl.value)); });
   addSubmit.addEventListener('click', function(){
     if(!cloudCanEdit()) return;
     if(!lastPreview){ setAddStatus('Use "Preview" first to fetch the release.','err'); return; }
@@ -4738,9 +5072,11 @@ async function idbDelete(key){
     saveUserRecords();
     needIndex = true; refreshNow();
     cloudChanged();
+    if(addMode === 'cd'){ state.view = 'cd'; render(); }
     setAddStatus('Added: ' + r.a + ' — ' + r.t,'ok');
     lastPreview = null; addSubmit.disabled = true;
-    setTimeout(function(){ addDlg.close(); resetAddDialog(); openRecord(r.i, true); }, 700);
+    var epoch = addEpoch;
+    setTimeout(function(){ if(epoch === addEpoch && addDlg.open){ addDlg.close(); openRecord(r.i, true); } }, 700);
   });
 
   /* ---------- CSV export ----------
@@ -4767,7 +5103,7 @@ async function idbDelete(key){
         r.cond || '', r.buy || '', r.clean || '', r.p == null ? '' : r.p, r.sl || '', r.m || '', r.n || '', r.x || '', r.mt || '',
         recordingDate(r) ? r.recording.start : '', recordingDate(r) ? r.recording.end : '',
         recordingDate(r) ? r.recording.source || '' : '', r.recording && r.recording.status || 'unknown',
-        Array.isArray(r.jazzStyles) ? JSON.stringify(r.jazzStyles) : '']
+        Array.isArray(r.jazzStyles) ? JSON.stringify(r.jazzStyles) : '', r.cdComments || '']
         .concat(extra.map(function(h){ return (r.xc||{})[h] || ''; }));
       lines.push(row.map(csvEscape).join(','));
     });
@@ -4790,21 +5126,21 @@ async function idbDelete(key){
   $('export-btn').addEventListener('click', function(){
     flushNotes();
     var edited = recs.filter(function(r){ return r.mt; }).length;
-    exportStatus.textContent = recs.length + ' records in the collection (' + edited + ' with changes) · ' + current.length + ' matching your current filters.';
+    exportStatus.textContent = collectionSummary(recs) + ' in the collection (' + edited + ' with changes) · ' + current.length + ' matching your current filters.';
     exportStatus.className = 'status';
     exportDlg.showModal();
   });
   $('export-filtered').addEventListener('click', function(){
     flushNotes();
-    var list = current.length ? current : recs;
-    download('records-filtered-'+todayStamp()+'.csv', '\uFEFF' + recordsToCSV(list), 'text/csv');
-    exportStatus.textContent = 'Downloaded ' + list.length + ' records. Use "Download all" for a full backup.';
+    var list = current;
+    download((state.view === 'cd' ? 'cds' : 'records')+'-filtered-'+todayStamp()+'.csv', '\uFEFF' + recordsToCSV(list), 'text/csv');
+    exportStatus.textContent = 'Downloaded ' + collectionSummary(list) + '. Use "Download all" for a full backup.';
     exportStatus.className = 'status ok';
   });
   $('export-all').addEventListener('click', function(){
     flushNotes();
     download('records-all-'+todayStamp()+'.csv', '\uFEFF' + recordsToCSV(recs), 'text/csv');
-    exportStatus.textContent = 'Downloaded all ' + recs.length + ' records.';
+    exportStatus.textContent = 'Downloaded all ' + collectionSummary(recs) + '.';
     exportStatus.className = 'status ok';
   });
 
@@ -4850,7 +5186,7 @@ async function idbDelete(key){
         if(differs) conflicts.push(editKey(row));
       }
     });
-    var msg = 'Import ' + rows.length + ' records from "' + name + '"?\n\n';
+    var msg = 'Import ' + collectionSummary(rows) + ' from "' + name + '"?\n\n';
     if(added) msg += '• ' + added + ' not in this browser yet will be added\n';
     if(hasMt) msg += '• ' + newer + ' changed more recently in the file will update this browser\n';
     else msg += '• This file has no "App Last Modified" column, so it is treated as newer than the built-in data\n';
@@ -4965,7 +5301,7 @@ async function idbDelete(key){
     var file = importHTMLFile.files && importHTMLFile.files[0]; if(!file) return;
     try {
       var parsed = parseHTMLBackup(await file.text());
-      if(!confirm('Restore ' + parsed.count + ' records from "' + file.name + '"?\n\nThis replaces this browser\'s collection and local edits, including added records. The backup file and hosted page are not changed.\n\nSave an HTML backup first if you want to keep your current collection.')) return;
+      if(!confirm('Restore ' + parsed.count + ' releases from "' + file.name + '"?\n\nThis replaces this browser\'s collection and local edits, including added records and CDs. The backup file and hosted page are not changed.\n\nSave an HTML backup first if you want to keep your current collection.')) return;
       if(cloud.enabled){
         if(!confirm('This will also REPLACE the public cloud collection for every device. Continue?')) return;
         if(cloud.saving) throw new Error('Wait for the current cloud save before importing.');
@@ -5027,15 +5363,19 @@ async function idbDelete(key){
       var notice = root.querySelector('#notice'); notice.hidden = true;
       root.querySelector('body').insertBefore(notice, root.querySelector('body > script'));
       root.querySelector('#collection-tools').removeAttribute('open');
+      var scannerScript = root.querySelector('#barcode-scanner-library'); if(scannerScript) scannerScript.remove();
       root.removeAttribute('data-theme');
       ['out','stats','chips','count','dlg','artist-dlg','artists-list','labels-list','artists-meta','labels-meta','add-preview',
-       'folder-suggest','folder-list-inline','covers-log','photos-log','add-status','export-status','queue-list','notice-message','random-status','discovery-results','discovery-status','discovery-wishlist-list','jazz-fetch-log','jazz-fetch-status'].forEach(function(id){
+       'add-barcode-results','add-camera-status','folder-suggest','folder-list-inline','covers-log','photos-log','add-status','export-status','queue-list','notice-message','random-status','discovery-results','discovery-status','discovery-wishlist-list','jazz-fetch-log','jazz-fetch-status'].forEach(function(id){
         var n = root.querySelector('#' + id); if(n) n.textContent = '';
       });
       root.querySelector('#jazz-fetch-progress').value = 0;
       root.querySelector('#jazz-fetch-start').disabled = false;
       root.querySelector('#jazz-fetch-stop').disabled = true;
       root.querySelector('#discovery-submit').disabled = false;
+      root.querySelectorAll('#add-dlg button').forEach(function(button){ button.disabled = button.id === 'add-submit'; });
+      root.querySelector('#add-camera').hidden = true;
+      root.querySelector('#add-barcode-more').hidden = true;
       root.querySelector('#discovery-results').removeAttribute('aria-busy');
       root.querySelector('#discovery-wishlist').removeAttribute('open');
       root.querySelector('#discovery-about').removeAttribute('open');
@@ -5074,7 +5414,7 @@ async function idbDelete(key){
         download(filename, html, 'text/html');
       }
       countEl.textContent = '';
-      countEl.append(el('span','', 'Saved ' + recs.length + ' records · ' + Object.keys(covers).length + ' covers · ' +
+      countEl.append(el('span','', 'Saved ' + collectionSummary(recs) + ' · ' + Object.keys(covers).length + ' covers · ' +
         Object.keys(portraits).length + ' artist photos to ' + filename));
     } catch(err){
       notify('Could not save the HTML backup: ' + err.message, null, true);
@@ -5178,12 +5518,14 @@ async function idbDelete(key){
     var next = listeningQueue.filter(function(k){ return !!byKey[k]; }), i = next.indexOf(key);
     if(i < 0) return;
     if(action === 'up' || action === 'down'){
-      var j = i + (action === 'up' ? -1 : 1);
+      var step = action === 'up' ? -1 : 1, j = i + step;
+      while(j >= 0 && j < next.length && isCdFormat(byKey[next[j]].f)) j += step;
       if(j < 0 || j >= next.length) return;
-      next.splice(i,1); next.splice(j,0,key);
+      next[i] = next[j]; next[j] = key;
       if(setQueue(next)){
         var moved = Array.from($('queue-list').querySelectorAll('button')).find(function(n){ return n.dataset.key === key && n.dataset.queueAction === action && !n.disabled; });
-        if(moved) moved.focus(); else $('queue-list').querySelectorAll('.open-record')[j].focus();
+        if(moved) moved.focus();
+        else Array.from($('queue-list').querySelectorAll('.open-record')).find(function(n){ return n.dataset.queueOpen === key; }).focus();
         notify('Queue order saved on this device.');
       }
       return;
@@ -5285,10 +5627,14 @@ async function idbDelete(key){
   tierElSel.addEventListener('change', function(e){ state.tier = e.target.value; render(); });
   fmtEl.addEventListener('change', function(e){ state.fmt = e.target.value; render(); });
   monoEl.addEventListener('change', function(e){ state.mono = e.target.checked; render(); });
-  function toggleLeast(){ state.least = !state.least; if(state.least){ state.sort='plays'; state.dir=1; } render(); }
+  function toggleLeast(){
+    if(state.view === 'cd'){ notify('CDs are catalogue-only. Least played is available for records.',null,true); return; }
+    state.least = !state.least; if(state.least){ state.sort='plays'; state.dir=1; } render();
+  }
   lessEl.addEventListener('click', toggleLeast);
   vGrid.addEventListener('click', function(){ state.view = 'grid'; render(); });
   vTable.addEventListener('click', function(){ state.view = 'table'; render(); });
+  vCd.addEventListener('click', function(){ state.view = 'cd'; render(); });
   vJazz.addEventListener('click', function(){ state.view = 'jazz'; render(); });
   $('random').addEventListener('click', function(){ $('random-status').textContent = ''; $('random-dlg').showModal(); moveNotice(); });
   $('reset-filters-btn').addEventListener('click', resetFilters);
@@ -5321,6 +5667,7 @@ async function idbDelete(key){
       return;
     }
     var t = e.target.closest('button'); if(!t) return;
+    if(t.dataset.addCd){ openAddDialog('cd'); return; }
     if(t.dataset.fetchMissingJazz){
       if(jazzFetchRunning){ $('jazz-fetch-dlg').showModal(); moveNotice(); }
       else openJazzFetch();
@@ -5372,7 +5719,7 @@ async function idbDelete(key){
       folderLink.textContent = r.g; folderLink.dataset.folder = r.g;
       dlg.querySelector('.d-head').style.setProperty('--h',r.hue);
       var jazzEditor = dlg.querySelector('.jazz-style-fold');
-      if(r.g === 'Jazz' && !jazzEditor) dlg.querySelector('.recording-fold').before(jazzStyleEditor(r));
+      if(r.g === 'Jazz' && !jazzEditor) (dlg.querySelector('.recording-fold') || dlg.querySelector('.facts').closest('details')).before(jazzStyleEditor(r));
       else if(r.g !== 'Jazz' && jazzEditor) jazzEditor.remove();
       notify('Folder saved on this device.');
       return;
@@ -5392,7 +5739,7 @@ async function idbDelete(key){
   dlg.addEventListener('input', function(e){
     var r = detailRecord(); if(!r) return;
     var f = e.target.dataset.edit;
-    if(f === 'n' || f === 'x') queueNote(r, f, e.target.value);
+    if(f === 'n' || f === 'x' || f === 'cdComments') queueNote(r, f, e.target.value);
   });
   dlg.addEventListener('focusout', function(e){ if(e.target.tagName === 'TEXTAREA') flushNotes(); });
   dlg.addEventListener('close', function(){

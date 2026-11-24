@@ -3,6 +3,7 @@
 //   ?id=<release id>      release JSON
 //   ?artist=<artist id>   artist JSON (profile, images)
 //   ?search=<name>        artist search (needs the token)
+//   ?barcode=<digits>&page=<n> CD release search (needs the token)
 //   ?img=<url>            image from Discogs / Wikimedia / TheAudioDB
 //   ?status=1             { discogsToken, ai } so the app knows what is configured
 
@@ -26,11 +27,18 @@ exports.handler = async function (event) {
   } else if (p.artist) {
     if (!/^\d{1,10}$/.test(p.artist)) return json(400, { error: 'Bad artist id' });
     path = '/artists/' + p.artist;
+  } else if (p.barcode) {
+    if (!/^(?:\d{8}|\d{12,14})$/.test(p.barcode)) return json(400, { error: 'Use an 8, 12, 13 or 14 digit barcode' });
+    if (p.page && (!/^\d{1,4}$/.test(p.page) || +p.page < 1 || +p.page > 1000)) {
+      return json(400, { error: 'Bad search page' });
+    }
+    if (!token) return json(401, { error: 'Discogs barcode search needs DISCOGS_TOKEN on the server' });
+    path = '/database/search?type=release&format=CD&barcode=' + p.barcode + '&per_page=10&page=' + (p.page || '1');
   } else if (p.search) {
     if (!token) return json(401, { error: 'Discogs search needs DISCOGS_TOKEN on the server' });
     path = '/database/search?type=artist&per_page=10&q=' + encodeURIComponent(String(p.search).slice(0, 200));
   } else {
-    return json(400, { error: 'Missing id, artist, search or img' });
+    return json(400, { error: 'Missing id, artist, barcode, search or img' });
   }
 
   const headers = { 'User-Agent': UA, Accept: 'application/json' };
