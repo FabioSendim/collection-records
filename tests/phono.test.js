@@ -147,7 +147,7 @@ test('phono notes link to the guide page, remain collapsed and never mutate pers
 
 test('every embedded record gets a phono note without altering its saved data', () => {
   const data = {};
-  runInNewContext(html.match(/<script\b[^>]*>([\s\S]*?)<\/script>/i)[1], data);
+  runInNewContext(html.match(/\/\*<DATA:CSV>\*\/([\s\S]*?)\/\*<\/DATA:CSV>\*\//)[1], data);
   const parser = html.slice(html.indexOf('  function parseCSV('), html.indexOf('  /* Columns are found by header name'));
   runInNewContext(parser, context);
   const rows = context.parseCSV(data.CSV), headers = rows.shift();

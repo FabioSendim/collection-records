@@ -939,6 +939,7 @@ test('HTML exported from the hosted shell contains current data and opens offlin
   expect(dataBlock('PORTRAITS', 'EMBEDDED_PORTRAITS')).toEqual({ 'cloud test artist': IMAGE });
   expect(dataBlock('META', 'DATA_META').hostedShell).toBeUndefined();
   expect(html).toContain('class="record-shop-shelf"');
+  expect(html).not.toContain('data-controls-ready=""');
   await page.goto(pathToFileURL(backupPath).href);
   await expect(page.locator('#cloud-status')).toContainText('Local file mode.');
   await expect(page.locator('#out .tile')).toHaveCount(1);

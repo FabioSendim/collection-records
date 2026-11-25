@@ -378,11 +378,20 @@ test('responsive header stays compact with visible artwork and restores desktop 
   await expect(page.locator('.record-shop-shelf svg')).toBeVisible();
 });
 
-test('shows the record and skeletons while cloud loading is pending', async ({ page }) => {
+for (const { name, savedTheme, hash, expectedTheme, colorScheme, width } of [
+  { name: 'saved theme', savedTheme: 'light', hash: '', expectedTheme: 'light', colorScheme: 'dark', width: 320 },
+  { name: 'URL theme override', savedTheme: 'light', hash: '#theme=dark', expectedTheme: 'dark', colorScheme: 'light', width: 390 }
+]) test('mobile loading keeps a stable toolbar and ' + name, async ({ page }) => {
+  await page.setViewportSize({ width, height: 844 });
+  await page.emulateMedia({ colorScheme });
+  await page.addInitScript(theme => {
+    localStorage.setItem('fs-state-v4', JSON.stringify({ theme }));
+  }, savedTheme);
   let requestStarted;
   let releaseResponse;
   const started = new Promise((resolve) => { requestStarted = resolve; });
   const responseGate = new Promise((resolve) => { releaseResponse = resolve; });
+  let loadingHeight;
 
   await page.route(CLOUD_ORIGIN + '/**', async (route) => {
     const request = route.request();
@@ -404,25 +413,37 @@ test('shows the record and skeletons while cloud loading is pending', async ({ p
     });
   });
 
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.goto('/hosted.html' + hash, { waitUntil: 'domcontentloaded' });
   try {
     await started;
+    await expect(page.locator('html')).toHaveAttribute('data-theme', expectedTheme);
     await expect(page.locator('#cloud-status')).toHaveClass(/is-loading/);
     await expect(page.locator('#loading-skeleton')).toBeVisible();
     await expect(page.locator('#loading-skeleton .loading-card')).toHaveCount(6);
+    await expect(page.locator('.bar')).not.toHaveAttribute('data-controls-ready');
+    await expect(page.locator('.bar .seg')).toBeHidden();
+    loadingHeight = await page.locator('.bar').evaluate(el => el.offsetHeight);
+    expect(loadingHeight).toBeLessThanOrEqual(135);
   } finally {
     releaseResponse();
   }
 
   await expect(page.locator('#cloud-status')).not.toHaveClass(/is-loading/);
   await expect(page.locator('#loading-skeleton')).toBeHidden();
+  await expect(page.locator('.bar')).toHaveAttribute('data-controls-ready', '');
+  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs']);
+  await expect(page.locator('#mobile-more')).toBeVisible();
+  expect(Math.abs(await page.locator('.bar').evaluate(el => el.offsetHeight) - loadingHeight)).toBeLessThanOrEqual(8);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', expectedTheme);
 });
 
 test('shows the local collection when cloud loading fails', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await mockCloud(page, { status: 503, message: 'Test cloud outage' });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   await expect(page.locator('#cloud-status')).toContainText('Cloud unavailable. Showing a local backup');
   await expect(page.locator('#loading-skeleton')).toBeHidden();
+  await expect(page.locator('#mobile-more')).toBeVisible();
   await expect(page.locator('#out .tile').first()).toBeVisible();
 });

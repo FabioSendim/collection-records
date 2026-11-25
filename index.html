@@ -4,6 +4,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>The Crate - Records and CDs</title>
+<script>
+  (function(){
+    var theme = 'auto';
+    try {
+      var saved = JSON.parse(localStorage.getItem('fs-state-v4') || '{}');
+      if(saved && ['auto','light','dark'].indexOf(saved.theme) !== -1) theme = saved.theme;
+    } catch(err){ console.warn('Could not read the saved theme:',err); }
+    try {
+      location.hash.slice(1).split('&').forEach(function(part){
+        var eq = part.indexOf('=');
+        if(eq < 0 || decodeURIComponent(part.slice(0,eq)) !== 'theme') return;
+        var value = decodeURIComponent(part.slice(eq+1));
+        if(['auto','light','dark'].indexOf(value) !== -1) theme = value;
+      });
+    } catch(err){ console.warn('Could not read the theme from the URL:',err); }
+    if(theme === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme',theme);
+  })();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 dialog:not([open]) { 
@@ -853,6 +872,16 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
   .cd-intro h2{font-size:24px}
   .cd-intro .btn{font-size:12px}
   .record-shop .stats{display:none}
+  .bar:not([data-controls-ready]){height:122px;position:relative;overflow:hidden}
+  .bar:not([data-controls-ready])>*{visibility:hidden}
+  .bar:not([data-controls-ready])::before{
+    content:"";position:absolute;inset:12px;
+    background:linear-gradient(var(--line-2),var(--line-2)) left top / 62% 40px no-repeat,
+      linear-gradient(var(--line-2),var(--line-2)) right top / 20% 40px no-repeat,
+      linear-gradient(var(--line-2),var(--line-2)) left bottom / 74% 40px no-repeat,
+      linear-gradient(var(--line-2),var(--line-2)) right bottom / 20% 40px no-repeat;
+    border-radius:4px;
+  }
 }
 @media(max-width:480px){
   body{padding-top:max(15px,env(safe-area-inset-top,0px))}
@@ -5708,6 +5737,7 @@ async function idbDelete(key){
       var images = await cloudResolveImages(snapshot), covers = images.COVERS, portraits = images.PORTRAITS;
       var root = document.documentElement.cloneNode(true);
       restoreDesktopControls(root);
+      root.querySelector('.bar').removeAttribute('data-controls-ready');
       root.querySelector('#mobile-more').hidden = true;
       root.querySelector('#genre-filters').hidden = true;
       var notice = root.querySelector('#notice'); notice.hidden = true;
@@ -5896,6 +5926,7 @@ async function idbDelete(key){
       qEl.placeholder = searchPlaceholder;
     }
     syncMobileControls();
+    document.querySelector('.bar').setAttribute('data-controls-ready','');
     if(moreEl.contains(focused)){
       var focusTarget = mobileLayout.matches ? moreSummary : state.view === 'cd' ? vCd : state.view === 'jazz' ? vJazz : vGrid;
       focusTarget.focus({preventScroll:true});
