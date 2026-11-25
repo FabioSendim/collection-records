@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { readFileSync } = require('node:fs');
 
 const CLOUD_ORIGIN = 'https://jrrhnegaokissvkrkted.supabase.co';
 const CLOUD_PATH = '/rest/v1/collection_state';
@@ -84,6 +85,112 @@ test('folder chips filter the collection', async ({ page }) => {
   expect(shownCount(await page.locator('#count').innerText())).toBeLessThan(initialCount);
 });
 
+test('an unreadable saved import is reported and can be recovered without deleting it', async ({ page }, testInfo) => {
+  const csv = 'Artist,Title,release_id,Recording Year Start,Recording Date Status\nRecovery artist,Broken recording date,999991,not-a-year,user\n';
+  await mockCloud(page);
+  await page.addInitScript(csv => {
+    localStorage.setItem('rcImportedCSV', csv);
+    localStorage.setItem('rcImportedAt', '2099-01-01T00:00:00.000Z');
+  }, csv);
+  await openCollection(page);
+  await expect(page.locator('#notice-message')).toContainText('Could not load the saved CSV import');
+  await expect(page.locator('#notice-message')).toContainText('original is kept');
+  expect(await page.locator('#out .tile').count()).toBeGreaterThan(0);
+  expect(await page.evaluate(() => localStorage.getItem('rcImportedCSV'))).toBe(csv);
+  expect(await page.evaluate(() => localStorage.getItem('rcImportedAt'))).toBe('2099-01-01T00:00:00.000Z');
+  await page.locator('#collection-tools > summary').click();
+  const downloaded = page.waitForEvent('download');
+  await page.locator('#recover-import-btn').click();
+  const path = testInfo.outputPath('recovered.csv');
+  await (await downloaded).saveAs(path);
+  expect(readFileSync(path, 'utf8')).toBe(csv);
+});
+
+test('newer local CD comments win duplicate merging without clearing legacy fields', async ({ page }) => {
+  await mockCloud(page);
+  await page.addInitScript(() => {
+    if (localStorage.getItem('merge-fixture-seeded')) return;
+    localStorage.setItem('merge-fixture-seeded', '1');
+    localStorage.setItem('rcImportedCSV',
+      'Artist,Title,release_id,Format,App Last Modified,CD Comments\n' +
+      'Merge artist,New comments CD,999991,CD,2026-01-01T00:00:00.000Z,Old comments\n' +
+      'Merge artist,Cleared comments CD,999992,CD,2026-01-01T00:00:00.000Z,Old comments\n' +
+      'Merge artist,Legacy local CD,999993,CD,2026-01-01T00:00:00.000Z,Keep these comments\n');
+    localStorage.setItem('rcImportedAt', '2099-01-01T00:00:00.000Z');
+    localStorage.setItem('fs-user-records-v4', JSON.stringify([
+      { id: 999991, key: 'id:999991', mt: '2099-01-01T00:00:00.000Z', cdComments: 'New comments' },
+      { id: 999992, key: 'id:999992', mt: '2099-01-01T00:00:00.000Z', cdComments: '' },
+      { id: 999993, key: 'id:999993', mt: '2099-01-01T00:00:00.000Z' }
+    ]));
+  });
+  await openCollection(page);
+  await page.locator('#vcd').click();
+  for (const [title, comments] of [
+    ['New comments CD', 'New comments'],
+    ['Cleared comments CD', ''],
+    ['Legacy local CD', 'Keep these comments']
+  ]) {
+    await page.locator('#out .cd-item').filter({ hasText: title }).click();
+    await expect(page.getByRole('textbox', { name: 'Comments', exact: true })).toHaveValue(comments);
+    await page.locator('#dlg .x').click();
+  }
+  await expect(page).toHaveURL(/view=cd/);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('fs-state-v4')).view)).toBe('cd');
+  await page.reload();
+  await page.locator('#out .cd-item').filter({ hasText: 'New comments CD' }).click();
+  await expect(page.getByRole('textbox', { name: 'Comments', exact: true })).toHaveValue('New comments');
+});
+
+test('Records and CDs retain independent sorting across switches, reloads and URL navigation', async ({ page }) => {
+  await mockCloud(page);
+  await openCollection(page);
+  await page.locator('#sort').selectOption('score');
+  await page.locator('#dir').click();
+  await page.locator('#vcd').click();
+  await expect(page.locator('#sort')).toHaveValue('added');
+  await page.locator('#sort').selectOption('title');
+  await page.locator('#dir').click();
+  await page.locator('#vgrid').click();
+  await expect(page.locator('#sort')).toHaveValue('score');
+  await expect(page.locator('#dir')).toHaveAttribute('aria-label', 'Sort direction: ascending');
+  await page.locator('#vtable').click();
+  await expect(page.locator('#sort')).toHaveValue('score');
+  await page.locator('#vcd').click();
+  await expect(page.locator('#sort')).toHaveValue('title');
+  await expect(page.locator('#dir')).toHaveAttribute('aria-label', 'Sort direction: descending');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('fs-state-v4')).mediaSort.cd.sort)).toBe('title');
+  await expect(page).toHaveURL(/view=cd/);
+  await page.reload();
+  await expect(page.locator('#sort')).toHaveValue('title');
+  await page.keyboard.press('g');
+  await expect(page.locator('#sort')).toHaveValue('score');
+  await expect(page.locator('#dir')).toHaveAttribute('aria-label', 'Sort direction: ascending');
+  await page.evaluate(() => { location.hash = 'sort=artist&dir=1&view=cd'; });
+  await expect(page.locator('#sort')).toHaveValue('artist');
+  await expect(page.locator('#dir')).toHaveAttribute('aria-label', 'Sort direction: ascending');
+  await page.locator('#vgrid').click();
+  await expect(page.locator('#sort')).toHaveValue('score');
+  await page.locator('#vcd').click();
+  await expect(page.locator('#sort')).toHaveValue('artist');
+});
+
+test('searching reuses unchanged folder and queue controls', async ({ page }) => {
+  await mockCloud(page);
+  await openCollection(page);
+  const chips = await page.locator('#chips button').first().elementHandle();
+  const queue = await page.locator('#queue-list li').first().elementHandle();
+  await page.locator('#q').fill('miles');
+  await expect(page.locator('#count')).toContainText('Search: miles');
+  expect(await chips.evaluate(node => node.isConnected)).toBe(true);
+  expect(await queue.evaluate(node => node.isConnected)).toBe(true);
+  await page.locator('#vcd').click();
+  expect(await chips.evaluate(node => node.isConnected)).toBe(false);
+  await page.locator('#q').fill('');
+  await expect(page.locator('#count')).not.toContainText('Search:');
+  const cdCount = await page.locator('#out .cd-item').count();
+  await expect(page.locator('#chips button').first().locator('.n')).toHaveText(String(cdCount));
+});
+
 test('switches between sleeves, table, and jazz styles', async ({ page }) => {
   await mockCloud(page);
   await openCollection(page);
@@ -116,21 +223,21 @@ test('switches between sleeves, table, and jazz styles', async ({ page }) => {
   for (const id of ['traditional', 'swing', 'vocal', 'bebop', 'contemporary', 'crossover', 'nu-jazz']) {
     await page.locator('#jazz-style-' + id).evaluate((group) => { group.open = true; });
   }
-  await expect(page.locator('#jazz-style-vocal')).toContainText('Heebie Jeebies');
+  await expect(page.locator('#jazz-style-vocal')).toContainText('Scat is wordless improvisation');
   await expect(page.locator('#jazz-style-swing')).toContainText('head arrangements');
   await expect(page.locator('#jazz-style-bebop')).toContainText('Donna Lee');
   await expect(page.locator('#jazz-style-contemporary')).toContainText('post-1980 jazz');
   await expect(page.locator('#jazz-style-crossover')).toContainText('Third Stream');
   await expect(page.locator('#jazz-style-traditional')).toContainText('two-beat feel');
   await expect(page.locator('#jazz-style-nu-jazz')).toContainText('producer-led');
-  await expect(page.locator('#jazz-style-vocal .jazz-notes li')).toHaveCount(11);
+  await expect(page.locator('#jazz-style-vocal')).toContainText('Frank Sinatra sits in the gray zone');
 
   await page.locator('#vgrid').click();
   await expect(page.locator('#out .grid')).toBeVisible();
   await expect(page.locator('#vgrid')).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('CD view includes labelled bonus CDs without adding duplicate records', async ({ page }) => {
+test('CD view includes shared releases in its total without adding duplicate records', async ({ page }) => {
   await mockCloud(page);
   await openCollection(page);
   const initialCount = await page.locator('#out .tile').count();
@@ -141,6 +248,9 @@ test('CD view includes labelled bonus CDs without adding duplicate records', asy
   const cdCount = await page.locator('#out .cd-item').count();
   expect(cdCount).toBeGreaterThan(0);
   expect(cdCount).toBeLessThan(initialCount);
+  await expect(page.locator('#record-count')).toHaveText(String(initialCount));
+  await expect(page.locator('#cd-count')).toHaveText(String(cdCount));
+  await expect(page.locator('#stats')).not.toContainText(/bonus CDs/i);
   await expect(page.locator('#fmt')).toBeHidden();
   await page.locator('#q').fill('e2e-no-matching-cd-91827');
   await expect(page.locator('#out .cd-item')).toHaveCount(0);
@@ -152,29 +262,120 @@ test('CD view includes labelled bonus CDs without adding duplicate records', asy
   await expect(page.locator('#out .tile')).toHaveCount(initialCount);
 });
 
-test('keeps listening controls in one compact row on mobile', async ({ page }) => {
+test('mobile browsing uses two rows, More actions and removable genre filters', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await mockCloud(page);
   await openCollection(page);
+  const total = await page.locator('#out .tile').count();
   await expect(page.locator('#vtable')).toBeHidden();
-  const collection = await page.locator('#out').boundingBox();
-  const status = await page.locator('#cloud-status').boundingBox();
-  expect(collection).toBeTruthy();
-  expect(status).toBeTruthy();
-  expect(status.y).toBeGreaterThan(collection.y + collection.height);
+  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs']);
+  await expect(page.locator('.search kbd')).toBeHidden();
+  await expect(page.locator('#q')).toHaveAttribute('placeholder', 'Search collection');
+  await expect(page.locator('#queue-btn')).toBeHidden();
+  await expect(page.locator('#chips')).toBeHidden();
+  const search = await page.locator('.search').boundingBox();
+  const filters = await page.locator('#filters-btn').boundingBox();
+  expect(Math.abs(search.y - filters.y)).toBeLessThan(1);
+  expect(search.width).toBeGreaterThan(filters.width);
 
-  const row = page.locator('.listening-row');
-  const label = await page.locator('#listening-label').boundingBox();
-  const randomButton = await page.locator('#random').boundingBox();
-  const queueButton = await page.locator('#queue-btn').boundingBox();
+  await page.locator('#mobile-more > summary').click();
+  for (const id of ['random', 'discovery-btn', 'vjazz', 'collection-tools']) {
+    await expect(page.locator('#mobile-more #' + id)).toBeVisible();
+  }
+  await page.locator('#random').click();
+  await expect(page.locator('#random-dlg')).toBeVisible();
+  await expect(page.locator('#mobile-more')).not.toHaveAttribute('open', '');
+  await page.locator('#random-close').click();
+  await page.locator('#mobile-more > summary').click();
+  await page.locator('#discovery-btn').click();
+  await expect(page.locator('#discovery-dlg')).toBeVisible();
+  await page.locator('#discovery-close').click();
+  await page.locator('#mobile-more > summary').click();
+  await page.locator('#vjazz').click();
+  await expect(page.locator('#mobile-more')).toHaveAttribute('data-view', 'jazz');
+  await expect(page.locator('#mobile-more')).not.toHaveAttribute('open', '');
+  await page.locator('#vgrid').click();
 
-  expect(label).toBeTruthy();
-  expect(randomButton).toBeTruthy();
-  expect(queueButton).toBeTruthy();
-  const labelCenter = label.y + label.height / 2;
-  expect(Math.abs(labelCenter - (randomButton.y + randomButton.height / 2))).toBeLessThan(8);
-  expect(Math.abs(labelCenter - (queueButton.y + queueButton.height / 2))).toBeLessThan(8);
-  await expect(row).toHaveAttribute('aria-labelledby', 'listening-label');
+  await page.locator('#filters-btn').click();
+  const jazz = page.locator('#filters-body #chips button[data-folder="Jazz"]');
+  const jazzCount = Number(await jazz.locator('.n').innerText());
+  await jazz.click();
+  await page.locator('#filters-show').click();
+  await expect(page.locator('#count > span').first()).toHaveText(jazzCount + ' records');
+  await expect(page.locator('[data-clear-filter="folder"]')).toHaveText('Jazz ✕');
+  await expect(page.locator('#out .tile')).toHaveCount(jazzCount);
+  await page.locator('[data-clear-filter="folder"]').click();
+  await expect(page.locator('#out .tile')).toHaveCount(total);
+  await expect(page.locator('[data-clear-filter="folder"]')).toHaveCount(0);
+
+  await page.locator('#q').fill('Miles Davis');
+  await expect(page.locator('[data-clear-filter="q"]')).toBeVisible();
+  await page.locator('#mobile-more > summary').click();
+  await page.locator('#mobile-more > summary').press('Escape');
+  await expect(page.locator('#q')).toHaveValue('Miles Davis');
+});
+
+test('mobile queue badge reflects additions, reloads and removal of the final item', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockCloud(page);
+  await openCollection(page);
+  for (let index = 0; index < 3; index++) {
+    await page.locator('#out .tile').nth(index).click();
+    await page.locator('#dlg [data-queue-add]').click();
+    await page.locator('#dlg .x').click();
+  }
+  const badge = page.locator('.results-row #queue-btn');
+  await expect(badge).toHaveText('Play next · 3');
+  await page.reload();
+  await expect(badge).toHaveText('Play next · 3');
+  await page.locator('#queue-btn').click();
+  for (let index = 0; index < 3; index++) {
+    await page.locator('#queue-list [data-queue-action="remove"]').first().click();
+  }
+  await page.locator('#queue-close').click();
+  await expect(badge).toBeHidden();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('rcQueue_v1')))).toEqual([]);
+});
+
+test('responsive header stays compact with visible artwork and restores desktop controls', async ({ page }) => {
+  await mockCloud(page);
+  await openCollection(page);
+  for (const width of [320, 390, 600, 601, 1152, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect.poll(() => page.locator('#mobile-more').evaluate(el => el.hidden)).toBe(width > 600);
+    const layout = await page.evaluate(() => {
+      const title = document.querySelector('.record-shop h1'), range = document.createRange();
+      range.selectNodeContents(title);
+      return {
+        overflow: document.documentElement.scrollWidth > innerWidth,
+        headerHeight: document.querySelector('.record-shop').offsetHeight,
+        toolbarHeight: document.querySelector('.bar').offsetHeight,
+        titleRight: range.getBoundingClientRect().right,
+        artLeft: document.querySelector('.record-shop-shelf svg').getBoundingClientRect().left
+      };
+    });
+    expect(layout.overflow).toBe(false);
+    await expect(page.locator('.record-shop-shelf svg')).toBeVisible();
+    if (width <= 600) {
+      expect(layout.headerHeight).toBeLessThanOrEqual(230);
+      expect(layout.toolbarHeight).toBeLessThanOrEqual(135);
+      expect(layout.titleRight).toBeLessThanOrEqual(layout.artLeft);
+      await expect(page.locator('#filters-body #chips')).toHaveCount(1);
+    } else {
+      await expect(page.locator('.bar > #chips')).toBeVisible();
+      await expect(page.locator('.seg #vjazz')).toBeVisible();
+      await expect(page.locator('.listening-row #queue-btn')).toBeVisible();
+    }
+  }
+  await page.locator('#theme').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('.record-shop-shelf svg')).toBeVisible();
+  await page.locator('#theme').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.addStyleTag({ content: '.record-shop h1{font-family:Arial,sans-serif}' });
+  await page.setViewportSize({ width: 320, height: 844 });
+  await expect.poll(() => page.locator('.record-shop').evaluate(el => el.offsetHeight)).toBeLessThanOrEqual(230);
+  await expect(page.locator('.record-shop-shelf svg')).toBeVisible();
 });
 
 test('shows the record and skeletons while cloud loading is pending', async ({ page }) => {

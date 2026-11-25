@@ -30,6 +30,7 @@ function collectionPayload() {
 
 async function mockCloud(page, { status = 200, published = true, payload = collectionPayload(), assetGate, onAssets, owner = false, onSave } = {}) {
   const assets = new Map();
+  let version = published ? 1 : 0;
   await page.route(CLOUD_ORIGIN + '/**', async route => {
     const url = new URL(route.request().url());
     let body;
@@ -46,7 +47,7 @@ async function mockCloud(page, { status = 200, published = true, payload = colle
     }
     if (url.pathname === '/rest/v1/collection_state') {
       body = status !== 200 ? { message: 'Test cloud outage' } : [{
-        version: published ? 1 : 0,
+        version,
         payload: published ? payload : null
       }];
     } else if (url.pathname === '/rest/v1/collection_assets') {
@@ -63,11 +64,13 @@ async function mockCloud(page, { status = 200, published = true, payload = colle
     } else if (owner && url.pathname === '/auth/v1/user') {
       body = { id: 'e585fe35-5450-4588-b33a-0098fbf93415' };
     } else if (owner && url.pathname === '/rest/v1/rpc/save_collection') {
-      const saved = route.request().postDataJSON().new_payload;
+      const request = route.request().postDataJSON();
+      expect(request.expected_version).toBe(version);
+      const saved = request.new_payload;
       expect(saved.COVERS).toEqual(expect.objectContaining(payload.COVERS));
       expect(saved.PORTRAITS).toEqual(expect.objectContaining(payload.PORTRAITS));
       if (onSave) onSave(saved);
-      body = { version: 2 };
+      body = { version: ++version };
     } else {
       await route.fulfill({ status: 404, headers: { 'access-control-allow-origin': '*' }, body: '' });
       return;
@@ -96,9 +99,14 @@ async function seedOwner(page) {
   });
 }
 
-async function openCdDialog(page) {
-  if (!(await page.locator('#add-cd-btn').isVisible())) await page.locator('#collection-tools > summary').click();
-  await page.locator('#add-cd-btn').click();
+async function openAddDialog(page, mode = 'cd') {
+  const button = page.locator(mode === 'cd' ? '#add-cd-btn' : '#add-btn');
+  if (!(await button.isVisible())) {
+    const tools = page.locator('#collection-tools > summary');
+    if (!(await tools.isVisible())) await page.locator('#mobile-more > summary').click();
+    if (!(await button.isVisible())) await tools.click();
+  }
+  await button.click();
 }
 
 function cdRelease(id = 888111, name = 'CD') {
@@ -123,7 +131,7 @@ async function mockCdDiscogs(page, { search, release, onSearch } = {}) {
       pagination: { page: 1, pages: 1, items: 2 },
       results: [888111, 888112].map((id, index) => ({
         id, type: 'release', title: 'Barcode Test Artist - Barcode Test Album',
-        format: ['CD', 'Album'], label: ['Barcode Test Label'], catno: 'CD-123',
+        format: [params.get('format') || 'CD', 'Album'], label: ['Barcode Test Label'], catno: 'CD-123',
         year: 2001 + index, country: index ? 'US' : 'Europe'
       }))
     };
@@ -141,7 +149,7 @@ test('CD barcode matches are selected, previewed, saved and reloaded as actual C
   await mockCdDiscogs(page, { onSearch: params => { searched = params.get('barcode'); } });
   await page.goto('/hosted.html');
   await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
-  await openCdDialog(page);
+  await openAddDialog(page);
   await page.locator('#add-barcode').fill('4006 3813-33931');
   await page.locator('#add-barcode-search').click();
   await expect(page.locator('.barcode-result')).toHaveCount(2);
@@ -168,13 +176,209 @@ test('CD barcode matches are selected, previewed, saved and reloaded as actual C
   await page.locator('#vgrid').click();
   await expect(page.locator('#out .tile')).toHaveCount(1);
   await expect(page.locator('#out')).not.toContainText('Barcode Test Album');
-  await expect(page.locator('#stats')).toContainText(/1\s*records/);
-  await expect(page.locator('#stats')).toContainText(/1\s*CD releases/);
-  await openCdDialog(page);
+  await expect(page.locator('#record-count')).toHaveText('1');
+  await expect(page.locator('#cd-count')).toHaveText('1');
+  await openAddDialog(page);
   await page.locator('#add-url').fill('888111');
   await page.locator('#add-lookup').click();
   await expect(page.locator('#add-status')).toContainText('already in the collection');
   await expect(page.locator('#add-submit')).toBeDisabled();
+});
+
+test('vinyl barcodes select a pressing, reject CD matches and save bonus-CD sets once', async ({ page }) => {
+  const payload = collectionPayload();
+  const searches = [];
+  let saved;
+  await seedOwner(page);
+  await mockCloud(page, { owner: true, payload, onSave: value => { saved = value; Object.assign(payload, value); } });
+  await mockCdDiscogs(page, {
+    onSearch: params => { searches.push(Object.fromEntries(params)); },
+    search: params => {
+      if (params.get('barcode') !== '0077774615225') return { results: [], pagination: { pages: 0 } };
+      return {
+        results: params.get('page') === '1' ? [
+          { id: 999123, type: 'release', title: 'Already owned pressing', format: ['Vinyl', 'LP'] },
+          { id: 888112, type: 'release', title: 'Mismatched pressing', format: ['Vinyl'] },
+          { id: 888113, type: 'release', title: 'CD edition', format: ['CD'] },
+          { id: 888114, type: 'release', title: 'CD-led set', format: ['CD', 'Vinyl'] },
+          { id: 888115, type: 'release', title: 'Not a record', format: ['Not Vinyl'] }
+        ] : [{ id: 888111, type: 'release', title: 'Vinyl with bonus CD', format: ['Vinyl', 'LP', 'CD'], country: 'Europe', catno: 'LP-123' }],
+        pagination: { pages: 2 }
+      };
+    },
+    release: id => {
+      if (id === '888112') return cdRelease(Number(id));
+      return {
+        ...cdRelease(Number(id), 'Vinyl'), title: 'Vinyl Barcode Album',
+        formats: [{ name: 'Vinyl', qty: '2', descriptions: ['LP', 'Album'] }, { name: 'CD', qty: '1' }],
+        identifiers: [{ type: 'Barcode', value: '0077774615225' }]
+      };
+    }
+  });
+  await page.goto('/hosted.html');
+  await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
+  await openAddDialog(page, 'record');
+  await expect(page.locator('#add-barcode')).toBeFocused();
+  await page.getByRole('textbox', { name: 'Vinyl barcode', exact: true }).fill('invalid');
+  await page.getByRole('button', { name: 'Find vinyl releases', exact: true }).click();
+  await expect(page.locator('#add-status')).toContainText('digit barcode');
+  expect(searches).toHaveLength(0);
+  await page.locator('#add-barcode').fill('12345678');
+  await page.locator('#add-barcode-search').click();
+  await expect(page.locator('#add-status')).toContainText('No vinyl releases found');
+  await page.locator('#add-barcode').fill('0 07777-4615225');
+  await page.locator('#add-barcode').press('Enter');
+  await expect(page.locator('.barcode-result')).toHaveCount(2);
+  await expect(page.locator('.barcode-result[data-release-id="999123"]')).toBeDisabled();
+  await page.locator('.barcode-result[data-release-id="888112"]').click();
+  await expect(page.locator('#add-status')).toContainText('not a vinyl record');
+  await expect(page.locator('#add-submit')).toBeDisabled();
+  await page.locator('#add-barcode-more').click();
+  await expect(page.locator('.barcode-result')).toHaveCount(3);
+  await expect(page.locator('#add-barcode-more')).toBeHidden();
+  expect(searches.every(query => query.format === 'Vinyl')).toBe(true);
+  expect(searches.at(-1)).toMatchObject({ barcode: '0077774615225', page: '2' });
+  await page.locator('.barcode-result[data-release-id="888111"]').click();
+  await expect(page.locator('#add-preview')).toContainText('2xVinyl, CD, LP, Album');
+  await page.locator('#add-folder').fill('Rock');
+  await page.locator('#add-submit').click();
+  await expect.poll(() => saved && saved.CSV).toContain('Vinyl Barcode Album');
+  await expect(page.locator('#cloud-status')).toContainText('Saved to cloud.');
+  expect(saved.CSV.split('\n').filter(line => line.includes('Vinyl Barcode Album'))).toHaveLength(1);
+  expect(saved.CSV).toContain('0077774615225');
+  expect(saved.CSV).toContain('Rock');
+  expect(saved.COVERS['888111']).toMatch(/^[a-f0-9]{64}$/);
+  await expect(page.getByRole('dialog', { name: 'Record details' }).locator('.record-actions')).toBeVisible();
+  await page.locator('#dlg .x').click();
+  await page.reload();
+  await expect(page.locator('#out .tile')).toHaveCount(2);
+  await expect(page.locator('#record-count')).toHaveText('2');
+  await expect(page.locator('#cd-count')).toHaveText('1');
+  await page.locator('#vcd').click();
+  await expect(page.locator('#out .cd-item')).toHaveCount(1);
+  await expect(page.locator('#out .cd-item')).toContainText('Vinyl Barcode Album');
+  await expect(page.locator('#out .cd-item')).toContainText('CD · also in Records');
+  await openAddDialog(page, 'record');
+  await page.locator('#add-barcode').fill('0077774615225');
+  await page.locator('#add-barcode-search').click();
+  await page.locator('#add-barcode-more').click();
+  await expect(page.locator('.barcode-result[data-release-id="888111"]')).toBeDisabled();
+});
+
+test('adding a release reports storage failure and can retry with the artwork-free fallback', async ({ page }) => {
+  const payload = collectionPayload();
+  let saved;
+  await seedOwner(page);
+  await mockCloud(page, { owner: true, payload, onSave: value => { saved = value; Object.assign(payload, value); } });
+  await mockCdDiscogs(page);
+  await page.goto('/hosted.html');
+  await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
+  await openAddDialog(page);
+  await page.locator('#add-url').fill('888111');
+  await page.locator('#add-lookup').click();
+  await expect(page.locator('#add-submit')).toBeEnabled();
+  await page.evaluate(() => {
+    const setItem = Storage.prototype.setItem;
+    window.failReleaseSave = 'all';
+    Storage.prototype.setItem = function(key, value) {
+      if (key === 'fs-user-records-v4' &&
+          (window.failReleaseSave === 'all' || JSON.parse(value).some(record => record.img))) {
+        throw new DOMException('Simulated full storage', 'QuotaExceededError');
+      }
+      return setItem.call(this, key, value);
+    };
+  });
+  await page.locator('#add-submit').click();
+  await expect(page.locator('#add-status')).toContainText('could not be saved');
+  await expect(page.locator('#notice.error')).toBeVisible();
+  await expect(page.locator('#add-preview')).toBeVisible();
+  await expect(page.locator('#cd-count')).toHaveText('0');
+  expect(saved).toBeUndefined();
+  expect(await page.evaluate(() => localStorage.getItem('fs-user-records-v4'))).toBeNull();
+  await page.locator('#notice-close').click();
+  await page.evaluate(() => { window.failReleaseSave = 'images'; });
+  await page.locator('#add-submit').click();
+  await expect.poll(() => saved && saved.CSV).toContain('Barcode Test Album');
+  await expect(page.locator('#cloud-status')).toContainText('Saved to cloud.');
+  expect(saved.COVERS['888111']).toMatch(/^[a-f0-9]{64}$/);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('fs-user-records-v4')).find(record => record.id === 888111).img)).toBe('');
+  await page.reload();
+  await expect(page.locator('#out .cd-item')).toHaveCount(1);
+  await expect(page.locator('#out .cd-item img')).toBeVisible();
+});
+
+test('local removal blocks failed writes and remains durable if later cleanup fails', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (localStorage.getItem('removal-fixture-seeded')) return;
+    localStorage.setItem('removal-fixture-seeded', '1');
+    localStorage.setItem('rcImportedCSV',
+      'Artist,Title,release_id,Format,App Last Modified,CD Comments\n' +
+      'Removal artist,Removal test CD,999991,CD,2026-01-01T00:00:00.000Z,Keep these comments\n');
+    localStorage.setItem('rcImportedAt', '2099-01-01T00:00:00.000Z');
+  });
+  await page.goto(pathToFileURL(join(__dirname, '..', '..', 'index.html')).href + '#view=cd');
+  const release = page.locator('#out .cd-item').filter({ hasText: 'Removal test CD' });
+  await release.click();
+  await page.evaluate(() => {
+    const setItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if (['rcRemoved_v1', 'fs-user-records-v4', 'rcEdits_v1'].includes(key)) {
+        throw new DOMException('Simulated full storage', 'QuotaExceededError');
+      }
+      return setItem.call(this, key, value);
+    };
+  });
+  page.on('dialog', dialog => dialog.accept());
+  await page.locator('#dlg [data-remove]').click();
+  await expect(page.locator('#notice-message')).toContainText('has not been removed');
+  await expect(page.locator('#dlg')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Comments', exact: true })).toHaveValue('Keep these comments');
+  await page.reload();
+  await release.click();
+  await page.evaluate(() => {
+    const setItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if (key === 'fs-user-records-v4') throw new DOMException('Simulated full storage', 'QuotaExceededError');
+      return setItem.call(this, key, value);
+    };
+  });
+  await page.locator('#dlg [data-remove]').click();
+  await expect(page.locator('#dlg')).not.toBeVisible();
+  await expect(page.locator('#notice-message')).toContainText('Could not save locally added releases');
+  await expect(release).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('#out .cd-collection')).toBeVisible();
+  await expect(release).toHaveCount(0);
+});
+
+test('shared releases search only the notes belonging to the active media view', async ({ page }) => {
+  const payload = collectionPayload();
+  payload.CSV = 'Artist,Title,release_id,Format,CollectionFolder,Collection Revision Notes,Collection Extra Notes,CD Comments\n' +
+    'Split Artist,Both Media,777001,LP + CD,Jazz,vinylmarker,extramarker,caf\u00e9cdmarker\n';
+  await mockCloud(page, { payload });
+  await page.goto('/hosted.html');
+  await expect(page.locator('#out .tile')).toHaveCount(1);
+  for (const term of ['vinylmarker', 'extramarker']) {
+    await page.locator('#q').fill(term);
+    await expect(page.locator('#count')).toContainText('Search: ' + term);
+    await expect(page.locator('#out .tile')).toHaveCount(1);
+  }
+  await page.locator('#q').fill('cafecdmarker');
+  await expect(page.locator('#out .tile')).toHaveCount(0);
+  await page.locator('#vcd').click();
+  await expect(page.locator('#out .cd-item')).toHaveCount(1);
+  for (const term of ['vinylmarker', 'extramarker']) {
+    await page.locator('#q').fill(term);
+    await expect(page.locator('#count')).toContainText('Search: ' + term);
+    await expect(page.locator('#out .cd-item')).toHaveCount(0);
+  }
+  await page.locator('#q').fill('Split cafecdmarker');
+  await expect(page.locator('#out .cd-item')).toHaveCount(1);
+  await page.locator('#q').fill('Both Media');
+  await expect(page.locator('#count')).toContainText('Search: Both Media');
+  await expect(page.locator('#out .cd-item')).toHaveCount(1);
+  await page.locator('#vgrid').click();
+  await expect(page.locator('#out .tile')).toHaveCount(1);
 });
 
 test('mixed releases share both views without duplicating saves or exposing vinyl controls in CDs', async ({ page }) => {
@@ -195,9 +399,9 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await mockCdDiscogs(page);
   await page.goto('/hosted.html');
   await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
-  await expect(page.locator('#stats')).toContainText(/2\s*records/);
-  await expect(page.locator('#stats')).toContainText(/2\s*CD releases/);
-  await expect(page.locator('#stats')).toContainText(/2\s*bonus CDs/);
+  await expect(page.locator('#record-count')).toHaveText('2');
+  await expect(page.locator('#cd-count')).toHaveText('4');
+  await expect(page.locator('#stats')).not.toContainText(/bonus CDs/i);
   await expect(page.locator('#stats')).toContainText(/6\s*plays/);
   await expect(page.locator('#stats')).toContainText(/1\s*S-tier/);
   await expect(page.locator('#out .tile')).toHaveCount(2);
@@ -216,7 +420,7 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await page.locator('#fmt').selectOption('2xLP');
   await page.locator('#vcd').click();
   await expect(page.locator('#out .cd-item')).toHaveCount(4);
-  await expect(page.locator('#out .cd-item').filter({ hasText: 'Bonus CD' })).toHaveCount(2);
+  await expect(page.locator('#out .cd-item').filter({ hasText: 'CD · also in Records' })).toHaveCount(2);
   await expect(page.locator('#count')).toContainText('Showing 4 of 4 CD entries');
   await expect(page.locator('#chips button[data-folder="Jazz"] .n')).toHaveText('2');
   for (const id of ['tier', 'fmt', 'mono', 'less', 'random', 'queue-btn']) {
@@ -233,7 +437,9 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await expect(details.locator('dt').filter({ hasText: /^Released$/ })).toHaveCount(1);
   await details.getByText('Release details', { exact: true }).click();
   await details.getByRole('combobox', { name: 'Folder', exact: true }).selectOption('Rock');
+  await expect(page.locator('#chips button[data-folder="Jazz"] .n')).toHaveText('1');
   await details.getByRole('combobox', { name: 'Folder', exact: true }).selectOption('Jazz');
+  await expect(page.locator('#chips button[data-folder="Jazz"] .n')).toHaveText('2');
   await expect(details.locator('.jazz-style-fold')).toHaveCount(1);
   const notes = details.getByRole('textbox', { name: 'Comments', exact: true });
   await expect(details.locator('textarea')).toHaveCount(1);
@@ -241,6 +447,7 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await expect(notes).toHaveValue('');
   await notes.fill('Updated CD comments');
   await expect.poll(() => saved && saved.CSV).toContain('Updated CD comments');
+  await expect(page.locator('#cloud-status')).toContainText('Saved to cloud.');
   expect(saved.CSV).toContain('CD Comments');
   expect(saved.CSV).toContain('Original CD note');
   expect(saved.CSV).toContain('Original CD other note');
@@ -254,13 +461,23 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await page.keyboard.press('Escape');
   await page.locator('#out .cd-item').filter({ hasText: 'Vinyl with bonus CD' }).click();
   const bonusDetails = page.getByRole('dialog', { name: 'CD details' });
-  await expect(bonusDetails).toContainText('Bonus CD');
+  await expect(bonusDetails).toContainText('CD · also in Records');
   await expect(bonusDetails.locator('.record-actions, .phono-note, [data-plays], [data-play], [data-queue-add]')).toHaveCount(0);
   await expect(bonusDetails.locator('.recording-fold, [data-recorded]')).toHaveCount(0);
   await expect(bonusDetails.locator('textarea')).toHaveCount(1);
   await expect(bonusDetails.locator('[data-edit="n"], [data-edit="x"]')).toHaveCount(0);
   await bonusDetails.getByRole('textbox', { name: 'Comments', exact: true }).fill('Bonus CD comments only');
+  await bonusDetails.getByRole('button', { name: 'Open in Records', exact: true }).click();
+  const linkedRecord = page.getByRole('dialog', { name: 'Record details' });
+  await expect(linkedRecord.locator('.record-actions')).toBeVisible();
+  await expect(linkedRecord).toContainText('Vinyl with bonus CD');
+  await expect(linkedRecord.getByRole('textbox', { name: 'Listening notes', exact: true })).toHaveValue('Vinyl notes');
+  await linkedRecord.getByRole('textbox', { name: 'Listening notes', exact: true }).fill('Updated vinyl notes');
+  await linkedRecord.getByRole('button', { name: 'Open CD view', exact: true }).click();
+  await expect(bonusDetails.getByRole('textbox', { name: 'Comments', exact: true })).toHaveValue('Bonus CD comments only');
+  await expect(bonusDetails.locator('.record-actions')).toHaveCount(0);
   await expect.poll(() => saved && saved.CSV).toContain('Bonus CD comments only');
+  await expect(page.locator('#cloud-status')).toContainText('Saved to cloud.');
   expect(saved.CSV.split('\n').filter(line => line.includes('Vinyl with bonus CD'))).toHaveLength(1);
   expect(saved.CSV.split('\n').find(line => line.includes('Vinyl with bonus CD'))).toContain(',4,S-Tier,');
   expect(saved.CSV.split('\n').find(line => line.includes('Vinyl with bonus CD'))).toContain(',1959,1959,');
@@ -277,12 +494,12 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await expect(page.getByRole('dialog', { name: 'Record details' })).toContainText('Phono');
   await expect(page.getByRole('dialog', { name: 'Record details' }).locator('.recording-fold')).toBeVisible();
   await expect(page.getByRole('dialog', { name: 'Record details' }).locator('[data-recorded]')).toHaveText('1959');
-  await expect(page.getByRole('dialog', { name: 'Record details' }).getByRole('textbox', { name: 'Listening notes', exact: true })).toHaveValue('Vinyl notes');
+  await expect(page.getByRole('dialog', { name: 'Record details' }).getByRole('textbox', { name: 'Listening notes', exact: true })).toHaveValue('Updated vinyl notes');
   await expect(page.getByRole('dialog', { name: 'Record details' }).getByRole('textbox', { name: 'Other notes', exact: true })).toHaveValue('Vinyl other notes');
   await expect(page.getByRole('dialog', { name: 'Record details' }).getByRole('textbox', { name: 'Comments', exact: true })).toHaveCount(0);
   await expect(page.getByRole('dialog', { name: 'Record details' }).locator('[data-plays]')).toHaveText('4');
   await page.getByRole('dialog', { name: 'Record details' }).locator('[data-artist]').first().click();
-  await expect(page.locator('#artist-dlg')).toContainText('2 records · 2 CD releases · 2 bonus CDs');
+  await expect(page.locator('#artist-dlg')).toContainText('2 records · 4 CDs');
   await expect(page.locator('#artist-dlg')).toContainText('6 plays');
   await page.locator('#artist-dlg .a-work').filter({ hasText: 'CD with bonus DVD' }).click();
   await expect(page.getByRole('dialog', { name: 'CD details' }).locator('.record-actions, .phono-note')).toHaveCount(0);
@@ -299,8 +516,18 @@ test('CD-specific comments persist offline and survive an HTML backup', async ({
   await page.goto(pathToFileURL(join(__dirname, '..', '..', 'index.html')).href);
   await page.locator('#vcd').click();
   await page.locator('#out .cd-item').filter({ hasText: 'Omega Alive' }).click();
+  const chips = await page.locator('#chips button').first().elementHandle();
+  const queue = await page.locator('#queue-list li').first().elementHandle();
   await page.getByRole('textbox', { name: 'Comments', exact: true }).fill('Offline CD comments, with "quotes"\nand another line');
   await page.locator('#dlg .x').click();
+  await page.locator('#q').fill('Offline CD comments');
+  await expect(page.locator('#count')).toContainText('Search: Offline CD comments');
+  await expect(page.locator('#out .cd-item')).toHaveCount(1);
+  expect(await chips.evaluate(node => node.isConnected)).toBe(true);
+  expect(await queue.evaluate(node => node.isConnected)).toBe(true);
+  await page.locator('#reset-filters-btn').click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('fs-state-v4')).q)).toBe('');
+  await expect(page).not.toHaveURL(/q=/);
   await page.reload();
   await page.locator('#out .cd-item').filter({ hasText: 'Omega Alive' }).click();
   await expect(page.getByRole('textbox', { name: 'Comments', exact: true })).toHaveValue('Offline CD comments, with "quotes"\nand another line');
@@ -321,8 +548,7 @@ test('an empty CD catalogue reports zero CDs and filtered exports stay empty', a
   await mockCloud(page);
   await page.goto('/hosted.html');
   await expect(page.locator('#out .tile')).toHaveCount(1);
-  await expect(page.locator('#stats')).toContainText(/0\s*CD releases/);
-  await expect(page.locator('#stats')).toContainText(/0\s*bonus CDs/);
+  await expect(page.locator('#cd-count')).toHaveText('0');
   await page.locator('#vcd').click();
   await expect(page.locator('#count')).toContainText('Showing 0 of 0 CD entries');
   await expect(page.locator('#out .empty')).toContainText('No CDs');
@@ -334,7 +560,7 @@ test('an empty CD catalogue reports zero CDs and filtered exports stay empty', a
   const path = testInfo.outputPath('empty-cds.csv');
   await download.saveAs(path);
   expect(readFileSync(path, 'utf8').trim().split(/\r?\n/)).toHaveLength(1);
-  await expect(page.locator('#export-status')).toContainText('0 records · 0 CD releases · 0 bonus CDs');
+  await expect(page.locator('#export-status')).toContainText('0 records · 0 CDs');
 });
 
 test('CD search validates input, handles no matches, and paginates release choices', async ({ page }) => {
@@ -351,7 +577,7 @@ test('CD search validates input, handles no matches, and paginates release choic
   });
   await page.goto('/hosted.html');
   await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
-  await openCdDialog(page);
+  await openAddDialog(page);
   await page.locator('#add-barcode').fill('abc');
   await page.locator('#add-barcode-search').click();
   await expect(page.locator('#add-status')).toContainText('digit barcode');
@@ -359,7 +585,7 @@ test('CD search validates input, handles no matches, and paginates release choic
   await page.locator('#add-barcode').fill('123456789012');
   await page.locator('#add-barcode-search').click();
   await expect(page.locator('#add-status')).toContainText('No CD releases found');
-  await page.route('**/.netlify/functions/discogs?barcode=123456789012&page=1', route =>
+  await page.route('**/.netlify/functions/discogs?barcode=123456789012&page=1&format=CD', route =>
     route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'Discogs barcode search needs DISCOGS_TOKEN on the server' }) }));
   await page.locator('#add-barcode-search').click();
   await expect(page.locator('#add-status')).toContainText('DISCOGS_TOKEN');
@@ -372,18 +598,20 @@ test('CD search validates input, handles no matches, and paginates release choic
   await expect(page.locator('#add-barcode-more')).toBeHidden();
 });
 
-test('CD previews reject vinyl and discard old results when input changes', async ({ page }) => {
+test('CD previews reject vinyl, discard changed releases and update folders without refetching', async ({ page }) => {
   await seedOwner(page);
-  await mockCloud(page, { owner: true });
-  let resolveRelease, requested = false;
+  let saved;
+  await mockCloud(page, { owner: true, onSave: value => { saved = value; } });
+  let resolveRelease, requested = false, releaseRequests = 0;
   const gate = new Promise(resolve => { resolveRelease = resolve; });
   await mockCdDiscogs(page, { release: async id => {
+    releaseRequests++;
     if (id === '888112') { requested = true; await gate; }
     return cdRelease(Number(id), id === '888111' ? 'Vinyl' : 'CD');
   } });
   await page.goto('/hosted.html');
   await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
-  await openCdDialog(page);
+  await openAddDialog(page);
   await page.locator('#add-url').fill('888111');
   await page.locator('#add-lookup').click();
   await expect(page.locator('#add-status')).toContainText('not a CD');
@@ -392,6 +620,7 @@ test('CD previews reject vinyl and discard old results when input changes', asyn
     await page.locator('#add-url').fill('888112');
     await page.locator('#add-lookup').click();
     await expect.poll(() => requested).toBe(true);
+    await page.locator('#add-folder').fill('Rock');
     await page.locator('#add-url').fill('888113');
     const response = page.waitForResponse(url => new URL(url.url()).searchParams.get('id') === '888112');
     resolveRelease();
@@ -402,62 +631,111 @@ test('CD previews reject vinyl and discard old results when input changes', asyn
   await page.locator('#add-close').click();
   await page.locator('#collection-tools > summary').click();
   await page.locator('#add-btn').click();
-  await expect(page.locator('#add-barcode-fields')).toBeHidden();
+  await expect(page.locator('#add-barcode-fields')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Vinyl barcode', exact: true })).toBeVisible();
   await page.locator('#add-url').fill('888111');
   await page.locator('#add-lookup').click();
   await expect(page.locator('#add-preview')).toContainText('2xVinyl, Album');
   await expect(page.locator('#add-submit')).toBeEnabled();
+  const requestsAfterPreview = releaseRequests;
+  const cover = await page.locator('#add-preview img').getAttribute('src');
   await page.locator('#add-folder').fill('Rock');
-  await expect(page.locator('#add-submit')).toBeDisabled();
-  await expect(page.locator('#add-preview')).toBeHidden();
+  await expect(page.locator('#add-submit')).toBeEnabled();
+  await expect(page.locator('#add-preview')).toContainText('Rock');
+  await expect(page.locator('#add-preview img')).toHaveAttribute('src', cover);
+  await page.locator('#add-folder').fill('');
+  await expect(page.locator('#add-preview')).toContainText('Jazz');
+  await page.locator('#add-folder').fill('New folder');
+  await expect(page.locator('#add-preview')).toContainText('New folder');
+  expect(releaseRequests).toBe(requestsAfterPreview);
+  await page.locator('#add-submit').click();
+  await expect(page.locator('#dlg')).toContainText('Barcode Test Album');
+  await page.getByRole('dialog', { name: 'Record details' }).getByText('Release details', { exact: true }).click();
+  await expect(page.locator('#dlg select[data-edit="g"]')).toHaveValue('New folder');
+  await expect.poll(() => saved && saved.CSV).toContain('New folder');
+  await expect(page.locator('#cloud-status')).toContainText('Saved to cloud.');
 });
 
-test('camera permission denial leaves manual CD barcode entry available', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await seedOwner(page);
-  await page.addInitScript(() => {
-    navigator.mediaDevices.getUserMedia = async () => { throw new DOMException('Denied', 'NotAllowedError'); };
+for (const mode of ['cd', 'record']) {
+  test('camera permission denial leaves manual barcode entry available for ' + mode, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await seedOwner(page);
+    await page.addInitScript(() => {
+      navigator.mediaDevices.getUserMedia = async () => { throw new DOMException('Denied', 'NotAllowedError'); };
+    });
+    await mockCloud(page, { owner: true });
+    await mockCdDiscogs(page);
+    await page.goto('/hosted.html');
+    await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
+    await openAddDialog(page, mode);
+    await page.locator('#add-scan').click();
+    await expect(page.locator('#add-camera-status')).toContainText('permission was denied');
+    await expect(page.locator('#add-camera')).toBeHidden();
+    await expect(page.locator('#add-scan')).toBeEnabled();
+    await page.locator('#add-barcode').fill('4006381333931');
+    await page.locator('#add-barcode-search').click();
+    await expect(page.locator('.barcode-result')).toHaveCount(2);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   });
-  await mockCloud(page, { owner: true });
-  await mockCdDiscogs(page);
-  await page.goto('/hosted.html');
-  await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
-  await openCdDialog(page);
-  await page.locator('#add-scan').click();
-  await expect(page.locator('#add-camera-status')).toContainText('permission was denied');
-  await expect(page.locator('#add-camera')).toBeHidden();
-  await expect(page.locator('#add-scan')).toBeEnabled();
-  await page.locator('#add-barcode').fill('4006381333931');
-  await page.locator('#add-barcode-search').click();
-  await expect(page.locator('.barcode-result')).toHaveCount(2);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-});
 
-test('camera decodes a real EAN barcode locally and stops its stream after detection', async ({ page }) => {
+  test('camera decodes a real EAN barcode locally and stops its stream for ' + mode, async ({ page }) => {
+    await seedOwner(page);
+    await page.addInitScript(() => {
+      navigator.mediaDevices.getUserMedia = async () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 640; canvas.height = 240;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 640, 240);
+        // EAN-13 fixture for 4006381333931, including guard bars.
+        const bars = '10100011010100111010111101111010001001011001101010100001010000101000010111010010000101100110101';
+        ctx.fillStyle = '#000';
+        for (let i = 0; i < bars.length; i++) if (bars[i] === '1') ctx.fillRect(80 + i * 5, 40, 5, 160);
+        window.cdTestStream = canvas.captureStream(10);
+        return window.cdTestStream;
+      };
+    });
+    await mockCloud(page, { owner: true });
+    await mockCdDiscogs(page);
+    await page.goto('/hosted.html');
+    await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
+    await openAddDialog(page, mode);
+    await page.locator('#add-scan').click();
+    await expect(page.locator('#add-barcode')).toHaveValue('4006381333931');
+    await expect(page.locator('.barcode-result')).toHaveCount(2);
+    expect(await page.evaluate(() => window.cdTestStream.getTracks().every(track => track.readyState === 'ended'))).toBe(true);
+  });
+}
+
+test('a portrait camera feed fills a landscape scanner preview without stretching', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await seedOwner(page);
   await page.addInitScript(() => {
     navigator.mediaDevices.getUserMedia = async () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 640; canvas.height = 240;
+      canvas.width = 360; canvas.height = 640;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 640, 240);
-      // EAN-13 fixture for 4006381333931, including guard bars.
-      const bars = '10100011010100111010111101111010001001011001101010100001010000101000010111010010000101100110101';
-      ctx.fillStyle = '#000';
-      for (let i = 0; i < bars.length; i++) if (bars[i] === '1') ctx.fillRect(80 + i * 5, 40, 5, 160);
-      window.cdTestStream = canvas.captureStream(10);
-      return window.cdTestStream;
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      window.portraitTestStream = canvas.captureStream(10);
+      return window.portraitTestStream;
     };
   });
   await mockCloud(page, { owner: true });
   await mockCdDiscogs(page);
   await page.goto('/hosted.html');
   await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
-  await openCdDialog(page);
+  await openAddDialog(page);
   await page.locator('#add-scan').click();
-  await expect(page.locator('#add-barcode')).toHaveValue('4006381333931');
-  await expect(page.locator('.barcode-result')).toHaveCount(2);
-  expect(await page.evaluate(() => window.cdTestStream.getTracks().every(track => track.readyState === 'ended'))).toBe(true);
+  const video = page.locator('#add-video');
+  await expect.poll(() => video.evaluate(node => node.videoHeight)).toBe(640);
+  for (const viewport of [{ width: 390, height: 844 }, { width: 844, height: 390 }]) {
+    await page.setViewportSize(viewport);
+    const preview = await video.boundingBox();
+    expect(preview.width / preview.height).toBeCloseTo(16 / 9, 2);
+    await expect(video).toHaveCSS('object-fit', 'cover');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  }
+  await page.locator('#add-close').click();
+  expect(await page.evaluate(() => window.portraitTestStream.getTracks().every(track => track.readyState === 'ended'))).toBe(true);
 });
 
 test('closing the CD dialog during a camera permission request stops a late stream', async ({ page }) => {
@@ -469,7 +747,7 @@ test('closing the CD dialog during a camera permission request stops a late stre
   await mockCdDiscogs(page);
   await page.goto('/hosted.html');
   await expect(page.locator('#cloud-status')).toContainText('Owner signed in');
-  await openCdDialog(page);
+  await openAddDialog(page);
   await page.locator('#add-scan').click();
   await expect.poll(() => page.evaluate(() => typeof window.resolveCdCamera)).toBe('function');
   await page.locator('#add-close').click();
@@ -491,8 +769,7 @@ test('hosted shell loads only the current Supabase collection', async ({ page })
   await expect(page.locator('#out')).toContainText('Cloud Test Album');
   await expect(page.locator('#out')).not.toContainText('Stale Local Album');
   await expect(page.locator('#out .tile img')).toHaveAttribute('src', IMAGE);
-  await expect(page.locator('.brand-icon')).toHaveJSProperty('complete', true);
-  expect(await page.locator('.brand-icon').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
+  await expect(page.locator('.record-shop-shelf svg')).toBeVisible();
 });
 
 test('records and filters work before artwork finishes, without eagerly fetching portraits', async ({ page }) => {
@@ -623,6 +900,7 @@ test('an unpublished hosted collection does not fall back to a legacy local impo
 });
 
 test('HTML exported from the hosted shell contains current data and opens offline', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   let releasePortrait;
   const portraitGate = new Promise(resolve => { releasePortrait = resolve; });
   const requested = [];
@@ -635,6 +913,7 @@ test('HTML exported from the hosted shell contains current data and opens offlin
   });
   await page.goto('/hosted.html');
   await expect(page.locator('#out .tile')).toHaveCount(1);
+  await page.locator('#mobile-more > summary').click();
   await page.locator('#collection-tools > summary').click();
   const downloaded = page.waitForEvent('download');
   await page.locator('#save-html-to-btn').click();
@@ -659,12 +938,19 @@ test('HTML exported from the hosted shell contains current data and opens offlin
   expect(dataBlock('COVERS', 'EMBEDDED_COVERS')).toEqual({ '999123': IMAGE });
   expect(dataBlock('PORTRAITS', 'EMBEDDED_PORTRAITS')).toEqual({ 'cloud test artist': IMAGE });
   expect(dataBlock('META', 'DATA_META').hostedShell).toBeUndefined();
-  expect(html).toMatch(/class="brand-icon" src="data:image\/png;base64,/);
+  expect(html).toContain('class="record-shop-shelf"');
   await page.goto(pathToFileURL(backupPath).href);
   await expect(page.locator('#cloud-status')).toContainText('Local file mode.');
   await expect(page.locator('#out .tile')).toHaveCount(1);
   await expect(page.locator('#out')).toContainText('Cloud Test Album');
   await expect(page.locator('#out .tile img')).toHaveAttribute('src', IMAGE);
-  await expect(page.locator('.brand-icon')).toHaveJSProperty('complete', true);
-  expect(await page.locator('.brand-icon').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
+  await expect(page.locator('.record-shop-shelf svg')).toBeVisible();
+  await expect(page.locator('#mobile-more')).toHaveCount(1);
+  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs']);
+  await expect(page.locator('#filters-body #chips')).toHaveCount(1);
+  await page.setViewportSize({ width: 1152, height: 900 });
+  await expect(page.locator('.bar > #chips')).toBeVisible();
+  await expect(page.locator('.seg #vjazz')).toBeVisible();
+  await expect(page.locator('.listening-row #random')).toBeVisible();
+  await expect(page.locator('#mobile-more')).toBeHidden();
 });

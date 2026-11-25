@@ -11,28 +11,30 @@ dialog:not([open]) {
 }
                      
 :root {
-  --bg:#E5E8E6; --surface:#F2F4F2; --surface-2:#FFF; --ink:#111517; --ink-2:#4B5559; --ink-3:#7A8488;
-  --line:#C3C9C7; --line-2:#DDE1DF; --accent:#0D6773; --accent-2:#08535D; --on-accent:#F2F8F8;
-  --warn:#9B3A20; --warn-2:#B8451F; --ok:#2E6E3E;
+  --bg:#ede5d7; --surface:#f7f0e5; --surface-2:#fffaf1; --ink:#30271f; --ink-2:#6d5a46; --ink-3:#87735c;
+  --line:#cbbcaa; --line-2:#ded1be; --accent:#8b5a35; --accent-2:#704325; --on-accent:#fff6e8;
+  --warn:#a0432e; --warn-2:#8b3422; --ok:#547044; color-scheme:light;
   --tile-s:34%; --tile-l:80%; --tile-ink:#0F1517;
-  --shadow-1:0 1px 2px rgb(8 12 14/.04),0 2px 6px rgb(8 12 14/.06);
-  --shadow-2:0 4px 12px rgb(8 12 14/.08),0 12px 28px rgb(8 12 14/.10);
-  --radius:8px; --radius-s:6px; --radius-xs:4px;
+  --shadow-1:0 2px 6px rgb(52 35 17/.05);
+  --shadow-2:0 8px 32px rgb(52 35 17/.16);
+  --radius:7px; --radius-s:5px; --radius-xs:3px;
   --font-display:"Archivo","Helvetica Neue",Arial,sans-serif;
   --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
 :root[data-theme="dark"]{
-  --bg:#121517; --surface:#1B2023; --surface-2:#222A2E; --ink:#E9EDEB; --ink-2:#9BA6A9; --ink-3:#6E787B;
-  --line:#2D353A; --line-2:#232A2E; --accent:#55C0CE; --accent-2:#7DD4DF; --on-accent:#0A1416;
-  --warn:#E58C6E; --warn-2:#F0A184; --ok:#7DD49B;
+  --bg:#181512; --surface:#251f1b; --surface-2:#302822; --ink:#f0e5d3; --ink-2:#c0af97; --ink-3:#a5927c;
+  --line:#514236; --line-2:#392f27; --accent:#d5a576; --accent-2:#e9bd90; --on-accent:#21170f;
+  --warn:#e69d80; --warn-2:#f2b299; --ok:#a7ba90;
+  --shadow-1:0 2px 6px rgb(0 0 0/.1); --shadow-2:0 8px 32px rgb(0 0 0/.3);
   --tile-s:30%; --tile-l:23%; --tile-ink:#EEF2F0; color-scheme:dark;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#121517; --surface:#1B2023; --surface-2:#222A2E; --ink:#E9EDEB; --ink-2:#9BA6A9; --ink-3:#6E787B;
-    --line:#2D353A; --line-2:#232A2E; --accent:#55C0CE; --accent-2:#7DD4DF; --on-accent:#0A1416;
-    --warn:#E58C6E; --warn-2:#F0A184; --ok:#7DD49B;
+    --bg:#181512; --surface:#251f1b; --surface-2:#302822; --ink:#f0e5d3; --ink-2:#c0af97; --ink-3:#a5927c;
+    --line:#514236; --line-2:#392f27; --accent:#d5a576; --accent-2:#e9bd90; --on-accent:#21170f;
+    --warn:#e69d80; --warn-2:#f2b299; --ok:#a7ba90;
+    --shadow-1:0 2px 6px rgb(0 0 0/.1); --shadow-2:0 8px 32px rgb(0 0 0/.3);
     --tile-s:30%; --tile-l:23%; --tile-ink:#EEF2F0; color-scheme:dark;
   }
 }
@@ -40,7 +42,7 @@ dialog:not([open]) {
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:14px; line-height:1.45;
-  padding:28px max(16px,env(safe-area-inset-right,0px)) 64px max(16px,env(safe-area-inset-left,0px));
+  padding:22px max(16px,env(safe-area-inset-right,0px)) 64px max(16px,env(safe-area-inset-left,0px));
   -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:1240px;margin:0 auto;display:grid;gap:20px}
@@ -147,7 +149,7 @@ h1{margin:0;display:flex;align-items:center;gap:.18em;font-family:var(--font-dis
 .cd-meta .cd-year{font:400 10px var(--font-mono);color:var(--ink-3)}
 .barcode-tools{display:flex;gap:8px;flex-wrap:wrap}
 .barcode-camera{display:grid;gap:8px}
-.barcode-camera video{display:block;width:100%;max-height:260px;object-fit:contain;background:#111;border-radius:var(--radius-s)}
+.barcode-camera video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:#111;border-radius:var(--radius-s)}
 .barcode-results{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .barcode-result{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;width:100%;padding:10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s)}
 .barcode-result:hover{border-color:var(--accent)}
@@ -706,6 +708,157 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
   .count .pill{height:auto;min-height:44px;white-space:normal}
   .notice{font-size:13px}
 }
+/* Record-shop layout */
+.record-shop{
+  display:block;position:relative;overflow:hidden;padding:22px 30px 0;
+  background:radial-gradient(ellipse at 75% 55%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 65%),color-mix(in srgb,var(--bg) 75%,var(--surface));
+  border:1px solid color-mix(in srgb,var(--accent) 65%,var(--line));border-radius:14px;
+}
+.record-shop .mast-top{position:relative;z-index:2;align-items:center}
+.record-shop .eyebrow{font-size:14px;letter-spacing:.14em}
+.record-shop .themebtn{width:44px;height:40px;padding:0;justify-content:center;border-color:var(--accent);border-radius:10px;color:var(--accent)}
+.record-shop-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:24px;min-height:270px}
+.record-shop-main{position:relative;padding:26px 0 32px}
+.record-shop-brand{position:relative;z-index:1}
+.record-shop h1{font-family:"Archivo",Impact,"Arial Narrow",sans-serif;font-size:clamp(54px,11.6vw,146px);letter-spacing:-.025em;line-height:.9;color:color-mix(in srgb,var(--ink) 88%,var(--accent))}
+.record-shop-tagline{margin:14px 0 0;font:400 16px/1.7 var(--font-mono);color:var(--ink-2)}
+.record-shop-shelf{position:relative;align-self:end;width:100%;padding-bottom:20px;pointer-events:none}
+.record-shop-shelf>svg{display:block;width:100%;height:auto;overflow:visible}
+.media-totals{position:relative;z-index:1;display:flex;gap:24px;margin:32px 0 0}
+.media-totals>div{display:flex;align-items:baseline;gap:10px;min-width:0;padding:0}
+.media-totals>div+div{padding-left:24px;border-left:1px solid var(--accent)}
+.media-totals dt{order:1;font:400 13px var(--font-mono);color:var(--ink-2)}
+.media-totals dd{margin:0;font:700 44px/1 var(--font-display);letter-spacing:-.04em}
+.record-shop .stats{position:relative;justify-content:space-between;margin:0;padding:17px 0;border-top:1px solid var(--accent);gap:10px 18px;font-size:12px}
+.record-shop .stats li+li::before{content:"\00b7";color:var(--accent);margin-right:12px}
+.record-shop .stats b{font-weight:600;font-size:14px}
+.bar{
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"views tools" "search listening" "chips chips" "filters filters";
+  gap:14px 24px;padding:18px 22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+}
+.bar .row1{display:contents}
+.bar .row1 .seg{grid-area:views;justify-self:start;gap:4px;border:0;background:transparent;overflow:visible}
+.bar .seg button{border-radius:4px;color:var(--ink-2);font-weight:500}
+.bar .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.bar .tools{grid-area:tools;justify-self:end}
+.bar .row1 .search{grid-area:search}
+.bar .listening-row{grid-area:listening}
+.bar .listening-label{display:none}
+.bar .listening-row .btn{font-size:12px;background:transparent;border-color:transparent;padding:0 10px;color:var(--ink-2)}
+.bar .listening-row .btn:hover{border-color:var(--line);color:var(--ink)}
+.bar .chips{grid-area:chips;scrollbar-color:var(--line) transparent;padding-bottom:9px}
+.bar .chip{border-color:transparent;background:var(--surface-2);font-size:12px}
+.bar .chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.bar .chip:hover{border-color:var(--accent)}
+.bar #filter-home{grid-area:filters;border-top:1px solid var(--line-2);padding-top:14px}
+.bar .filter-controls{gap:8px 14px;font-size:12px}
+.bar .filter-controls select,.bar .filter-controls .dir{height:34px;font-size:12px}
+.bar #reset-filters-btn,.bar #less{height:34px;font-size:12px}
+.bar #reset-filters-btn{margin-left:auto;font-weight:400;color:var(--ink-2)}
+.search input{background:var(--surface-2)}
+.chip,.btn,.lessbtn,.themebtn{box-shadow:none}
+.grid,.cd-shelf{grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:22px 18px}
+.tile,.tile.has-cover{
+  aspect-ratio:auto;background:var(--surface);color:var(--ink);
+  display:flex;flex-direction:column;border:1px solid var(--line-2);border-radius:6px;
+  contain-intrinsic-size:auto 310px;
+}
+.tile .cover{position:relative;width:100%;height:auto;aspect-ratio:1;object-fit:cover}
+.tile:not(.has-cover)::before{content:"";display:block;width:100%;aspect-ratio:1;background:var(--tb);flex-shrink:0}
+.tile .veil,.tile .cat{display:none}
+.tile .content{height:auto;flex:1;padding:13px;gap:7px}
+.tile .artist{font-size:19px;line-height:1.1;text-shadow:none;-webkit-line-clamp:2}
+.tile .ttl{font-size:12px;line-height:1.4;color:var(--ink-2);text-shadow:none;-webkit-line-clamp:2}
+.tile .foot{padding-top:6px;color:var(--ink-3)}
+.tile .tier,.tile.has-cover .tier.S,.tile:not(.has-cover) .tier.S{background:var(--surface-2);color:var(--ink);backdrop-filter:none}
+.tile.is-least::after,.tile.has-cover.is-least::after{border-color:var(--accent)}
+.tile.is-user::before{content:none}
+.tile:not(.has-cover).is-user::before{content:"";position:static;height:auto;border-radius:0}
+.cd-collection{gap:24px}
+.cd-intro{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px 20px}
+.cd-intro h2{font-size:26px}
+.cd-intro .btn{grid-column:2;grid-row:1}
+.cd-meta{gap:5px;padding:4px 3px}
+.cd-meta .cd-artist{font-size:17px}
+.cd-meta .cd-title{font-size:13px}
+.count{padding:0 2px;font-size:11px;line-height:1.6}
+.count>span:not(:first-child):not(.flag){display:none}
+.results-row{display:contents}
+.mobile-more{position:relative}
+.mobile-more>summary{list-style:none;justify-content:center}
+.mobile-more>summary::-webkit-details-marker{display:none}
+.mobile-more-panel{
+  position:absolute;right:0;top:calc(100% + 8px);z-index:20;
+  width:240px;max-width:calc(100vw - 64px);max-height:65dvh;overflow-y:auto;
+  padding:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-2);
+}
+.mobile-more-actions{display:grid;gap:6px}
+.mobile-more-actions button{width:100%;justify-content:flex-start;text-align:left;padding:10px 12px;border:1px solid transparent;border-radius:4px;background:transparent;font-size:13px;font-weight:500;min-height:44px}
+.mobile-more-actions button:hover{border-color:var(--line)}
+.mobile-more-actions button[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+.mobile-more-panel .tools{width:100%;margin-top:8px}
+.mobile-more-panel .tools>summary{width:100%;justify-content:flex-start}
+.mobile-more-panel .tools-panel{position:static;width:auto;max-width:none;padding:10px 0 0;border:0;box-shadow:none;background:transparent}
+.genre-filters{margin-bottom:20px}
+.genre-filters h3{margin:0 0 12px;font:600 13px var(--font-body)}
+.genre-filters .chips{flex-wrap:wrap;overflow:visible;padding:0;gap:8px}
+.genre-filters .chip{min-height:44px}
+@media(min-width:601px) and (max-width:900px){
+  .record-shop h1{font-size:clamp(54px,8.2vw,74px)}
+  .record-shop-tagline{font-size:12px}
+}
+@media(max-width:768px){
+  .bar{padding:16px;gap:12px}
+  .record-shop{padding:22px 22px 0}
+  .record-shop-hero{gap:16px;min-height:230px}
+  .record-shop .eyebrow{font-size:10px}
+  .media-totals{gap:18px}
+  .media-totals>div+div{padding-left:18px}
+  .media-totals dd{font-size:38px}
+  .record-shop .stats{gap:7px 18px}
+  .record-shop .stats li::before{display:none}
+}
+@media(max-width:600px){
+  .record-shop{padding:14px 16px 0}
+  .record-shop .mast-top{flex-wrap:nowrap}
+  .record-shop .eyebrow{flex:1;min-width:0;font-size:9px}
+  .record-shop .themebtn{flex-shrink:0}
+  .record-shop-hero{--mobile-shelf-width:clamp(90px,29vw,140px);position:relative;grid-template-columns:1fr;gap:4px;min-height:0}
+  .record-shop-main{padding:10px 0 14px}
+  .record-shop h1{max-width:calc(100% - var(--mobile-shelf-width) - 12px);font-size:clamp(30px,9vw,52px);line-height:.95}
+  .record-shop-tagline{margin-top:10px;font-size:11px;line-height:1.5}
+  .record-shop-shelf{position:absolute;display:block;right:0;top:-6px;width:var(--mobile-shelf-width);padding:0}
+  .media-totals{margin-top:16px}
+  .media-totals>div{gap:9px}
+  .media-totals dt{font-size:11px;white-space:nowrap}
+  .media-totals dd{font-size:30px}
+  .bar{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"views more" "search filters"}
+  .bar .row1 .seg{justify-self:stretch}
+  .bar .seg button{flex:1;font-size:12px}
+  .bar .mobile-more{grid-area:more;min-width:0}
+  .mobile-more>summary{min-height:44px;font-size:12px;padding:0 12px}
+  .mobile-more[data-view="jazz"]>summary{border-color:var(--accent);color:var(--accent)}
+  .bar #filters-btn{grid-area:filters;justify-content:center}
+  .bar .search kbd{display:none}
+  .bar .search input{padding-right:12px}
+  .bar .listening-row{display:none}
+  .results-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .results-row .count{flex:1;min-width:0}
+  .results-row #queue-btn{flex-shrink:0;min-height:44px;padding:0 10px;font-size:12px;color:var(--accent)}
+  .results-row .pill{min-height:36px;font-size:11px}
+  .grid,.cd-shelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
+  .tile .content{padding:10px}
+  .tile .artist{font-size:17px}
+  .cd-intro h2{font-size:24px}
+  .cd-intro .btn{font-size:12px}
+  .record-shop .stats{display:none}
+}
+@media(max-width:480px){
+  body{padding-top:max(15px,env(safe-area-inset-top,0px))}
+  .wrap{gap:15px}
+  .bar{padding:12px}
+}
 </style>
 </head>
 <body>
@@ -718,12 +871,115 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <button type="button" class="dismiss" id="banner-dismiss">Got it</button>
   </div>
 
-  <header class="mast">
+  <header class="mast record-shop">
     <div class="mast-top">
-      <p class="eyebrow" id="subtitle">Fabio's collection</p>
-      <button type="button" class="themebtn" id="theme" aria-label="Switch theme"><span id="theme-label">Dark</span></button>
+      <p class="eyebrow" id="subtitle">Fabio's collection / On the shelf</p>
+      <button type="button" class="themebtn" id="theme" aria-label="Switch theme">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 1v3m0 16v3M1 12h3m16 0h3M4.2 4.2l2.1 2.1m11.4 11.4 2.1 2.1M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path>
+        </svg>
+        <span class="sr" id="theme-label">Auto</span>
+      </button>
     </div>
-    <h1><img class="brand-icon" src="assets/the-crate-vinyl-logo.png" alt=""><span>The Crate</span></h1>
+    <div class="record-shop-hero">
+      <div class="record-shop-main">
+        <div class="record-shop-brand">
+          <h1>The Crate</h1>
+          <p class="record-shop-tagline">Good records. Favourite CDs. Your collection.</p>
+        </div>
+        <dl class="media-totals" aria-label="Collection by media">
+          <div><dt>Records</dt><dd id="record-count">&ndash;</dd></div>
+          <div><dt>CDs</dt><dd id="cd-count">&ndash;</dd></div>
+        </dl>
+      </div>
+      <div class="record-shop-shelf" aria-hidden="true">
+        <svg viewBox="0 0 560 300" fill="none" focusable="false">
+          <defs>
+            <linearGradient id="shelf-paper" x2="1" y2="1">
+              <stop stop-color="#f4e3ba"></stop><stop offset="1" stop-color="#ceb284"></stop>
+            </linearGradient>
+            <linearGradient id="shelf-blue" x2="1" y2="1">
+              <stop stop-color="#647782"></stop><stop offset="1" stop-color="#35464e"></stop>
+            </linearGradient>
+            <linearGradient id="shelf-green" x2="1" y2="1">
+              <stop stop-color="#9ca87f"></stop><stop offset="1" stop-color="#637457"></stop>
+            </linearGradient>
+            <linearGradient id="shelf-wood" x2="0" y2="1">
+              <stop stop-color="#c89150"></stop><stop offset=".35" stop-color="#a8743c"></stop><stop offset="1" stop-color="#54301b"></stop>
+            </linearGradient>
+            <radialGradient id="shelf-vinyl" cx=".3" cy=".2" r=".9">
+              <stop stop-color="#39362b"></stop><stop offset=".45" stop-color="#1b1b17"></stop><stop offset="1" stop-color="#080907"></stop>
+            </radialGradient>
+            <radialGradient id="shelf-label">
+              <stop stop-color="#dc9d3e"></stop><stop offset="1" stop-color="#be611e"></stop>
+            </radialGradient>
+            <filter id="shelf-shadow" x="-.3" y="-.2" width="1.6" height="1.5">
+              <feDropShadow dx="-3" dy="5" stdDeviation="4" flood-color="#080603" flood-opacity=".4"></feDropShadow>
+            </filter>
+            <filter id="shelf-grain">
+              <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="3" stitchTiles="stitch"></feTurbulence>
+              <feColorMatrix type="saturate" values="0"></feColorMatrix>
+            </filter>
+            <clipPath id="shelf-classical-clip"><path d="M104 54h154v209H104z"></path></clipPath>
+            <clipPath id="shelf-rock-clip"><path d="M185 44h166v220H185z"></path></clipPath>
+            <clipPath id="shelf-jazz-clip"><path d="M273 33h179v232H273z"></path></clipPath>
+          </defs>
+          <g filter="url(#shelf-shadow)">
+            <circle cx="438" cy="155" r="112" fill="url(#shelf-vinyl)" stroke="#726548" stroke-width=".8"></circle>
+            <g stroke="#b09a6d" stroke-opacity=".16" stroke-width=".65">
+              <circle cx="438" cy="155" r="107"></circle><circle cx="438" cy="155" r="103"></circle>
+              <circle cx="438" cy="155" r="99"></circle><circle cx="438" cy="155" r="95"></circle>
+              <circle cx="438" cy="155" r="91"></circle><circle cx="438" cy="155" r="87"></circle>
+              <circle cx="438" cy="155" r="83"></circle><circle cx="438" cy="155" r="79"></circle>
+              <circle cx="438" cy="155" r="75"></circle><circle cx="438" cy="155" r="71"></circle>
+              <circle cx="438" cy="155" r="67"></circle><circle cx="438" cy="155" r="63"></circle>
+              <circle cx="438" cy="155" r="59"></circle><circle cx="438" cy="155" r="55"></circle>
+            </g>
+            <circle cx="438" cy="155" r="43" fill="url(#shelf-label)"></circle>
+            <circle cx="438" cy="155" r="6" fill="#171810"></circle>
+            <circle cx="438" cy="155" r="1.8" fill="#d9c99d"></circle>
+          </g>
+          <g filter="url(#shelf-shadow)">
+            <path d="M33 66h145v196H33z" fill="url(#shelf-blue)" stroke="#a9b5b2"></path>
+            <circle cx="104" cy="151" r="48" fill="#ddcda4" opacity=".8"></circle>
+            <path d="M41 207h127m-127 15h127m-127 15h127" stroke="#cfb780" stroke-width="6"></path>
+            <path d="M104 54h154v209H104z" fill="url(#shelf-paper)" stroke="#f1dfb8"></path>
+            <g clip-path="url(#shelf-classical-clip)" stroke="#b58743">
+              <circle cx="251" cy="251" r="144" stroke-width="17"></circle>
+              <circle cx="251" cy="251" r="120" stroke-width="17"></circle>
+              <circle cx="251" cy="251" r="96" stroke-width="17"></circle>
+              <circle cx="251" cy="251" r="72" stroke-width="17"></circle>
+              <circle cx="251" cy="251" r="48" stroke-width="17"></circle>
+            </g>
+            <path d="M185 44h166v220H185z" fill="url(#shelf-green)" stroke="#c3c9a7"></path>
+            <g clip-path="url(#shelf-rock-clip)">
+              <circle cx="346" cy="202" r="109" fill="#334c35"></circle>
+              <path d="M185 196h166v68H185z" fill="#a2ab7b"></path>
+              <circle cx="185" cy="264" r="69" fill="#536546"></circle>
+              <path d="M270 196h81v68z" fill="#768960"></path>
+            </g>
+            <path d="M273 33h179v232H273z" fill="url(#shelf-paper)" stroke="#f4e5c4" stroke-width="2"></path>
+            <g clip-path="url(#shelf-jazz-clip)">
+              <circle cx="312" cy="101" r="30" fill="#cf8b2f"></circle>
+              <circle cx="453" cy="270" r="177" fill="#b8652e"></circle>
+              <circle cx="453" cy="270" r="111" fill="#382c20"></circle>
+              <path d="M397 38v143m12-143v143m12-143v143m12-143v143m12-143v143" stroke="#352a20" stroke-width="6"></path>
+              <path d="M274 34h177v230H274z" filter="url(#shelf-grain)" opacity=".09"></path>
+            </g>
+            <g font-family="monospace" font-size="16" font-weight="700" letter-spacing="1">
+              <text x="44" y="91" fill="#e7d8b8">LIVE</text>
+              <text x="113" y="80" fill="#49371f" font-size="12" letter-spacing=".3">CLASSICAL</text>
+              <text x="198" y="71" fill="#303e29">ROCK</text>
+              <text x="286" y="60" fill="#382a1e">JAZZ</text>
+            </g>
+            <path d="M12 271l24-10h491l21 10z" fill="#bd8c53"></path>
+            <path d="M12 271h536v13H12z" fill="url(#shelf-wood)"></path>
+            <path d="M16 273h528" stroke="#e3b476" stroke-opacity=".6"></path>
+          </g>
+        </svg>
+      </div>
+    </div>
     <ul class="stats" id="stats"></ul>
   </header>
 
@@ -752,6 +1008,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <button type="button" class="btn" id="photos-btn" title="Fetch missing artist photos (Wikipedia, then Discogs)">Fetch artist photos</button>
       <button type="button" class="btn ghost" id="export-btn" title="Export collection as CSV">Export CSV</button>
       <button type="button" class="btn ghost" id="import-csv-btn">Import CSV</button>
+      <button type="button" class="btn ghost" id="recover-import-btn" hidden="">Download unreadable CSV</button>
       <input type="file" id="import-file" accept=".csv,text/csv" hidden="">
       <button type="button" class="btn ghost" id="import-html-btn">Import HTML backup</button>
       <input type="file" id="import-html-file" accept=".html,text/html" hidden="">
@@ -762,12 +1019,17 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <button type="button" class="btn ghost" id="cloud-save-btn" hidden="" disabled="">Publish collection</button>
       <button type="button" class="btn ghost" id="cloud-reload-btn" hidden="">Load latest cloud collection</button>
       <button type="button" class="btn ghost" id="cloud-logout-btn" hidden="">Sign out</button>
-      <p>The hosted collection uses cloud storage. Only the signed-in owner can publish changes. The listening queue and display preferences stay on this device.</p>
+      <p>The hosted collection uses cloud storage. Only the signed-in owner can publish changes. The listening queue and display preferences stay on this device. Records and CDs remember their own sort order. Records search includes vinyl notes; CD search includes CD comments. Shared releases link between both views.</p>
       <p>Use Save HTML to... to choose your synced OneDrive folder in a supported browser. OneDrive uploads the backup after saving; this is not automatic collection syncing. Other browsers use the normal download instead.</p>
       <p>Import HTML backup restores a saved collection, including covers and fetched metadata. In a local file it replaces this browser's collection; on the hosted site the owner can replace the shared cloud collection after confirmation. Save a backup first.</p>
       </div>
       </details>
     </div>
+
+    <details class="mobile-more" id="mobile-more" hidden="">
+      <summary class="btn">More &#8943;</summary>
+      <div class="mobile-more-panel"><div class="mobile-more-actions"></div></div>
+    </details>
 
     <div class="listening-row" role="group" aria-labelledby="listening-label">
       <p class="listening-label" id="listening-label">Listening</p>
@@ -816,7 +1078,9 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     </div></div>
   </section>
 
-  <p class="count" id="count" aria-live="polite"></p>
+  <div class="results-row">
+    <p class="count" id="count" aria-live="polite"></p>
+  </div>
   <div id="loading-skeleton" class="grid" aria-hidden="true" hidden="">
     <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
     <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
@@ -841,7 +1105,11 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <h2 id="filters-title">Filters &amp; sort</h2>
     <p>Filters apply immediately. Close to browse your results.</p>
   </div>
-  <div class="form-body" id="filters-body"></div>
+  <div class="form-body" id="filters-body">
+    <section class="genre-filters" id="genre-filters" aria-labelledby="genre-filters-title" hidden="">
+      <h3 id="genre-filters-title">Genres</h3>
+    </section>
+  </div>
   <div class="form-body"><button type="button" class="btn primary" id="filters-show">Show 153 records</button></div>
 </dialog>
 <dialog id="queue-dlg" class="form-dlg" aria-labelledby="queue-title">
@@ -918,28 +1186,28 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <div class="form-hero">
       <button type="button" class="x" id="add-close" aria-label="Close">✕</button>
       <h2 id="add-title">Add a record</h2>
-      <p id="add-record-help">Paste a Discogs release URL — for example <code>https://www.discogs.com/release/15796599</code> — or just the numeric ID. The cover, credits, and tracklist are fetched from Discogs.</p>
+      <p id="add-record-help">Scan the vinyl barcode with your phone or tablet, or type the digits below. Choose your pressing, then preview and confirm. No camera images leave this device. No barcode? Paste a Discogs release URL — for example <code>https://www.discogs.com/release/15796599</code> — or just the numeric ID. The cover, credits, and tracklist are fetched from Discogs.</p>
       <p id="add-cd-help" hidden="">Scan the CD's barcode with your phone or tablet, or type the digits below. Barcodes can match several editions: choose the release that matches your CD, then preview and confirm. No camera images leave this device.</p>
     </div>
     <div class="form-body">
-      <div id="add-barcode-fields" hidden="">
+      <div id="add-barcode-fields">
         <div class="fld">
-          <label for="add-barcode">CD barcode</label>
+          <label for="add-barcode">Vinyl barcode</label>
           <input id="add-barcode" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="8, 12, 13 or 14 digits">
         </div>
         <div class="barcode-tools">
           <button type="button" class="btn" id="add-scan">Scan with camera</button>
-          <button type="button" class="btn" id="add-barcode-search">Find CD releases</button>
+          <button type="button" class="btn" id="add-barcode-search">Find vinyl releases</button>
         </div>
         <div class="barcode-camera" id="add-camera" hidden="">
           <video id="add-video" autoplay="" muted="" playsinline="" aria-label="Barcode camera preview"></video>
-          <p class="hint">Point the rear camera at the barcode. Hold it steady with the bars in focus. Camera access needs the hosted HTTPS site and your permission. You can always enter the barcode manually.</p>
+          <p class="hint">Centre the whole barcode in the wide preview. You can keep your phone upright; the preview crops the top and bottom of a portrait camera feed. Hold it steady with the bars in focus. Camera access needs the hosted HTTPS site and your permission. You can always enter the barcode manually.</p>
           <button type="button" class="btn" id="add-scan-stop">Stop camera</button>
         </div>
         <p class="status" id="add-camera-status" aria-live="polite"></p>
-        <ul class="barcode-results" id="add-barcode-results" aria-label="Matching CD releases"></ul>
+        <ul class="barcode-results" id="add-barcode-results" aria-label="Matching vinyl releases"></ul>
         <button type="button" class="btn" id="add-barcode-more" hidden="">More releases</button>
-        <p class="hint">No match, or no barcode? You can still paste a Discogs CD release URL or ID below.</p>
+        <p class="hint" id="add-barcode-help">No match, or no barcode? You can still paste a Discogs vinyl release URL or ID below.</p>
       </div>
       <div class="fld">
         <label for="add-url">Discogs URL or release ID</label>
@@ -1106,6 +1374,8 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
         <dt>Backspace</dt><dd>Back within record or artist details</dd>
       </div>
       <p>Notes save automatically on this device. Use Collection tools to export a backup. Play next is a listening list, not an audio player.</p>
+      <p>On phones, More contains Random, Discovery, Jazz styles and Collection tools. Filters contains genres and sorting; active filters can be removed beside the results. Play next appears beside the results when the queue has records.</p>
+      <p>Records and CDs count releases, not individual discs. Every release containing CDs is included in the CD count. Releases containing vinyl and CDs appear in both views but are saved only once.</p>
       <p>Jazz styles groups albums by subgenre, with sections ordered by approximate origins. Styles overlap: an album can appear in more than one section, regardless of recording year. Fetch missing style metadata from the Jazz styles view, or open Jazz styles in record details to review or correct a classification. Unclassified albums remain visible. CSV and HTML backups include manual classifications and recording-date edits.</p>
     </div>
   </form>
@@ -1892,7 +2162,7 @@ async function idbDelete(key){
   }
   function buildQueue(){
     var keys = listeningQueue.filter(function(k){ return byKey[k] && !isCdFormat(byKey[k].f); });
-    $('queue-btn').textContent = 'Play next (' + keys.length + ')';
+    syncMobileControls();
     var list = $('queue-list'), focused = document.activeElement;
     var focusedKey = list.contains(focused) && (focused.dataset.queueOpen || focused.dataset.key);
     var focusedAction = focusedKey && focused.dataset.queueAction;
@@ -2088,6 +2358,9 @@ async function idbDelete(key){
   function hasCdFormat(f){
     return /(?:^|[,+;])\s*(?:\d+x)?CD(?:-R)?(?=\s*(?:[,;+]|$))/i.test(String(f||''));
   }
+  function hasVinylFormat(f){
+    return /(?:^|[,+;])\s*(?:\d+x)?(?:Vinyl|LP|(?:7|10|12)")(?=\s*(?:[,;+]|$))/i.test(String(f||''));
+  }
   function isCdFormat(f){
     var formats = String(f||'').split(/[,+;]/);
     // Skip container labels and descriptions; the first physical medium determines the collection.
@@ -2104,7 +2377,7 @@ async function idbDelete(key){
   function collectionSummary(list){
     var cds = list.filter(function(r){ return isCdFormat(r.f); }).length;
     var bonus = list.filter(function(r){ return hasCdFormat(r.f) && !isCdFormat(r.f); }).length;
-    return plural(list.length-cds,'record') + ' · ' + plural(cds,'CD release') + ' · ' + plural(bonus,'bonus CD');
+    return plural(list.length-cds,'record') + ' · ' + plural(cds+bonus,'CD');
   }
   function collectionForView(){
     var cds = state.view === 'cd';
@@ -2252,9 +2525,11 @@ async function idbDelete(key){
     r.fg = fmtGroup(r.f);
     r.sortArtist = artistKey(r.a);
     r.sortComp = (r.comp||'\uffff').toLowerCase();
-    r.hay = [r.af,r.t,r.l,r.c,r.g,r.n,r.x,r.cdComments,r.comp,(r.trk||[]).join(' '),
-             (r.pers||[]).map(function(p){ return p.n+' '+p.r; }).join(' ')].join(' ').toLowerCase();
+    var metadata = [r.af,r.t,r.l,r.c,r.g,r.comp,(r.trk||[]).join(' '),
+                    (r.pers||[]).map(function(p){ return p.n+' '+p.r; }).join(' ')].join(' ').toLowerCase();
+    r.hay = [metadata,r.n,r.x].join(' ').toLowerCase();
     r.hayf = foldAccents(r.hay);
+    r.cdHayf = foldAccents([metadata,r.cdComments].join(' ').toLowerCase());
   }
 
   /* ---------- assemble the collection ----------
@@ -2269,8 +2544,11 @@ async function idbDelete(key){
     var baked = parseTable(DATA.CSV).rows.map(makeRecord).filter(Boolean);
     baked.forEach(function(r){ bakedKeys[r.key] = 1; });
     var impText = cloud.enabled && (cloud.published || cloud.hostedShell) ? null : lsRaw(LS_IMPORT), impAt = lsRaw(LS_IMPORT_AT) || '';
-    var imported = [];
-    if(impText){ try { imported = parseTable(impText).rows.map(makeRecord).filter(Boolean); } catch(e){ imported = []; } }
+    var imported = [], importError = '';
+    if(impText){
+      try { imported = parseTable(impText).rows.map(makeRecord).filter(Boolean); }
+      catch(e){ importError = e.message; console.error('Could not load saved CSV import:',e); }
+    }
     var importNewer = !!impAt && impAt > BAKED_AT;
     /* Records you removed here stay removed unless a copy edited after the removal comes back. */
     var removed = cloud.enabled && (cloud.published || cloud.hostedShell) ? {} : lsGet(LS_REMOVED, {}) || {};
@@ -2289,8 +2567,8 @@ async function idbDelete(key){
     baked.forEach(function(r){ consider(r, false); });
     var usedImport = 0;
     imported.forEach(function(r){ if(consider(r, importNewer)) usedImport++; });
-    importInfo = { used: usedImport > 0, rows: imported.length };
-    if(impText && !usedImport){ lsDel(LS_IMPORT); lsDel(LS_IMPORT_AT); }
+    importInfo = { used: usedImport > 0, rows: imported.length, error:importError };
+    if(impText && !importError && !usedImport){ lsDel(LS_IMPORT); lsDel(LS_IMPORT_AT); }
 
     loadUserRecords().forEach(function(s){
       var r = Object.assign({}, s);
@@ -2303,7 +2581,9 @@ async function idbDelete(key){
       if(cur){
         ['comp','pers','trk','hist','hasKB','styles'].forEach(function(k){ if(!cur[k] || (Array.isArray(cur[k]) && !cur[k].length)) cur[k] = r[k]; });
         if(!cur.img && r.img) cur.img = r.img;
-        if((r.mt || '') > (cur.mt || '')) ['p','sl','n','x','g','cond','mt','recording','jazzStyles'].forEach(function(k){ cur[k] = r[k]; });
+        if((r.mt || '') > (cur.mt || '')) ['p','sl','n','x','cdComments','g','cond','mt','recording','jazzStyles'].forEach(function(k){
+          if(k in r) cur[k] = r[k];
+        });
         return;
       }
       if(!r.img && DATA.COVERS[r.id]) r.img = DATA.COVERS[r.id];
@@ -2322,14 +2602,15 @@ async function idbDelete(key){
     return Array.isArray(arr) ? arr : [];
   }
   var USER_FIELDS = ['id','key','a','araw','af','t','l','lraw','c','f','fg','y','d','r','cond','buy','clean','s','sl','p','m','n','x','cdComments','g','mt','xc','comp','pers','trk','hist','hasKB','styles','recording','jazzStyles'];
-  function saveUserRecords(){
-    var slim = recs.filter(function(r){ return r.__userAdded; }).map(function(r){
+  function saveUserRecords(records){
+    var slim = (records || recs).filter(function(r){ return r.__userAdded; }).map(function(r){
       var o = {}; USER_FIELDS.forEach(function(k){ if(r[k] !== undefined) o[k] = r[k]; }); o.img = r.img || ''; return o;
     });
-    if(!lsSet(LS_USER, slim)){
-      slim.forEach(function(s){ s.img = ''; });   // covers also live in IndexedDB
-      lsSet(LS_USER, slim);
-    }
+    if(lsSet(LS_USER, slim)) return true;
+    slim.forEach(function(s){ s.img = ''; });   // covers also live in IndexedDB
+    if(lsSet(LS_USER, slim)) return true;
+    notify('Could not save locally added releases. Device storage may be full. Keep this page open and save an HTML backup before leaving.',null,true);
+    return false;
   }
 
   /* ---------- edits made in this browser ---------- */
@@ -2358,7 +2639,7 @@ async function idbDelete(key){
     refreshRecord(r);
     if(r.__userAdded) saveUserRecords();
     updateDataButtons();
-    scheduleRefresh(true);
+    scheduleRefresh(!Object.keys(patch).every(function(f){ return f === 'n' || f === 'x' || f === 'cdComments'; }));
     cloudChanged();
     return true;
   }
@@ -2593,13 +2874,32 @@ async function idbDelete(key){
   var DEFAULTS = { q:'', folder:'All', tier:'any', fmt:'any', mono:false, least:false, sort:'added', dir:-1, view:'grid', theme:'auto', who:'', lab:'' };
   var NOT_SAVED = { who:1, lab:1 };   // artist/label filters live in the URL only
   var state = Object.assign({}, DEFAULTS);
+  var mediaSort = {
+    records:{sort:DEFAULTS.sort,dir:DEFAULTS.dir},
+    cd:{sort:DEFAULTS.sort,dir:DEFAULTS.dir}
+  };
   var lastMin = null;
   var current = [];
 
+  function rememberSort(){
+    mediaSort[state.view === 'cd' ? 'cd' : 'records'] = {sort:state.sort,dir:state.dir};
+  }
+  function setView(view){
+    if((view === 'cd') !== (state.view === 'cd')){
+      rememberSort();
+      var saved = mediaSort[view === 'cd' ? 'cd' : 'records'];
+      state.sort = saved.sort; state.dir = saved.dir;
+    }
+    state.view = view;
+  }
   function readHash(){
     var raw = location.hash.replace(/^#/,'');
     state.who = ''; state.lab = '';
     if(!raw) return;
+    var view = new URLSearchParams(raw).get('view');
+    if(view === 'timeline') view = 'jazz';
+    if(view === 'cdmockup') view = 'cd';
+    if(['grid','table','jazz','cd'].indexOf(view) >= 0) setView(view);
     raw.split('&').forEach(function(kv){
       var eq = kv.indexOf('='); if(eq<0) return;
       var k = decodeURIComponent(kv.slice(0,eq)), v = decodeURIComponent(kv.slice(eq+1));
@@ -2608,7 +2908,6 @@ async function idbDelete(key){
         case 'tier': state.tier = v; break; case 'fmt': state.fmt = v; break;
         case 'mono': state.mono = v==='1'; break; case 'least': state.least = v==='1'; break;
         case 'sort': if(KEYS[v]) state.sort = v; break; case 'dir': state.dir = v==='1'?1:-1; break;
-        case 'view': if(v==='timeline') state.view = 'jazz'; else if(v==='cdmockup') state.view = 'cd'; else if(v==='grid'||v==='table'||v==='jazz'||v==='cd') state.view = v; break;
         case 'theme': if(v==='light'||v==='dark'||v==='auto') state.theme = v; break;
         case 'artist': state.who = artistKey(v); break;
         case 'label': state.lab = labelKey(v); break;
@@ -2623,12 +2922,23 @@ async function idbDelete(key){
     });
     if(state.view === 'timeline') state.view = 'jazz';
     if(state.view === 'cdmockup') state.view = 'cd';
+    if(!KEYS[state.sort]){ state.sort = DEFAULTS.sort; state.dir = DEFAULTS.dir; }
+    ['records','cd'].forEach(function(media){
+      var saved = s.mediaSort && s.mediaSort[media];
+      if(saved && KEYS[saved.sort] && (saved.dir === 1 || saved.dir === -1) &&
+          (media !== 'cd' || (saved.sort !== 'score' && saved.sort !== 'plays'))){
+        mediaSort[media] = {sort:saved.sort,dir:saved.dir};
+      }
+    });
+    rememberSort();
   }
   var lsTimer;
   function saveState(){
+    rememberSort();
     clearTimeout(lsTimer);
     lsTimer = setTimeout(function(){
       var s = {}; Object.keys(DEFAULTS).forEach(function(k){ if(!NOT_SAVED[k]) s[k] = state[k]; });
+      s.mediaSort = mediaSort;
       lsSet(LS_STATE, s);
     }, 250);
   }
@@ -2656,6 +2966,7 @@ async function idbDelete(key){
     var t = state.theme, root = document.documentElement;
     if(t==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t);
     $('theme-label').textContent = t==='auto'?'Auto':(t==='light'?'Light':'Dark');
+    $('theme').setAttribute('aria-label','Switch theme (currently '+$('theme-label').textContent+')');
   }
   function resetFilters(){
     clearTimeout(searchTimer);
@@ -2698,7 +3009,8 @@ async function idbDelete(key){
         if(state.mono && r.m!=='Yes') continue;
       }
       var ok = true;
-      for(var k=0;k<terms.length;k++) if(r.hayf.indexOf(terms[k])<0){ ok=false; break; }
+      var haystack = cds ? r.cdHayf : r.hayf;
+      for(var k=0;k<terms.length;k++) if(haystack.indexOf(terms[k])<0){ ok=false; break; }
       if(!ok) continue;
       base.push(r);
     }
@@ -2762,7 +3074,7 @@ async function idbDelete(key){
     var intro = el('div','cd-intro');
     var heading = el('h2','','CD collection'); heading.id = 'cd-collection-title';
     var add = el('button','btn','+ Add CD'); add.type = 'button'; add.dataset.addCd = '1';
-    intro.append(heading,el('p','','CD releases and bonus CDs from vinyl or mixed-format sets. Bonus-CD sets appear here and in Records, but share one saved release. Counts are per release, not individual discs.'),add);
+    intro.append(heading,add);
     section.append(intro);
     if(!list.length){
       var empty = el('div','empty');
@@ -2788,7 +3100,7 @@ async function idbDelete(key){
       button.append(art,el('span','cd-spine'));
       var meta = el('div','cd-meta');
       meta.append(el('strong','cd-artist',r.a),el('span','cd-title',r.t));
-      if(!isCdFormat(r.f)) meta.append(el('span','cd-year','Bonus CD · shared with Records'));
+      if(!isCdFormat(r.f)) meta.append(el('span','cd-year','CD · also in Records'));
       if(r.y) meta.append(el('span','cd-year',String(r.y)));
       item.append(button,meta); shelf.append(item);
     });
@@ -3059,7 +3371,7 @@ async function idbDelete(key){
     if(document.activeElement !== qEl) qEl.value = state.q;
     dirEl.textContent = state.dir>0?'↑':'↓';
     dirEl.setAttribute('aria-label','Sort direction: '+(state.dir>0?'ascending':'descending'));
-    buildQueue();
+    syncMobileControls();
     saveState(); writeHash();
     if(fadeOnFirstRender){
       fadeOnFirstRender = false;
@@ -3077,9 +3389,9 @@ async function idbDelete(key){
       if(r.comp) creditNames(r.comp).forEach(function(t){ comps[t.key]=1; });
       if(r.y){ if(r.y<minY) minY=r.y; if(r.y>maxY) maxY=r.y; }
     }
-    var cds = recs.filter(function(r){ return isCdFormat(r.f); }).length;
-    var bonus = recs.filter(function(r){ return hasCdFormat(r.f) && !isCdFormat(r.f); }).length;
-    var items = [[recs.length-cds,'records'],[cds,'CD releases'],[bonus,'bonus CDs'],[primaryArtists().length,'artists'],[Object.keys(comps).length,'composers'],
+    $('record-count').textContent = String(recs.filter(function(r){ return !isCdFormat(r.f); }).length);
+    $('cd-count').textContent = String(recs.filter(function(r){ return hasCdFormat(r.f); }).length);
+    var items = [[primaryArtists().length,'artists'],[Object.keys(comps).length,'composers'],
       [Object.keys(labelIndex).length,'labels'],[minY===9999?'–':minY+'–'+maxY,'released'],[plays,'plays logged'],[s,'S-tier']];
     var ul = $('stats'); ul.textContent=''; var f = frag();
     items.forEach(function(it){
@@ -3087,11 +3399,15 @@ async function idbDelete(key){
     });
     ul.append(f);
   }
+  var chipsSignature = '';
   function buildChips(){
     var counts = {}, collection = collectionForView();
     var focusedFolder = chipsEl.contains(document.activeElement) ? document.activeElement.dataset.folder : null;
     for(var i=0;i<collection.length;i++){ var g = collection[i].g; counts[g] = (counts[g]||0)+1; }
     var names = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a] || a.localeCompare(b); });
+    var signature = JSON.stringify([state.view === 'cd',names.map(function(name){ return [name,counts[name]]; })]);
+    if(signature === chipsSignature) return;
+    chipsSignature = signature;
     chipsEl.textContent = ''; var f = frag();
     [['All', collection.length]].concat(names.map(function(n){ return [n, counts[n]]; })).forEach(function(p){
       var b = el('button','chip', p[0]); b.type='button'; b.dataset.folder = p[0];
@@ -3121,8 +3437,8 @@ async function idbDelete(key){
   }
   function refreshNow(){
     clearTimeout(refreshTimer);
-    if(needIndex){ rebuildIndexes(); needIndex = false; }
-    buildStats(); render();
+    if(needIndex){ rebuildIndexes(); needIndex = false; buildStats(); buildQueue(); }
+    render();
   }
 
 
@@ -3544,7 +3860,7 @@ async function idbDelete(key){
     if(r.__userAdded){ head.append(el('span','badge','added by you')); }
     var h = el('h2','artist'); h.append(creditNodes(r.a, 'hlink')); head.append(h);
     head.append(el('p','ttl', r.t));
-    if(bonus) head.append(el('p','comp','Bonus CD · shared with Records'));
+    if(bonus) head.append(el('p','comp','CD · also in Records'));
     if(r.comp){ var cp = el('p','comp'); cp.append(creditNodes(r.comp, 'hlink')); head.append(cp); }
 
     var body = el('div','d-body');
@@ -3592,6 +3908,11 @@ async function idbDelete(key){
     } else {
       body.append(noteBox(r, 'n', 'Listening notes', 'How it sounds, clicks, pressing quirks…'));
       body.append(noteBox(r, 'x', 'Other notes', 'Anything else worth remembering'));
+    }
+    if(hasCdFormat(r.f) && !isCdFormat(r.f)){
+      var mediaLink = el('button','btn',cd ? 'Open in Records' : 'Open CD view');
+      mediaLink.type = 'button'; mediaLink.dataset.mediaView = cd ? 'grid' : 'cd';
+      body.append(mediaLink);
     }
     if(r.g === 'Jazz') body.append(jazzStyleEditor(r));
     if(!cd) body.append(recordingEditor(r));
@@ -3694,11 +4015,16 @@ async function idbDelete(key){
     if(!r || !r.__userAdded) return;
     if(!confirm('Remove "'+r.a+' — '+r.t+'" from your collection?')) return;
     var i = recs.indexOf(r); if(i < 0) return;
+    var removed = lsGet(LS_REMOVED, {}) || {}; removed[r.key] = nowISO();
+    if(!lsSet(LS_REMOVED, removed)){
+      notify('Could not save this removal. Device storage may be full. The release has not been removed.',null,true);
+      return;
+    }
     recs.splice(i,1); delete byKey[r.key];
     idbDelete('cover:' + r.id).catch(function(){});
     recs.forEach(function(x, ix){ x.i = ix; });
-    var removed = lsGet(LS_REMOVED, {}) || {}; removed[r.key] = nowISO(); lsSet(LS_REMOVED, removed);
-    delete edits[editKey(r)]; saveEdits();
+    delete edits[editKey(r)];
+    if(!saveEdits()) notify('The removal was saved, but old local edits could not be cleaned up. Keep an HTML backup.',null,true);
     saveUserRecords();
     closeAll();
     needIndex = true; refreshNow();
@@ -4143,7 +4469,7 @@ async function idbDelete(key){
   function dgRelease(id){ return dgGet('id=' + encodeURIComponent(id)); }
   function dgArtist(id){ return dgGet('artist=' + encodeURIComponent(id)); }
   function dgSearchArtist(name){ return dgGet('search=' + encodeURIComponent(name)); }
-  function dgSearchCd(barcode,page){ return dgGet('barcode=' + encodeURIComponent(barcode) + '&page=' + page); }
+  function dgSearchBarcode(barcode,page,format){ return dgGet('barcode=' + encodeURIComponent(barcode) + '&page=' + page + '&format=' + format); }
   function fetchError(err, fallbackMessage){
     var msg = String(err && err.message || '') || fallbackMessage || 'Unknown error';
     if(/^file:\/\/$/.test(msg) || onFileProtocol) return 'Not available when the page is opened from file:// — use the hosted site.';
@@ -4831,11 +5157,17 @@ async function idbDelete(key){
     var cd = mode === 'cd';
     $('add-title').textContent = cd ? 'Add a CD' : 'Add a record';
     addDlg.setAttribute('aria-label',cd ? 'Add a CD' : 'Add a record');
-    $('add-barcode-fields').hidden = !cd;
+    document.querySelector('label[for="add-barcode"]').textContent = cd ? 'CD barcode' : 'Vinyl barcode';
+    $('add-barcode-search').textContent = cd ? 'Find CD releases' : 'Find vinyl releases';
+    barcodeResults.setAttribute('aria-label',cd ? 'Matching CD releases' : 'Matching vinyl releases');
+    $('add-barcode-help').textContent = 'No match, or no barcode? You can still paste a Discogs ' + (cd ? 'CD' : 'vinyl') + ' release URL or ID below.';
     $('add-cd-help').hidden = !cd; $('add-record-help').hidden = cd;
     addDlg.showModal();
     if(onFileProtocol) setAddStatus('Adding records needs the hosted site (Discogs is reached through a Netlify function).','err');
-    requestAnimationFrame(function(){ (cd ? addBarcode : addUrl).focus(); });
+    requestAnimationFrame(function(){ addBarcode.focus(); });
+  }
+  function matchesAddFormat(format){
+    return addMode === 'cd' ? isCdFormat(format) : hasVinylFormat(format) && !isCdFormat(format);
   }
   function normalizedBarcode(value){
     var barcode = String(value||'').replace(/[\s-]/g,'');
@@ -4896,7 +5228,7 @@ async function idbDelete(key){
               addBarcode.value = barcode; cameraStatus.textContent = 'Barcode scanned: ' + barcode;
               $('add-barcode-search').click(); return;
             }
-            cameraStatus.textContent = 'That code is not a supported CD barcode. Scan the printed retail barcode or enter its digits manually.';
+            cameraStatus.textContent = 'That code is not a supported retail barcode. Scan the printed barcode or enter its digits manually.';
           }
         } catch(err){
           var kind = typeof err.getKind === 'function' ? err.getKind() : err.name;
@@ -4929,25 +5261,32 @@ async function idbDelete(key){
     barcodeResults.textContent = ''; barcodeMore.hidden = true; searchedBarcode = '';
   });
   addUrl.addEventListener('input', invalidateAddPreview);
-  addFolder.addEventListener('input', invalidateAddPreview);
+  var previewDefaultFolder = 'Unfiled';
+  function updateAddFolder(){
+    if(!lastPreview) return;
+    lastPreview.g = trim(addFolder.value) || previewDefaultFolder;
+    refreshRecord(lastPreview);
+    renderPreview(lastPreview);
+  }
+  addFolder.addEventListener('input', updateAddFolder);
   addBarcode.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); $('add-barcode-search').click(); } });
-  async function searchCdBarcode(more){
+  async function searchBarcode(more){
     stopBarcodeCamera(); invalidateAddPreview();
     var barcode = normalizedBarcode(addBarcode.value);
     if(!barcode){ setAddStatus('Enter an 8, 12, 13 or 14 digit barcode. Spaces and hyphens are allowed.','err'); return; }
     var page = more && barcode === searchedBarcode ? barcodePage + 1 : 1;
     if(page === 1){ barcodeResults.textContent = ''; barcodeMore.hidden = true; }
-    var epoch = addEpoch;
-    setAddBusy(true); setAddStatus('Looking up CD releases for ' + barcode + '...',null,true);
+    var epoch = addEpoch, medium = addMode === 'cd' ? 'CD' : 'vinyl';
+    setAddBusy(true); setAddStatus('Looking up ' + medium + ' releases for ' + barcode + '...',null,true);
     try {
-      var result = await dgSearchCd(barcode,page);
+      var result = await dgSearchBarcode(barcode,page,addMode === 'cd' ? 'CD' : 'Vinyl');
       if(epoch !== addEpoch || !addDlg.open) return;
       if(!result || !Array.isArray(result.results) || !result.pagination ||
         !Number.isInteger(result.pagination.pages) || result.pagination.pages < 0){
         throw new Error('Discogs returned an invalid search result. Try again.');
       }
       result.results.forEach(function(r){
-        if(r.type !== 'release' || !Number.isInteger(r.id) || r.id < 1 || !Array.isArray(r.format) || !isCdFormat(r.format.join(', '))) return;
+        if(r.type !== 'release' || !Number.isInteger(r.id) || r.id < 1 || !Array.isArray(r.format) || !matchesAddFormat(r.format.join(', '))) return;
         if(barcodeResults.querySelector('[data-release-id="'+r.id+'"]')) return;
         var item = el('li'), button = el('button','barcode-result'); button.type = 'button'; button.dataset.releaseId = r.id;
         if(r.thumb){ var image = el('img'); setImageSource(image,r.thumb); image.alt = ''; image.loading = 'lazy'; button.append(image); }
@@ -4959,17 +5298,17 @@ async function idbDelete(key){
       });
       searchedBarcode = barcode; barcodePage = page; barcodePages = result.pagination.pages;
       barcodeMore.hidden = page >= barcodePages || page >= 1000;
-      setAddStatus(barcodeResults.children.length ? 'Choose the edition that matches your CD. Check the country, label, catalogue number and year.' :
-        'No CD releases found. Check the barcode, try another search, or paste a Discogs CD release URL or ID.','');
+      setAddStatus(barcodeResults.children.length ? 'Choose the edition that matches your ' + (addMode === 'cd' ? 'CD' : 'record') + '. Check the country, label, catalogue number and year.' :
+        'No ' + medium + ' releases found. Check the barcode, try another search, or paste a Discogs ' + medium + ' release URL or ID.','');
     } catch(err){
       if(epoch === addEpoch && addDlg.open) setAddStatus('Could not search: ' + fetchError(err),'err');
     } finally { if(epoch === addEpoch) setAddBusy(false); }
   }
-  $('add-barcode-search').addEventListener('click', function(){ searchCdBarcode(false); });
-  barcodeMore.addEventListener('click', function(){ searchCdBarcode(true); });
+  $('add-barcode-search').addEventListener('click', function(){ searchBarcode(false); });
+  barcodeMore.addEventListener('click', function(){ searchBarcode(true); });
   barcodeResults.addEventListener('click', function(e){
     var button = e.target.closest('button[data-release-id]'); if(!button) return;
-    addUrl.value = button.dataset.releaseId; previewRelease(button.dataset.releaseId);
+    addUrl.value = button.dataset.releaseId; previewRelease(button.dataset.releaseId,true);
   });
   function parseDiscogsId(input){
     var s = String(input||'').trim(); if(!s) return null;
@@ -5028,7 +5367,7 @@ async function idbDelete(key){
   $('add-btn').addEventListener('click', function(){ openAddDialog('record'); });
   $('add-cd-btn').addEventListener('click', function(){ openAddDialog('cd'); });
   addUrl.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); addLookup.click(); } });
-  async function previewRelease(id){
+  async function previewRelease(id, fromBarcode){
     stopBarcodeCamera(); invalidateAddPreview();
     if(!id){ setAddStatus('That does not look like a Discogs release URL or ID.','err'); addSubmit.disabled = true; addPreview.hidden = true; return; }
     if(byKey['id:' + id]){ setAddStatus('That release is already in the collection.','err'); addSubmit.disabled = true; addPreview.hidden = true; return; }
@@ -5042,7 +5381,10 @@ async function idbDelete(key){
       if(addMode === 'cd' && !isCdFormat((release.formats||[]).map(function(f){ return f.name; }).join(', '))){
         throw new Error('This release is not a CD by its main format. Choose a CD edition, or use Add record for a vinyl set with a bonus CD.');
       }
-      var r = discogsReleaseToRecord(release, addFolder.value), coverWarning = '';
+      if(fromBarcode && addMode === 'record' && !matchesAddFormat((release.formats||[]).map(function(f){ return f.name; }).join(', '))){
+        throw new Error('This release is not a vinyl record in Records. Choose a vinyl pressing, or use Add CD for a CD-led set.');
+      }
+      var r = discogsReleaseToRecord(release), coverWarning = '';
       if(r.img){
         setAddStatus('Fetching cover…', null, true);
         try { r.img = await imageToDataURL(r.img, 400, 0.78); }
@@ -5050,7 +5392,8 @@ async function idbDelete(key){
       }
       if(epoch !== addEpoch || !addDlg.open) return;
       lastPreview = r;
-      renderPreview(r);
+      previewDefaultFolder = r.g;
+      updateAddFolder();
       setAddStatus('Ready to add. Confirm this is your edition.' + coverWarning,coverWarning ? '' : 'ok');
       addSubmit.disabled = false;
     } catch(err){
@@ -5066,13 +5409,21 @@ async function idbDelete(key){
     if(!lastPreview){ setAddStatus('Use "Preview" first to fetch the release.','err'); return; }
     var r = lastPreview;
     if(byKey[r.key]){ setAddStatus('That release is already in the collection.','err'); return; }
+    r.mt = nowISO();
+    if(!saveUserRecords(recs.concat(r))){
+      setAddStatus('The release could not be saved on this device. Free some storage, then try Add to collection again.','err');
+      return;
+    }
     r.i = recs.length; recs.push(r); byKey[r.key] = r;
-    var removed = lsGet(LS_REMOVED, {}) || {}; if(removed[r.key]){ delete removed[r.key]; lsSet(LS_REMOVED, removed); }
+    var removed = lsGet(LS_REMOVED, {}) || {};
+    if(removed[r.key]){
+      delete removed[r.key];
+      if(!lsSet(LS_REMOVED, removed)) notify('The release was saved, but its old removal marker could not be cleaned up. Keep an HTML backup.',null,true);
+    }
     if(r.img) idbPut('cover:' + r.id, r.img).catch(function(){});
-    saveUserRecords();
     needIndex = true; refreshNow();
     cloudChanged();
-    if(addMode === 'cd'){ state.view = 'cd'; render(); }
+    if(addMode === 'cd'){ setView('cd'); render(); }
     setAddStatus('Added: ' + r.a + ' — ' + r.t,'ok');
     lastPreview = null; addSubmit.disabled = true;
     var epoch = addEpoch;
@@ -5148,6 +5499,11 @@ async function idbDelete(key){
      The import is merged, not swapped in: per record, the copy changed most recently wins (App Last Modified vs
      the time of your edits here). For files without that column (e.g. a Discogs export) you choose. */
   var importFile = $('import-file');
+  $('recover-import-btn').addEventListener('click', function(){
+    var text = lsRaw(LS_IMPORT);
+    if(!text){ notify('The saved CSV import is no longer available.',null,true); return; }
+    download('unreadable-import-'+todayStamp()+'.csv',text,'text/csv');
+  });
   $('import-csv-btn').addEventListener('click', function(){ flushNotes(); importFile.value = ''; importFile.click(); });
   importFile.addEventListener('change', function(){
     var file = importFile.files && importFile.files[0]; if(!file) return;
@@ -5351,15 +5707,9 @@ async function idbDelete(key){
       cloud.artwork.exporting = true; cloudArtworkStatus();
       var images = await cloudResolveImages(snapshot), covers = images.COVERS, portraits = images.PORTRAITS;
       var root = document.documentElement.cloneNode(true);
-      var brand = document.querySelector('.brand-icon');
-      if(!onFileProtocol && !/^data:/i.test(brand.getAttribute('src'))){
-        await brand.decode();
-        var brandCanvas = document.createElement('canvas');
-        brandCanvas.width = brand.naturalWidth; brandCanvas.height = brand.naturalHeight;
-        brandCanvas.getContext('2d').drawImage(brand,0,0);
-        root.querySelector('.brand-icon').src = brandCanvas.toDataURL('image/png');
-      }
-      root.querySelector('#filter-home').append(root.querySelector('#filter-controls'));
+      restoreDesktopControls(root);
+      root.querySelector('#mobile-more').hidden = true;
+      root.querySelector('#genre-filters').hidden = true;
       var notice = root.querySelector('#notice'); notice.hidden = true;
       root.querySelector('body').insertBefore(notice, root.querySelector('body > script'));
       root.querySelector('#collection-tools').removeAttribute('open');
@@ -5489,12 +5839,87 @@ async function idbDelete(key){
     d.addEventListener('close', moveNotice);
   });
   var mobileLayout = window.matchMedia('(max-width:600px)');
+  var moreEl = $('mobile-more'), moreSummary = moreEl.querySelector('summary');
+  var morePanel = moreEl.querySelector('.mobile-more-panel');
+  var moreActions = moreEl.querySelector('.mobile-more-actions');
+  var resultsRow = document.querySelector('.results-row');
+  var genreFilters = $('genre-filters'), segment = document.querySelector('.seg');
+  var searchPlaceholder = qEl.placeholder;
+  function restoreDesktopControls(root){
+    var bar = root.querySelector('.bar');
+    bar.querySelector('.row1').append(
+      root.querySelector('.search'),root.querySelector('.seg'),
+      root.querySelector('#filters-btn'),root.querySelector('#collection-tools')
+    );
+    bar.querySelector('.seg').append(root.querySelector('#vjazz'));
+    bar.querySelector('.listening-row').append(
+      root.querySelector('#random'),root.querySelector('#discovery-btn'),root.querySelector('#queue-btn')
+    );
+    bar.insertBefore(root.querySelector('#chips'),root.querySelector('#filter-home'));
+    bar.append(root.querySelector('#mobile-more'));
+    root.querySelector('#filter-home').append(root.querySelector('#filter-controls'));
+  }
+  function syncMobileControls(){
+    var mobile = mobileLayout.matches;
+    var queued = listeningQueue.filter(function(key){ return byKey[key] && !isCdFormat(byKey[key].f); }).length;
+    var queue = $('queue-btn');
+    queue.textContent = mobile ? 'Play next \u00b7 '+queued : 'Play next ('+queued+')';
+    queue.hidden = mobile ? queued === 0 : state.view === 'cd';
+    moreEl.dataset.view = state.view;
+    if(countEl.firstElementChild){
+      countEl.firstElementChild.textContent = mobile
+        ? plural(current.length,state.view === 'cd' ? 'CD' : 'record')
+        : 'Showing '+current.length+' of '+collectionForView().length+' '+(state.view === 'cd' ? 'CD entries' : 'records');
+    }
+    var folderPill = countEl.querySelector('[data-clear-filter="folder"]');
+    if(folderPill) folderPill.firstChild.nodeValue = (mobile ? state.folder : 'Folder: '+state.folder)+' ';
+  }
   function placeFilters(){
     var focused = document.activeElement;
     if(!mobileLayout.matches && $('filters-dlg').open) $('filters-dlg').close();
-    (mobileLayout.matches ? $('filters-body') : $('filter-home')).append($('filter-controls'));
-    if(focused && $('filter-controls').contains(focused) && (!mobileLayout.matches || $('filters-dlg').open)) focused.focus();
+    moreEl.open = false;
+    $('collection-tools').open = false;
+    moreEl.hidden = !mobileLayout.matches;
+    genreFilters.hidden = !mobileLayout.matches;
+    if(mobileLayout.matches){
+      document.querySelector('.row1').prepend(segment,moreEl);
+      moreActions.append($('random'),$('discovery-btn'),vJazz);
+      morePanel.append($('collection-tools'));
+      genreFilters.append(chipsEl);
+      $('filters-body').append($('filter-controls'));
+      resultsRow.append($('queue-btn'));
+      chipsEl.setAttribute('aria-label','Genres');
+      qEl.placeholder = 'Search collection';
+    } else {
+      restoreDesktopControls(document);
+      chipsEl.setAttribute('aria-label','Folder');
+      qEl.placeholder = searchPlaceholder;
+    }
+    syncMobileControls();
+    if(moreEl.contains(focused)){
+      var focusTarget = mobileLayout.matches ? moreSummary : state.view === 'cd' ? vCd : state.view === 'jazz' ? vJazz : vGrid;
+      focusTarget.focus({preventScroll:true});
+    } else if(focused && focused !== document.body && focused.getClientRects().length){
+      focused.focus({preventScroll:true});
+    }
   }
+  moreEl.addEventListener('click',function(event){
+    if(event.target.closest('button')){
+      moreEl.open = false;
+      if(!document.querySelector('dialog[open]')) moreSummary.focus();
+    }
+  });
+  moreEl.addEventListener('keydown',function(event){
+    if(event.key === 'Escape'){
+      event.preventDefault();
+      event.stopPropagation();
+      moreEl.open = false;
+      moreSummary.focus();
+    }
+  });
+  document.addEventListener('click',function(event){
+    if(!moreEl.contains(event.target)) moreEl.open = false;
+  });
   mobileLayout.addEventListener('change', placeFilters);
   placeFilters();
   $('filters-btn').addEventListener('click', function(){ $('filters-dlg').showModal(); moveNotice(); });
@@ -5632,10 +6057,10 @@ async function idbDelete(key){
     state.least = !state.least; if(state.least){ state.sort='plays'; state.dir=1; } render();
   }
   lessEl.addEventListener('click', toggleLeast);
-  vGrid.addEventListener('click', function(){ state.view = 'grid'; render(); });
-  vTable.addEventListener('click', function(){ state.view = 'table'; render(); });
-  vCd.addEventListener('click', function(){ state.view = 'cd'; render(); });
-  vJazz.addEventListener('click', function(){ state.view = 'jazz'; render(); });
+  vGrid.addEventListener('click', function(){ setView('grid'); render(); });
+  vTable.addEventListener('click', function(){ setView('table'); render(); });
+  vCd.addEventListener('click', function(){ setView('cd'); render(); });
+  vJazz.addEventListener('click', function(){ setView('jazz'); render(); });
   $('random').addEventListener('click', function(){ $('random-status').textContent = ''; $('random-dlg').showModal(); moveNotice(); });
   $('reset-filters-btn').addEventListener('click', resetFilters);
   $('theme').addEventListener('click', function(){
@@ -5701,6 +6126,12 @@ async function idbDelete(key){
     if(b.dataset.step){ stepDetail(+b.dataset.step); return; }
     if(handleLink(b)) return;
     if(!r) return;
+    if(b.dataset.mediaView){
+      flushNotes();
+      setView(b.dataset.mediaView); render(); renderDetail(r.key,{keepScroll:true});
+      dlg.querySelector('[data-media-view]').focus({preventScroll:true});
+      return;
+    }
     if(b.dataset.play){ logPlay(r, +b.dataset.play); return; }
     if(b.dataset.queueAdd){ addToQueue(r); return; }
     if(b.dataset.retryCredits){ b.disabled = true; b.textContent = 'Loading credits…'; loadCredits(r); return; }
@@ -5854,9 +6285,9 @@ async function idbDelete(key){
     if(e.key==='Escape'){ if(qEl.value){ qEl.value=''; state.q=''; render(); } else if(document.activeElement===qEl) qEl.blur(); return; }
     if(typing) return;
     switch(e.key){
-      case 'g': case 'G': state.view='grid'; render(); return;
-      case 't': case 'T': state.view='table'; render(); return;
-      case 'j': case 'J': state.view='jazz'; render(); return;
+      case 'g': case 'G': setView('grid'); render(); return;
+      case 't': case 'T': setView('table'); render(); return;
+      case 'j': case 'J': setView('jazz'); render(); return;
       case 'a': case 'A': $('artists-btn').click(); return;
       case 'b': case 'B': $('labels-btn').click(); return;
       case 'n': case 'N': $('add-btn').click(); return;
@@ -5889,6 +6320,7 @@ async function idbDelete(key){
   rebuildIndexes();
   buildStats();
   buildChips();
+  buildQueue();
   render();
   cloudArtworkStatus();
   $('artwork-retry').addEventListener('click',function(){
@@ -5901,6 +6333,10 @@ async function idbDelete(key){
     });
   });
   updateDataButtons();
+  $('recover-import-btn').hidden = !importInfo.error;
+  if(importInfo.error){
+    notify('Could not load the saved CSV import: ' + importInfo.error + '. The original is kept on this device. Use Collection tools → Download unreadable CSV to recover it. Showing the remaining collection.',null,true);
+  }
   if(importInfo.used){
     var at = lsRaw(LS_IMPORT_AT);
     $('import-csv-btn').title = 'Imported CSV in use' + (at ? ' (since ' + fmtDate(at.slice(0,10)) + ')' : '') + '. Load another CSV to merge it in.';

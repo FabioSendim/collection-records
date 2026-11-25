@@ -22,19 +22,23 @@ function proxy(token = 'test-token') {
   return { handler: context.exports.handler, requests };
 }
 
-test('barcode proxy searches only CD releases, preserves leading zeroes and supports pagination', async () => {
-  const { handler, requests } = proxy();
-  const response = await handler({ queryStringParameters: { barcode: '0077774615225', page: '2' } });
-  assert.equal(response.statusCode, 200);
-  const url = new URL(requests[0].url);
-  assert.equal(url.pathname, '/database/search');
-  assert.equal(url.searchParams.get('type'), 'release');
-  assert.equal(url.searchParams.get('format'), 'CD');
-  assert.equal(url.searchParams.get('barcode'), '0077774615225');
-  assert.equal(url.searchParams.get('page'), '2');
-  assert.equal(url.searchParams.get('per_page'), '10');
-  assert.equal(requests[0].options.headers.Authorization, 'Discogs token=test-token');
-  assert.ok(!response.body.includes('test-token'));
+test('barcode proxy filters CD or vinyl releases, preserves leading zeroes and supports pagination', async () => {
+  for (const format of [undefined, 'CD', 'Vinyl']) {
+    const { handler, requests } = proxy();
+    const query = { barcode: '0077774615225', page: '2' };
+    if (format !== undefined) query.format = format;
+    const response = await handler({ queryStringParameters: query });
+    assert.equal(response.statusCode, 200);
+    const url = new URL(requests[0].url);
+    assert.equal(url.pathname, '/database/search');
+    assert.equal(url.searchParams.get('type'), 'release');
+    assert.equal(url.searchParams.get('format'), format || 'CD');
+    assert.equal(url.searchParams.get('barcode'), '0077774615225');
+    assert.equal(url.searchParams.get('page'), '2');
+    assert.equal(url.searchParams.get('per_page'), '10');
+    assert.equal(requests[0].options.headers.Authorization, 'Discogs token=test-token');
+    assert.ok(!response.body.includes('test-token'));
+  }
 });
 
 test('invalid barcode or page and missing token fail before calling Discogs', async () => {
@@ -44,6 +48,9 @@ test('invalid barcode or page and missing token fail before calling Discogs', as
   }
   for (const page of ['0', '-1', '1.5', '1001', '2&format=Vinyl']) {
     assert.equal((await handler({ queryStringParameters: { barcode: '4006381333931', page } })).statusCode, 400);
+  }
+  for (const format of ['', 'LP', 'Cassette', 'Vinyl&format=CD']) {
+    assert.equal((await handler({ queryStringParameters: { barcode: '4006381333931', format } })).statusCode, 400);
   }
   assert.equal(requests.length, 0);
   const anonymous = proxy('');
@@ -69,6 +76,12 @@ test('CD classification uses the main medium, including multi-disc and CD-R rele
   }
   for (const format of ['LP', 'SACD', 'CD-ROM', 'Not CD']) {
     assert.equal(context.hasCdFormat(format), false, format);
+  }
+  for (const format of ['Vinyl, LP, Album', '2xLP', 'Box Set + 2xLP + CD', '7", Single', '2x12", Album', 'CD + Vinyl']) {
+    assert.equal(context.hasVinylFormat(format), true, format);
+  }
+  for (const format of ['CD', 'DVD', 'Cassette', 'Not Vinyl', 'Vinyl rip', 'Shellac', '']) {
+    assert.equal(context.hasVinylFormat(format), false, format);
   }
   context.state = { view: 'grid' };
   assert.equal(context.isCdCatalogue({ f: 'LP + CD' }), false);
