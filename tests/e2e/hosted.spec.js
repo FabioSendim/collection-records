@@ -897,6 +897,31 @@ test('records and filters work before artwork finishes, without eagerly fetching
   } finally { releaseArtwork(); }
 });
 
+test('Artists view uses live cloud records, CDs, credited guests and cloud portraits', async ({ page }) => {
+  const payload = collectionPayload(), requests = [];
+  payload.CSV = 'Artist,Title,release_id,Format,CollectionFolder\n' +
+    'Cloud Test Artist,Cloud Vinyl,999123,LP,Jazz\n' +
+    'CD Only Artist,Cloud CD,999124,CD,Jazz\n' +
+    'CD Only Artist,Another CD,999125,CD,Jazz\n';
+  payload.EXTRA.credits['999123'].pers.push({ n: 'Guest Musician', r: 'saxophone' });
+  await mockCloud(page, { payload, onAssets: hashes => requests.push(...hashes) });
+  await page.goto('/hosted.html#view=artists');
+  await expect(page.locator('#cloud-status')).toContainText('Cloud collection loaded.');
+  await expect(page.locator('#vartists')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#artists-view-grid .artists-view-card')).toHaveCount(3);
+  await expect(page.locator('#artists-view-grid')).toContainText('CD Only Artist');
+  await expect(page.locator('#artists-view-grid')).toContainText('Guest Musician');
+  await page.locator('#artists-view-sort').selectOption('count');
+  await expect(page.locator('.artists-view-card').first().locator('.artists-view-name')).toHaveText('CD Only Artist');
+  const cloudArtist = page.locator('.artists-view-card').filter({ hasText: 'Cloud Test Artist' });
+  await cloudArtist.scrollIntoViewIfNeeded();
+  await expect(cloudArtist.locator('img')).toHaveAttribute('src', IMAGE);
+  expect(requests).toContain(PORTRAIT_HASH);
+  await page.locator('#artists-view-search').fill('Guest Musician');
+  await page.locator('.artists-view-card').click();
+  await expect(page.locator('#artist-dlg h2')).toHaveText('Guest Musician');
+});
+
 test('unchanged artwork is cached across reloads while changed hashes are fetched', async ({ page }) => {
   const requests = [], payload = collectionPayload();
   await mockCloud(page, { payload, onAssets: hashes => requests.push(...hashes) });
@@ -1017,6 +1042,8 @@ test('HTML exported from the hosted shell contains current data and opens offlin
   });
   await page.goto('/hosted.html');
   await expect(page.locator('#out .tile')).toHaveCount(1);
+  await page.locator('#vartists').click();
+  await page.locator('#artists-view-search').fill('Cloud Test Artist');
   await page.locator('#mobile-more > summary').click();
   await page.locator('#collection-tools > summary').click();
   const downloaded = page.waitForEvent('download');
@@ -1051,7 +1078,7 @@ test('HTML exported from the hosted shell contains current data and opens offlin
   await expect(page.locator('#out .tile img')).toHaveAttribute('src', IMAGE);
   await expect(page.locator('.record-shop-shelf svg')).toBeVisible();
   await expect(page.locator('#mobile-more')).toHaveCount(1);
-  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs']);
+  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs', 'Artists']);
   await expect(page.locator('#filters-body #chips')).toHaveCount(1);
   await page.setViewportSize({ width: 1152, height: 900 });
   await expect(page.locator('.bar > #chips')).toBeVisible();

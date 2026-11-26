@@ -387,6 +387,36 @@ ul.artists-list li .count b{display:block;color:var(--ink);font-weight:600;font-
 ul.artists-list li.empty{display:block;padding:24px 8px;color:var(--ink-2);font-size:13px;cursor:default}
 ul.artists-list li.empty:hover{background:transparent}
 
+/* Artists view */
+.artists-view{display:grid;gap:22px}
+.artists-view-intro{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:8px 2px 0}
+.artists-view-intro h2{margin:0;color:var(--ink);font:850 clamp(30px,4vw,48px)/1 var(--font-display);letter-spacing:-.03em;text-transform:uppercase}
+.artists-view-intro p{margin:9px 0 0;color:var(--ink-2);font-size:14px;line-height:1.55}
+.artists-view-total{color:var(--ink-2);font:12px var(--font-mono);white-space:nowrap}
+.artists-view-toolbar{display:flex;align-items:center;gap:10px}
+.artists-view-search{flex:1 1 270px;max-width:480px}
+.artists-view-sort{height:44px;margin-left:auto;padding:0 14px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink-2);font:12px var(--font-body)}
+.artists-view-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.artists-view-card{display:flex;flex-direction:column;align-items:center;min-width:0;gap:4px;padding:12px 8px 14px;border:0;border-radius:6px;background:transparent;color:var(--ink);text-align:center;cursor:pointer;transition:background .15s}
+.artists-view-card:hover,.artists-view-card:focus-visible{background:var(--surface-2)}
+.artists-view-portrait{display:flex;align-items:center;justify-content:center;width:min(100%,250px);aspect-ratio:1;margin-bottom:6px;border-radius:50%;overflow:hidden;background:color-mix(in srgb,var(--accent) 23%,var(--surface-2));color:var(--accent);font:800 36px var(--font-display)}
+.artists-view-portrait img{width:100%;height:100%;object-fit:cover}
+.artists-view-name{font:700 14px/1.3 var(--font-body);overflow-wrap:anywhere}
+.artists-view-empty{grid-column:1/-1;color:var(--ink-2);padding:24px 0}
+.artists-view-more{justify-self:center}
+@media(max-width:900px){.artists-view-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){.artists-view-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){
+  .artists-view{gap:16px}
+  .artists-view-intro{gap:12px;align-items:start}
+  .artists-view-intro h2{font-size:30px}
+  .artists-view-intro p{font-size:12px;margin-top:6px}
+  .artists-view-total{font-size:10px;margin-top:5px}
+  .artists-view-search{flex:1 1 150px;max-width:none}
+  .artists-view-sort{font-size:11px;padding:0 10px}
+}
+@media(max-width:500px){.artists-view-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 /* form dialogs */
 dialog.form-dlg{width:min(560px,calc(100% - 24px));max-height:min(92vh,760px)}
 .form-hero{
@@ -889,6 +919,14 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
   .wrap{gap:15px}
   .bar{padding:12px}
 }
+.bar[data-view="artists"]{grid-template-areas:"views tools"}
+.bar[data-view="artists"] .search,.bar[data-view="artists"] .listening-row,
+.bar[data-view="artists"] #chips,.bar[data-view="artists"] #filter-home,
+.bar[data-view="artists"] #filters-btn{display:none}
+@media(max-width:600px){
+  .bar[data-view="artists"]{grid-template-areas:"views more"}
+  .bar .seg button{padding-left:4px;padding-right:4px;font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -1025,6 +1063,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
         <button type="button" id="vtable" aria-pressed="false">Table</button>
         <button type="button" id="vcd" aria-pressed="false">CDs</button>
         <button type="button" id="vjazz" aria-pressed="false">Jazz styles</button>
+        <button type="button" id="vartists" aria-pressed="false">Artists</button>
       </div>
       <button type="button" class="btn mobile-only" id="filters-btn" aria-haspopup="dialog" aria-controls="filters-dlg">Filters · 1</button>
       <details class="tools" id="collection-tools">
@@ -1049,7 +1088,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <button type="button" class="btn ghost" id="cloud-save-btn" hidden="" disabled="">Publish collection</button>
       <button type="button" class="btn ghost" id="cloud-reload-btn" hidden="">Load latest cloud collection</button>
       <button type="button" class="btn ghost" id="cloud-logout-btn" hidden="">Sign out</button>
-      <p>The hosted collection uses cloud storage. Only the signed-in owner can publish changes. The listening queue and display preferences stay on this device. Records and CDs remember their own sort order. Records search includes vinyl notes; CD search includes CD comments. Shared releases link between both views.</p>
+      <p>The hosted collection uses cloud storage. Only the signed-in owner can publish changes. The listening queue and display preferences stay on this device. Records and CDs remember their own sort order. Records search includes vinyl notes; CD search includes CD comments. Shared releases link between both views. The Artists view brings together credited artists and contributors from records and CDs; select a portrait to open their spotlight.</p>
       <p>Use Save HTML to... to choose your synced OneDrive folder in a supported browser. OneDrive uploads the backup after saving; this is not automatic collection syncing. Other browsers use the normal download instead.</p>
       <p>Import HTML backup restores a saved collection, including covers and fetched metadata. In a local file it replaces this browser's collection; on the hosted site the owner can replace the shared cloud collection after confirmation. Save a backup first.</p>
       </div>
@@ -1119,6 +1158,15 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
     <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
   </div>
+  <section class="artists-view" id="artists-view" aria-labelledby="artists-view-title" hidden="">
+    <div class="artists-view-intro"><div><h2 id="artists-view-title">The artists</h2><p>The people behind your records and CDs, all in one place.</p></div><span class="artists-view-total" id="artists-view-total"></span></div>
+    <div class="artists-view-toolbar">
+      <label class="search artists-view-search"><span class="sr">Search artists</span><input id="artists-view-search" type="search" placeholder="Search artists" autocomplete="off"></label>
+      <select class="artists-view-sort" id="artists-view-sort" aria-label="Sort artists"><option value="name">A–Z</option><option value="count">Most releases</option></select>
+    </div>
+    <div class="artists-view-grid" id="artists-view-grid"></div>
+    <button type="button" class="btn artists-view-more" id="artists-view-more">Show more artists</button>
+  </section>
   <div id="out"></div>
   <div class="collection-status">
     <p id="cloud-status" role="status">Local file mode. Edits stay in this browser; save an HTML backup to transfer them.</p>
@@ -2929,7 +2977,7 @@ async function idbDelete(key){
     var view = new URLSearchParams(raw).get('view');
     if(view === 'timeline') view = 'jazz';
     if(view === 'cdmockup') view = 'cd';
-    if(['grid','table','jazz','cd'].indexOf(view) >= 0) setView(view);
+    if(['grid','table','jazz','cd','artists'].indexOf(view) >= 0) setView(view);
     raw.split('&').forEach(function(kv){
       var eq = kv.indexOf('='); if(eq<0) return;
       var k = decodeURIComponent(kv.slice(0,eq)), v = decodeURIComponent(kv.slice(eq+1));
@@ -3005,6 +3053,7 @@ async function idbDelete(key){
   }
   function showOnly(kind, key){
     closeAll();
+    if(state.view === 'artists') setView('grid');
     resetFilters();
     if(kind === 'artist') state.who = key; else state.lab = key;
     render();
@@ -3017,7 +3066,7 @@ async function idbDelete(key){
   var chipsEl = $('chips');
   var qEl = $('q'), sortEl = $('sort'), dirEl = $('dir'), tierElSel = $('tier'),
       fmtEl = $('fmt'), monoEl = $('mono'), lessEl = $('less');
-  var vGrid = $('vgrid'), vTable = $('vtable'), vCd = $('vcd'), vJazz = $('vjazz');
+  var vGrid = $('vgrid'), vTable = $('vtable'), vCd = $('vcd'), vJazz = $('vjazz'), vArtists = $('vartists');
   var artistsDlg = $('artists-dlg'), labelsDlg = $('labels-dlg');
 
   function computeVisible(){
@@ -3338,7 +3387,48 @@ async function idbDelete(key){
     b.append(document.createTextNode(text + ' '), el('span','', '✕'));
     return b;
   }
+  var artistsViewLimit = 60;
+  function renderArtistsView(){
+    var grid = $('artists-view-grid'), term = foldAccents($('artists-view-search').value.trim().toLowerCase());
+    var entries = Object.keys(artistIndex).map(function(k){ return artistIndex[k]; });
+    $('artists-view-total').textContent = plural(entries.length,'artist');
+    entries = entries.filter(function(a){ return !term || foldAccents(a.name.toLowerCase()).indexOf(term) >= 0; });
+    entries.sort(function(a,b){
+      return ($('artists-view-sort').value === 'count' ? b.records.length - a.records.length : 0) ||
+        a.name.localeCompare(b.name,'en',{sensitivity:'base'});
+    });
+    if(cloud.artwork.observer) grid.querySelectorAll('img[data-cloud-asset]').forEach(function(img){ cloud.artwork.observer.unobserve(img); });
+    grid.textContent = '';
+    entries.slice(0,artistsViewLimit).forEach(function(a){
+      var card = el('button','artists-view-card'), pic = el('span','artists-view-portrait');
+      card.type = 'button'; card.dataset.artist = a.key; pic.setAttribute('aria-hidden','true');
+      if(a.portrait){
+        var img = el('img'); setImageSource(img,a.portrait); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; pic.append(img);
+      } else pic.textContent = artistInitials(a.name);
+      card.append(pic,el('span','artists-view-name',a.name));
+      grid.append(card);
+    });
+    if(!entries.length) grid.append(el('p','artists-view-empty','No artists match your search.'));
+    $('artists-view-more').hidden = artistsViewLimit >= entries.length;
+  }
+  function syncViewButtons(){
+    vGrid.setAttribute('aria-pressed', String(state.view==='grid'));
+    vTable.setAttribute('aria-pressed', String(state.view==='table'));
+    vCd.setAttribute('aria-pressed', String(state.view==='cd'));
+    vJazz.setAttribute('aria-pressed', String(state.view==='jazz'));
+    vArtists.setAttribute('aria-pressed', String(state.view==='artists'));
+  }
   function render(){
+    var artists = state.view === 'artists';
+    document.querySelector('.bar').dataset.view = state.view;
+    $('artists-view').hidden = !artists; out.hidden = artists; resultsRow.hidden = artists;
+    syncViewButtons();
+    if(artists){
+      document.querySelector('.bar').setAttribute('aria-label','Find artists');
+      renderArtistsView();
+      syncMobileControls(); saveState(); writeHash();
+      return;
+    }
     var cds = state.view === 'cd', unit = cds ? 'CD' : 'record';
     if(cds && (state.sort === 'score' || state.sort === 'plays')){ state.sort = DEFAULTS.sort; state.dir = DEFAULTS.dir; }
     if(state.fmt === 'CD') state.fmt = DEFAULTS.fmt;
@@ -3392,10 +3482,6 @@ async function idbDelete(key){
 
     lessEl.setAttribute('aria-pressed', String(state.least));
     lessEl.querySelector('.n').textContent = lastMin==null?'–':String(lastMin);
-    vGrid.setAttribute('aria-pressed', String(state.view==='grid'));
-    vTable.setAttribute('aria-pressed', String(state.view==='table'));
-    vCd.setAttribute('aria-pressed', String(state.view==='cd'));
-    vJazz.setAttribute('aria-pressed', String(state.view==='jazz'));
     sortEl.value = state.sort; tierElSel.value = state.tier;
     fmtEl.value = state.fmt; monoEl.checked = state.mono;
     if(document.activeElement !== qEl) qEl.value = state.q;
@@ -5760,6 +5846,13 @@ async function idbDelete(key){
       var root = document.documentElement.cloneNode(true);
       restoreDesktopControls(root);
       root.querySelector('.bar').removeAttribute('data-controls-ready');
+      root.querySelector('.bar').removeAttribute('data-view');
+      root.querySelector('#artists-view').hidden = true;
+      root.querySelector('#out').hidden = false;
+      root.querySelector('.results-row').hidden = false;
+      root.querySelector('#artists-view-search').value = '';
+      root.querySelector('#artists-view-search').removeAttribute('value');
+      root.querySelector('#artists-view-sort').value = 'name';
       root.querySelector('#mobile-more').hidden = true;
       root.querySelector('#genre-filters').hidden = true;
       var notice = root.querySelector('#notice'); notice.hidden = true;
@@ -5767,7 +5860,7 @@ async function idbDelete(key){
       root.querySelector('#collection-tools').removeAttribute('open');
       var scannerScript = root.querySelector('#barcode-scanner-library'); if(scannerScript) scannerScript.remove();
       root.removeAttribute('data-theme');
-      ['out','stats','chips','count','dlg','artist-dlg','artists-list','labels-list','artists-meta','labels-meta','add-preview',
+      ['out','artists-view-grid','artists-view-total','stats','chips','count','dlg','artist-dlg','artists-list','labels-list','artists-meta','labels-meta','add-preview',
        'add-barcode-results','add-camera-status','folder-suggest','folder-list-inline','covers-log','photos-log','add-status','export-status','queue-list','notice-message','random-status','discovery-results','discovery-status','discovery-wishlist-list','jazz-fetch-log','jazz-fetch-status'].forEach(function(id){
         var n = root.querySelector('#' + id); if(n) n.textContent = '';
       });
@@ -5903,7 +5996,7 @@ async function idbDelete(key){
       root.querySelector('.search'),root.querySelector('.seg'),
       root.querySelector('#filters-btn'),root.querySelector('#collection-tools')
     );
-    bar.querySelector('.seg').append(root.querySelector('#vjazz'));
+    bar.querySelector('.seg').append(root.querySelector('#vjazz'),root.querySelector('#vartists'));
     bar.querySelector('.listening-row').append(
       root.querySelector('#random'),root.querySelector('#discovery-btn'),root.querySelector('#queue-btn')
     );
@@ -5950,7 +6043,7 @@ async function idbDelete(key){
     syncMobileControls();
     document.querySelector('.bar').setAttribute('data-controls-ready','');
     if(moreEl.contains(focused)){
-      var focusTarget = mobileLayout.matches ? moreSummary : state.view === 'cd' ? vCd : state.view === 'jazz' ? vJazz : vGrid;
+      var focusTarget = mobileLayout.matches ? moreSummary : state.view === 'cd' ? vCd : state.view === 'jazz' ? vJazz : state.view === 'artists' ? vArtists : vGrid;
       focusTarget.focus({preventScroll:true});
     } else if(focused && focused !== document.body && focused.getClientRects().length){
       focused.focus({preventScroll:true});
@@ -6114,6 +6207,14 @@ async function idbDelete(key){
   vTable.addEventListener('click', function(){ setView('table'); render(); });
   vCd.addEventListener('click', function(){ setView('cd'); render(); });
   vJazz.addEventListener('click', function(){ setView('jazz'); render(); });
+  vArtists.addEventListener('click', function(){ setView('artists'); render(); });
+  $('artists-view-search').addEventListener('input',function(){ artistsViewLimit = 60; renderArtistsView(); });
+  $('artists-view-sort').addEventListener('change',function(){ artistsViewLimit = 60; renderArtistsView(); });
+  $('artists-view-more').addEventListener('click',function(){ artistsViewLimit += 60; renderArtistsView(); });
+  $('artists-view-grid').addEventListener('click',function(e){
+    var card = e.target.closest('button[data-artist]');
+    if(card) openArtist(card.dataset.artist,true);
+  });
   $('random').addEventListener('click', function(){ $('random-status').textContent = ''; $('random-dlg').showModal(); moveNotice(); });
   $('reset-filters-btn').addEventListener('click', resetFilters);
   $('theme').addEventListener('click', function(){
@@ -6123,6 +6224,7 @@ async function idbDelete(key){
   });
   function showFolder(f){
     closeAll();
+    if(state.view === 'artists') setView('grid');
     state.folder = f; state.who = ''; state.lab = '';
     syncChips(); render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6333,7 +6435,11 @@ async function idbDelete(key){
       }
       return;
     }
-    if(e.key==='/' && !typing){ e.preventDefault(); qEl.focus(); qEl.select(); return; }
+    if(e.key==='/' && !typing){
+      e.preventDefault();
+      var search = state.view === 'artists' ? $('artists-view-search') : qEl;
+      search.focus(); search.select(); return;
+    }
     if(e.key==='?' && !typing){ e.preventDefault(); $('shortcuts-dlg').showModal(); moveNotice(); return; }
     if(e.key==='Escape'){ if(qEl.value){ qEl.value=''; state.q=''; render(); } else if(document.activeElement===qEl) qEl.blur(); return; }
     if(typing) return;

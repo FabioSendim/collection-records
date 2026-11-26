@@ -60,6 +60,54 @@ test('search and reset update the visible collection', async ({ page }) => {
   await expect(page.locator('#out .tile')).toHaveCount(initialCount);
 });
 
+test('Artists view searches, sorts and opens spotlights without changing record filters', async ({ page }) => {
+  await mockCloud(page);
+  await openCollection(page);
+  await page.locator('#q').fill('miles');
+  await expect(page.locator('#count')).toContainText('Search: miles');
+  await page.locator('#vartists').click();
+  await expect(page.locator('#vartists')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#artists-view-grid .artists-view-card')).toHaveCount(60);
+  await page.locator('#artists-view-more').click();
+  await expect(page.locator('#artists-view-grid .artists-view-card')).toHaveCount(120);
+  await page.locator('#artists-view-sort').selectOption('count');
+  await expect(page.locator('#artists-view-grid .artists-view-card')).toHaveCount(60);
+  await page.locator('#artists-view-search').fill('Apocalyptica');
+  await expect(page.locator('#artists-view-grid .artists-view-card')).toHaveCount(1);
+  await expect(page.locator('#artists-view-grid .artists-view-card')).toHaveText('Apocalyptica');
+  await page.locator('#artists-view-grid .artists-view-card').click();
+  await expect(page.locator('#artist-dlg h2')).toHaveText('Apocalyptica');
+  await page.locator('#artist-dlg [data-show-artist]').click();
+  await expect(page.locator('#artists-view')).toBeHidden();
+  await expect(page.locator('#vgrid')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#count')).toContainText('Artist: Apocalyptica');
+  await page.locator('#q').fill('miles');
+  await expect(page.locator('#count')).toContainText('Search: miles');
+  await page.locator('#vartists').click();
+  await expect(page).toHaveURL(/view=artists/);
+  await page.reload();
+  await expect(page.locator('#artists-view')).toBeVisible();
+  await page.locator('#vgrid').click();
+  await expect(page.locator('#q')).toHaveValue('miles');
+});
+
+test('Artists view fits a narrow phone and retains its own search', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await mockCloud(page);
+  await openCollection(page);
+  await page.locator('#vartists').click();
+  await expect(page.locator('#artists-view')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  await page.locator('#artists-view-search').fill('no-such-artist-98127');
+  await expect(page.locator('.artists-view-empty')).toBeVisible();
+  await page.locator('#vcd').click();
+  await page.locator('#vartists').click();
+  await expect(page.locator('#artists-view-search')).toHaveValue('no-such-artist-98127');
+  await page.locator('#artists-view-search').fill('');
+  await page.keyboard.press('/');
+  await expect(page.locator('#artists-view-search')).toBeFocused();
+});
+
 test('folder chips filter the collection', async ({ page }) => {
   await mockCloud(page);
   await openCollection(page);
@@ -268,12 +316,12 @@ test('mobile browsing uses two rows, More actions and removable genre filters', 
   await openCollection(page);
   const total = await page.locator('#out .tile').count();
   await expect(page.locator('#vtable')).toBeHidden();
-  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs']);
+  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs', 'Artists']);
   await expect(page.locator('.search kbd')).toBeHidden();
   await expect(page.locator('#q')).toHaveAttribute('placeholder', 'Search collection');
   await expect(page.locator('#queue-btn')).toBeHidden();
   await expect(page.locator('#chips')).toBeHidden();
-  const search = await page.locator('.search').boundingBox();
+  const search = await page.locator('.bar .search').boundingBox();
   const filters = await page.locator('#filters-btn').boundingBox();
   expect(Math.abs(search.y - filters.y)).toBeLessThan(1);
   expect(search.width).toBeGreaterThan(filters.width);
@@ -431,7 +479,7 @@ for (const { name, savedTheme, hash, expectedTheme, colorScheme, width } of [
   await expect(page.locator('#cloud-status')).not.toHaveClass(/is-loading/);
   await expect(page.locator('#loading-skeleton')).toBeHidden();
   await expect(page.locator('.bar')).toHaveAttribute('data-controls-ready', '');
-  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs']);
+  await expect(page.locator('.seg button:visible')).toHaveText(['Sleeves', 'CDs', 'Artists']);
   await expect(page.locator('#mobile-more')).toBeVisible();
   expect(Math.abs(await page.locator('.bar').evaluate(el => el.offsetHeight) - loadingHeight)).toBeLessThanOrEqual(8);
   await expect(page.locator('html')).toHaveAttribute('data-theme', expectedTheme);
