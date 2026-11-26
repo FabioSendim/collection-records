@@ -3697,8 +3697,8 @@ async function idbDelete(key){
     notify(unknown ? 'Recording year marked unknown.' : 'Recording year saved on this device.');
   }
   function aboutBox(r){
-    var box = el('div','note about');
-    box.append(el('h3','',isCdCatalogue(r) ? 'About this CD' : 'About this record'));
+    var box = el('details','fold note about');
+    box.append(el('summary','','View Summary'));
     var sum = cacheGet('summaries', editKey(r));
     if(sum && sum.text){
       sum.text.split(/\n{2,}/).forEach(function(par){ box.append(el('p','', par)); });
@@ -3720,6 +3720,14 @@ async function idbDelete(key){
         !serverInfo.checked ? 'Checking summary service…' : 'Summary updates are unavailable. Check the Netlify functions and GEMINI_API_KEY configuration.'));
     }
     return box;
+  }
+  function updateAboutBox(r){
+    var box = dlg.querySelector('.about');
+    if(!box) return;
+    var replacement = aboutBox(r);
+    replacement.open = box.open;
+    if(cloud.enabled && (!cloud.session || !cloud.ready || cloud.conflict)) replacement.querySelector('[data-summary]').disabled = true;
+    box.replaceWith(replacement);
   }
   /* Gold Note's July 2026 guide gives listening comparisons, not pressing certification.
      Match explicit label aliases; never use the recording year to choose a playback curve. */
@@ -3870,6 +3878,8 @@ async function idbDelete(key){
     var cd = isCdCatalogue(r), bonus = cd && !isCdFormat(r.f);
     flushNotes();
     var keepScroll = opts && opts.keepScroll ? dlg.scrollTop : 0;
+    var keepSummaryOpen = opts && opts.keepScroll && dlg.dataset.key === key &&
+      dlg.querySelector('.about') && dlg.querySelector('.about').open;
     idx = current.indexOf(r);
     if(!dlg.open) lastFocus = document.activeElement;
     document.body.append($('notice'));
@@ -3929,7 +3939,7 @@ async function idbDelete(key){
     technical.append(el('summary','','Release details'), dl);
     var credits = el('details','fold');
     credits.append(el('summary','','Credits & tracks'), hasCredits(r) ? buildCredits(r) : buildCreditsPlaceholder(r));
-    body.append(aboutBox(r));
+    var about = aboutBox(r); about.open = !!keepSummaryOpen; body.append(about);
     if(!cd) body.append(phonoNote(r));
     if(cd){
       body.append(noteBox(r, 'cdComments', 'Comments', 'CD edition, packaging, disc condition...'));
@@ -4122,8 +4132,13 @@ async function idbDelete(key){
     if(btn){ btn.disabled = true; btn.textContent = 'Writing summary…'; }
     var summaryError = '';
     try {
+      var recorded = recordingDate(r);
       var res = await fetch(FN + 'summary', { method:'POST', headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ id:r.id, artist:r.a, title:r.t, year:r.y || '' }) });
+        body: JSON.stringify({
+          id:r.id, artist:r.a, title:r.t, year:r.y || '',
+          recordingYears:recorded ? {start:recorded.start,end:recorded.end,status:recorded.status,source:recorded.source || ''} : null,
+          personnel:(r.pers || []).map(function(p){ return {name:p.n,role:p.r}; })
+        }) });
       if(res.status === 501){ serverInfo.ai = false; throw new Error('AI summaries are not configured on the server (GEMINI_API_KEY).'); }
       var j = await res.json().catch(function(){ return {}; });
       if(!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
@@ -4134,7 +4149,7 @@ async function idbDelete(key){
       summaryError = 'Could not update the summary: ' + fetchError(err) + ' Your previous summary has been kept.';
     } finally {
       delete summaryInFlight[r.key];
-      if(dlg.open && dlg.dataset.key === r.key){ var box = dlg.querySelector('.about'); if(box) box.replaceWith(aboutBox(r)); }
+      if(dlg.open && dlg.dataset.key === r.key) updateAboutBox(r);
       if(summaryError){
         if(dlg.open && dlg.dataset.key === r.key) inlineError(dlg.querySelector('.about'), summaryError);
         else notify(summaryError, null, true);
@@ -6374,7 +6389,7 @@ async function idbDelete(key){
   }
   checkServer().then(function(){
     var r = detailRecord();
-    if(dlg.open && r){ var box = dlg.querySelector('.about'); if(box) box.replaceWith(aboutBox(r)); }
+    if(dlg.open && r) updateAboutBox(r);
     if(serverInfo.up && !serverInfo.discogsToken) console.info('Discogs function is running without DISCOGS_TOKEN.');
   });
 

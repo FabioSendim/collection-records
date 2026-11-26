@@ -429,6 +429,9 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await page.locator('#out .cd-item').filter({ hasText: 'CD with bonus DVD' }).click();
   const details = page.getByRole('dialog', { name: 'CD details' });
   await expect(details).toBeVisible();
+  await expect(details.locator('.about')).not.toHaveAttribute('open');
+  await details.locator('.about summary').click();
+  await expect(details.locator('.about p').first()).toBeVisible();
   await expect(details).toContainText('Europe');
   await expect(details).toContainText('4006381333931');
   await expect(details.locator('.record-actions, .phono-note, [data-plays], [data-play], [data-queue-add], [data-edit="sl"]')).toHaveCount(0);
@@ -437,6 +440,7 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await expect(details.locator('dt').filter({ hasText: /^Released$/ })).toHaveCount(1);
   await details.getByText('Release details', { exact: true }).click();
   await details.getByRole('combobox', { name: 'Folder', exact: true }).selectOption('Rock');
+  await expect(details.locator('.about')).toHaveAttribute('open');
   await expect(page.locator('#chips button[data-folder="Jazz"] .n')).toHaveText('1');
   await details.getByRole('combobox', { name: 'Folder', exact: true }).selectOption('Jazz');
   await expect(page.locator('#chips button[data-folder="Jazz"] .n')).toHaveText('2');
@@ -758,6 +762,40 @@ test('closing the CD dialog during a camera permission request stops a late stre
   });
   await expect.poll(() => page.evaluate(() => window.cdTestStream.getTracks().every(track => track.readyState === 'ended'))).toBe(true);
   await expect(page.locator('#add-dlg')).not.toBeVisible();
+});
+
+test('album summary receives saved recording dates and collection credits', async ({ page }) => {
+  await seedOwner(page);
+  const payload = collectionPayload();
+  payload.CSV = 'Artist,Title,release_id,CollectionFolder,Recording Year Start,Recording Year End,Recording Source URL,Recording Date Status\n' +
+    'Cloud Test Artist,Cloud Test Album,999123,Jazz,1958,1959,https://example.org/source,verified\n';
+  await mockCloud(page, { owner: true, payload });
+  await page.route('**/.netlify/functions/discogs?status=1', route =>
+    route.fulfill({ json: { ai: true, discogsToken: true } }));
+  let summaryRequest;
+  await page.route('**/.netlify/functions/summary', route => {
+    summaryRequest = route.request().postDataJSON();
+    return route.fulfill({ json: { text: 'A new summary.', styles: [] } });
+  });
+  await page.goto('/hosted.html');
+  await page.locator('#out .tile').click();
+  const about = page.locator('#dlg .about');
+  await expect(about).not.toHaveAttribute('open');
+  await expect(about.locator('[data-summary]')).toBeHidden();
+  await about.locator('summary').click();
+  await expect(about.locator('[data-summary]')).toBeVisible();
+  await page.locator('#dlg [data-summary]').click();
+  await expect(page.locator('#dlg .about')).toContainText('A new summary.');
+  await expect(page.locator('#dlg .about')).toHaveAttribute('open');
+  await expect(page.locator('#dlg .about p').first()).toBeVisible();
+  await page.locator('#dlg .about summary').click();
+  await expect(page.locator('#dlg .about p').first()).toBeHidden();
+  await page.locator('#dlg .x').click();
+  await page.locator('#out .tile').click();
+  await expect(page.locator('#dlg .about')).not.toHaveAttribute('open');
+  await expect(page.locator('#dlg .about p').first()).toBeHidden();
+  expect(summaryRequest.recordingYears).toEqual({ start: 1958, end: 1959, status: 'verified', source: 'https://example.org/source' });
+  expect(summaryRequest.personnel).toContainEqual({ name: 'Cloud Test Artist', role: 'piano' });
 });
 
 test('hosted shell loads only the current Supabase collection', async ({ page }) => {
