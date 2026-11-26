@@ -1088,7 +1088,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <button type="button" class="btn ghost" id="cloud-save-btn" hidden="" disabled="">Publish collection</button>
       <button type="button" class="btn ghost" id="cloud-reload-btn" hidden="">Load latest cloud collection</button>
       <button type="button" class="btn ghost" id="cloud-logout-btn" hidden="">Sign out</button>
-      <p>The hosted collection uses cloud storage. Only the signed-in owner can publish changes. The listening queue and display preferences stay on this device. Records and CDs remember their own sort order. Records search includes vinyl notes; CD search includes CD comments. Shared releases link between both views. The Artists view brings together credited artists and contributors from records and CDs; select a portrait to open their spotlight.</p>
+      <p>The hosted collection uses cloud storage. Only the signed-in owner can publish changes. The listening queue and display preferences stay on this device. Records and CDs remember their own sort order. Records search includes vinyl notes; CD search includes CD comments. Shared releases link between both views. The Artists view shows primary artists from records and CDs; select a portrait to open their spotlight. Other contributors remain available in release credits.</p>
       <p>Use Save HTML to... to choose your synced OneDrive folder in a supported browser. OneDrive uploads the backup after saving; this is not automatic collection syncing. Other browsers use the normal download instead.</p>
       <p>Import HTML backup restores a saved collection, including covers and fetched metadata. In a local file it replaces this browser's collection; on the hosted site the owner can replace the shared cloud collection after confirmation. Save a backup first.</p>
       </div>
@@ -1159,7 +1159,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
     <div class="loading-card"><span class="loading-art"></span><span class="loading-line"></span><span class="loading-line short"></span></div>
   </div>
   <section class="artists-view" id="artists-view" aria-labelledby="artists-view-title" hidden="">
-    <div class="artists-view-intro"><div><h2 id="artists-view-title">The artists</h2><p>The people behind your records and CDs, all in one place.</p></div><span class="artists-view-total" id="artists-view-total"></span></div>
+    <div class="artists-view-intro"><div><h2 id="artists-view-title">The artists</h2><p>Artists with records or CDs in your collection.</p></div><span class="artists-view-total" id="artists-view-total"></span></div>
     <div class="artists-view-toolbar">
       <label class="search artists-view-search"><span class="sr">Search artists</span><input id="artists-view-search" type="search" placeholder="Search artists" autocomplete="off"></label>
       <select class="artists-view-sort" id="artists-view-sort" aria-label="Sort artists"><option value="name">A–Z</option><option value="count">Most releases</option></select>
@@ -3390,7 +3390,7 @@ async function idbDelete(key){
   var artistsViewLimit = 60;
   function renderArtistsView(){
     var grid = $('artists-view-grid'), term = foldAccents($('artists-view-search').value.trim().toLowerCase());
-    var entries = Object.keys(artistIndex).map(function(k){ return artistIndex[k]; });
+    var entries = primaryArtists();
     $('artists-view-total').textContent = plural(entries.length,'artist');
     entries = entries.filter(function(a){ return !term || foldAccents(a.name.toLowerCase()).indexOf(term) >= 0; });
     entries.sort(function(a,b){

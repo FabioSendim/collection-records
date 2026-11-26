@@ -897,20 +897,27 @@ test('records and filters work before artwork finishes, without eagerly fetching
   } finally { releaseArtwork(); }
 });
 
-test('Artists view uses live cloud records, CDs, credited guests and cloud portraits', async ({ page }) => {
+test('Artists view includes primary record and CD artists, not guest-only credits', async ({ page }) => {
   const payload = collectionPayload(), requests = [];
   payload.CSV = 'Artist,Title,release_id,Format,CollectionFolder\n' +
     'Cloud Test Artist,Cloud Vinyl,999123,LP,Jazz\n' +
     'CD Only Artist,Cloud CD,999124,CD,Jazz\n' +
-    'CD Only Artist,Another CD,999125,CD,Jazz\n';
-  payload.EXTRA.credits['999123'].pers.push({ n: 'Guest Musician', r: 'saxophone' });
+    'CD Only Artist,Another CD,999125,CD,Jazz\n' +
+    'Shared Musician,Own CD,999126,CD,Jazz\n';
+  payload.EXTRA.credits['999123'].pers.push(
+    { n: 'Guest Musician', r: 'saxophone' },
+    { n: 'Shared Musician', r: 'piano' }
+  );
   await mockCloud(page, { payload, onAssets: hashes => requests.push(...hashes) });
   await page.goto('/hosted.html#view=artists');
   await expect(page.locator('#cloud-status')).toContainText('Cloud collection loaded.');
   await expect(page.locator('#vartists')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#artists-view-grid .artists-view-card')).toHaveCount(3);
+  await expect(page.locator('#artists-view-total')).toHaveText('3 artists');
+  await expect(page.locator('#artists-view-grid')).toContainText('Cloud Test Artist');
   await expect(page.locator('#artists-view-grid')).toContainText('CD Only Artist');
-  await expect(page.locator('#artists-view-grid')).toContainText('Guest Musician');
+  await expect(page.locator('#artists-view-grid')).toContainText('Shared Musician');
+  await expect(page.locator('#artists-view-grid')).not.toContainText('Guest Musician');
   await page.locator('#artists-view-sort').selectOption('count');
   await expect(page.locator('.artists-view-card').first().locator('.artists-view-name')).toHaveText('CD Only Artist');
   const cloudArtist = page.locator('.artists-view-card').filter({ hasText: 'Cloud Test Artist' });
@@ -918,7 +925,12 @@ test('Artists view uses live cloud records, CDs, credited guests and cloud portr
   await expect(cloudArtist.locator('img')).toHaveAttribute('src', IMAGE);
   expect(requests).toContain(PORTRAIT_HASH);
   await page.locator('#artists-view-search').fill('Guest Musician');
-  await page.locator('.artists-view-card').click();
+  await expect(page.locator('.artists-view-card')).toHaveCount(0);
+  await expect(page.locator('.artists-view-empty')).toBeVisible();
+  await page.locator('#vgrid').click();
+  await page.locator('#out .tile').filter({ hasText: 'Cloud Vinyl' }).click();
+  await page.locator('#dlg summary').filter({ hasText: 'Credits & tracks' }).click();
+  await page.locator('#dlg .credits button[data-artist]').filter({ hasText: 'Guest Musician' }).click();
   await expect(page.locator('#artist-dlg h2')).toHaveText('Guest Musician');
 });
 
