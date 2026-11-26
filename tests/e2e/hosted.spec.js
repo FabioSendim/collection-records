@@ -436,7 +436,8 @@ test('mixed releases share both views without duplicating saves or exposing viny
   await expect(details).toContainText('4006381333931');
   await expect(details.locator('.record-actions, .phono-note, [data-plays], [data-play], [data-queue-add], [data-edit="sl"]')).toHaveCount(0);
   await expect(details.locator('dt').filter({ hasText: /^(Rating|Plays)$/ })).toHaveCount(0);
-  await expect(details.locator('.recording-fold, [data-recorded]')).toHaveCount(0);
+  await expect(details.locator('.recording-fold')).toBeVisible();
+  await expect(details.locator('[data-recorded]')).toHaveText('1999');
   await expect(details.locator('dt').filter({ hasText: /^Released$/ })).toHaveCount(1);
   await details.getByText('Release details', { exact: true }).click();
   await details.getByRole('combobox', { name: 'Folder', exact: true }).selectOption('Rock');
@@ -467,7 +468,8 @@ test('mixed releases share both views without duplicating saves or exposing viny
   const bonusDetails = page.getByRole('dialog', { name: 'CD details' });
   await expect(bonusDetails).toContainText('CD · also in Records');
   await expect(bonusDetails.locator('.record-actions, .phono-note, [data-plays], [data-play], [data-queue-add]')).toHaveCount(0);
-  await expect(bonusDetails.locator('.recording-fold, [data-recorded]')).toHaveCount(0);
+  await expect(bonusDetails.locator('.recording-fold')).toBeVisible();
+  await expect(bonusDetails.locator('[data-recorded]')).toHaveText('1959');
   await expect(bonusDetails.locator('textarea')).toHaveCount(1);
   await expect(bonusDetails.locator('[data-edit="n"], [data-edit="x"]')).toHaveCount(0);
   await bonusDetails.getByRole('textbox', { name: 'Comments', exact: true }).fill('Bonus CD comments only');
@@ -798,24 +800,68 @@ test('album summary receives saved recording dates and collection credits', asyn
   expect(summaryRequest.personnel).toContainEqual({ name: 'Cloud Test Artist', role: 'piano' });
 });
 
+test('CD recording years persist and update the artist timeline', async ({ page }) => {
+  const payload = collectionPayload();
+  payload.CSV = 'Artist,Title,release_id,Format,CollectionFolder,Released,Recording Date Status\n' +
+    'CD Timeline Artist,CD Album,777101,CD,Jazz,2020,unknown\n' +
+    'CD Timeline Artist,Vinyl Album,777102,LP,Jazz,2021,unknown\n';
+  payload.EXTRA = { credits: {}, summaries: {}, bios: {}, dgArtists: {} };
+  payload.COVERS = {}; payload.PORTRAITS = {};
+  await seedOwner(page);
+  await mockCloud(page, { owner: true, payload, onSave: value => Object.assign(payload, value) });
+  await page.goto('/hosted.html');
+  await page.locator('#vcd').click();
+  await page.locator('#out .cd-item').filter({ hasText: 'CD Album' }).click();
+  const details = page.getByRole('dialog', { name: 'CD details' });
+  await details.locator('.recording-fold summary').click();
+  await details.locator('#recording-year').fill('1962');
+  await details.getByRole('button', { name: 'Save recording year' }).click();
+  await expect(details.locator('[data-recorded]')).toHaveText('1962');
+  await expect(page.locator('#cloud-status')).toContainText('Saved to cloud.');
+  await page.reload();
+  await page.locator('#out .cd-item').filter({ hasText: 'CD Album' }).click();
+  await expect(details.locator('[data-recorded]')).toHaveText('1962');
+  await details.locator('[data-artist]').first().click();
+  const timeline = page.locator('#artist-dlg .recording-timeline .ev');
+  await expect(timeline.locator('.yr')).toHaveText(['1962', '—']);
+  await expect(timeline.locator('.tlink')).toHaveText(['CD Album', 'Vinyl Album']);
+  await timeline.locator('.tlink').first().click();
+  await details.locator('.recording-fold summary').click();
+  await details.getByRole('button', { name: 'Mark year unknown' }).click();
+  await expect(details.locator('[data-recorded]')).toHaveCount(0);
+  await expect(page.locator('#cloud-status')).toContainText('Saved to cloud.');
+  await page.reload();
+  await page.locator('#out .cd-item').filter({ hasText: 'CD Album' }).click();
+  await expect(details.locator('[data-recorded]')).toHaveCount(0);
+});
+
 test('artist timeline orders recording years and keeps edition years on release cards', async ({ page }) => {
   const payload = collectionPayload();
-  payload.CSV = 'Artist,Title,release_id,Format,CollectionFolder,Released,Recording Year Start,Recording Year End,Recording Date Status\n' +
-    'Timeline Artist,Later Recording,777011,LP,Jazz,2001,1964,1965,user\n' +
-    'Timeline Artist,Unknown Recording,777012,LP,Jazz,1990,,,unknown\n' +
-    'Timeline Artist,Earlier Recording,777013,LP,Jazz,2020,1958,1958,user\n' +
-    'Other Artist,Guest Appearance,777014,LP,Jazz,2022,1960,1960,user\n';
-  payload.EXTRA = { credits: { '777014': { pers: [{ n: 'Timeline Artist', r: 'piano' }] } }, summaries: {}, bios: {}, dgArtists: {} };
+  payload.CSV = 'Artist,Title,release_id,Format,Label,CollectionFolder,Released,Recording Year Start,Recording Year End,Recording Date Status\n' +
+    'Timeline Artist,Later Recording,777011,LP + CD,Label A,Jazz,2001,1964,1965,user\n' +
+    'Timeline Artist,Unknown Recording,777012,CD,,Jazz,1990,,,unknown\n' +
+    'Timeline Artist,Earlier Recording,777013,LP,Label B,Jazz,2020,1958,1958,user\n' +
+    'Other Artist,Guest Appearance,777014,LP,Label C,Jazz,2022,1960,1960,user\n';
+  payload.EXTRA = { credits: { '777014': { pers: [{ n: 'Timeline Artist', r: 'piano' }, { n: 'Guest Only', r: 'bass' }] } }, summaries: {}, bios: {}, dgArtists: {} };
   payload.COVERS = {}; payload.PORTRAITS = {};
   await mockCloud(page, { payload });
   await page.goto('/hosted.html');
   await page.locator('#out .tile').filter({ hasText: 'Earlier Recording' }).click();
   await page.locator('#dlg [data-artist]').first().click();
   const timeline = page.locator('#artist-dlg .recording-timeline .ev');
-  await expect(timeline.locator('.yr')).toHaveText(['1958', '1960', '1964–1965', '—']);
-  await expect(timeline.locator('.tlink')).toHaveText(['Earlier Recording', 'Guest Appearance', 'Later Recording', 'Unknown Recording']);
+  await expect(timeline.locator('.yr')).toHaveText(['1958', '1964–1965', '—']);
+  await expect(timeline.locator('.tlink')).toHaveText(['Earlier Recording', 'Later Recording', 'Unknown Recording']);
+  await expect(timeline.locator('.what')).toHaveText(['Earlier Recording · Label B', 'Later Recording · Label A (CD)', 'Unknown Recording (CD)']);
+  const guest = page.locator('#artist-dlg .a-work').filter({ hasText: 'Guest Appearance' });
+  await expect(guest).toBeVisible();
+  await expect(guest.locator('xpath=../..').locator('h3')).toHaveText('Also appears on');
   await expect(page.locator('#artist-dlg')).toContainText('Recording years');
   await expect(page.locator('#artist-dlg .a-work').filter({ hasText: 'Earlier Recording' })).toContainText('2020');
+  await guest.click();
+  await page.locator('#dlg summary').filter({ hasText: 'Credits & tracks' }).click();
+  await page.locator('#dlg .credits button[data-artist]').filter({ hasText: 'Guest Only' }).click();
+  await expect(page.locator('#artist-dlg .recording-timeline')).toHaveCount(0);
+  await expect(page.locator('#artist-dlg .a-work').filter({ hasText: 'Guest Appearance' })).toBeVisible();
 });
 
 test('hosted shell loads only the current Supabase collection', async ({ page }) => {

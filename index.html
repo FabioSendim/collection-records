@@ -1406,7 +1406,7 @@ dl.facts .p:hover,.a-timeline .p:hover{text-decoration-color:currentColor}
       <p>Notes save automatically on this device. Use Collection tools to export a backup. Play next is a listening list, not an audio player.</p>
       <p>On phones, More contains Random, Discovery, Jazz styles and Collection tools. Filters contains genres and sorting; active filters can be removed beside the results. Play next appears beside the results when the queue has records.</p>
       <p>Records and CDs count releases, not individual discs. Every release containing CDs is included in the CD count. Releases containing vinyl and CDs appear in both views but are saved only once.</p>
-      <p>Jazz styles groups albums by subgenre, with sections ordered by approximate origins. Styles overlap: an album can appear in more than one section, regardless of recording year. Fetch missing style metadata from the Jazz styles view, or open Jazz styles in record details to review or correct a classification. Unclassified albums remain visible. CSV and HTML backups include manual classifications and recording-date edits.</p>
+      <p>Jazz styles groups albums by subgenre, with sections ordered by approximate origins. Styles overlap: an album can appear in more than one section, regardless of recording year. Fetch missing style metadata from the Jazz styles view, or open Jazz styles in record details to review or correct a classification. Unclassified albums remain visible. Recording years can be edited in record or CD details and appear in the artist timeline. CSV and HTML backups include manual classifications and recording-date edits.</p>
     </div>
   </form>
 </dialog>
@@ -3918,7 +3918,7 @@ async function idbDelete(key){
     if(r.l) fact(dl,'Label', labelNodes(r, 'p'));
     fact(dl,'Format', r.f); fact(dl,'Released', r.y?String(r.y):'');
     if(cd){ fact(dl,'Catalogue number',r.c); fact(dl,'Country',r.xc && r.xc.Country); fact(dl,'Barcode',r.xc && r.xc.Barcode); }
-    var recordedDate = cd ? null : recordingDate(r);
+    var recordedDate = recordingDate(r);
     if(recordedDate){ var recorded = fact(dl,'Recorded',recordingLabel(recordedDate)); recorded.dataset.recorded = '1'; }
     var fb = el('button','p', r.g); fb.type = 'button'; fb.dataset.folder = r.g; fb.title = 'Show this folder';
     var folderField = el('div','fld'), folderSelect = el('select');
@@ -3955,7 +3955,7 @@ async function idbDelete(key){
       body.append(mediaLink);
     }
     if(r.g === 'Jazz') body.append(jazzStyleEditor(r));
-    if(!cd) body.append(recordingEditor(r));
+    body.append(recordingEditor(r));
     body.append(technical, credits);
 
     var sim = similarRecords(r, 4);
@@ -4259,7 +4259,6 @@ async function idbDelete(key){
     hero.append(meta);
 
     var body = el('div','a-body');
-    var all = a.records.concat(a.appears);
     var leads = Object.keys(a.leads).filter(function(k){ return artistIndex[k]; });
     var partOf = Object.keys(artistIndex).filter(function(k){ return artistIndex[k].leads[a.key]; });
     if(leads.length || partOf.length){
@@ -4293,18 +4292,18 @@ async function idbDelete(key){
       if(collab.length > 30) cch.append(el('span','more', '+' + (collab.length-30) + ' more'));
       cs.append(cch); body.append(cs);
     }
-    var ts = section('Timeline');
-    ts.append(el('p','hint','Recording years; — means unknown. Release cards below show the year of your edition.'));
-    var chronological = all.slice().sort(function(x,y){
-      var a = recordingDate(x), b = recordingDate(y);
-      return (a ? a.start : Infinity) - (b ? b.start : Infinity) || x.t.localeCompare(y.t);
-    });
-    ts.append(timeline(chronological, function(what, r){
-      if(a.appears.indexOf(r) >= 0){ what.append(document.createTextNode(' · ')); what.append(creditNodes(r.a, 'p')); }
-      if(r.l){ what.append(document.createTextNode(' · ')); what.append(labelNodes(r, 'p')); }
-    }, true));
-    body.append(ts);
     if(a.records.length){
+      var ts = section('Timeline');
+      ts.append(el('p','hint','Recording years; — means unknown. Release cards below show the year of your edition.'));
+      var chronological = a.records.slice().sort(function(x,y){
+        var a = recordingDate(x), b = recordingDate(y);
+        return (a ? a.start : Infinity) - (b ? b.start : Infinity) || x.t.localeCompare(y.t);
+      });
+      ts.append(timeline(chronological, function(what, r){
+        if(r.l){ what.append(document.createTextNode(' · ')); what.append(labelNodes(r, 'p')); }
+        if(hasCdFormat(r.f)) what.append(document.createTextNode(' (CD)'));
+      }, true));
+      body.append(ts);
       var ws = section('Releases');
       ws.append(worksGrid(a.records, function(r){ var m = []; if(r.y) m.push(String(r.y)); if(r.l) m.push(r.l); return m.join(' · '); }));
       body.append(ws);
