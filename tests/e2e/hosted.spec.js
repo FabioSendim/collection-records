@@ -798,6 +798,26 @@ test('album summary receives saved recording dates and collection credits', asyn
   expect(summaryRequest.personnel).toContainEqual({ name: 'Cloud Test Artist', role: 'piano' });
 });
 
+test('artist timeline orders recording years and keeps edition years on release cards', async ({ page }) => {
+  const payload = collectionPayload();
+  payload.CSV = 'Artist,Title,release_id,Format,CollectionFolder,Released,Recording Year Start,Recording Year End,Recording Date Status\n' +
+    'Timeline Artist,Later Recording,777011,LP,Jazz,2001,1964,1965,user\n' +
+    'Timeline Artist,Unknown Recording,777012,LP,Jazz,1990,,,unknown\n' +
+    'Timeline Artist,Earlier Recording,777013,LP,Jazz,2020,1958,1958,user\n' +
+    'Other Artist,Guest Appearance,777014,LP,Jazz,2022,1960,1960,user\n';
+  payload.EXTRA = { credits: { '777014': { pers: [{ n: 'Timeline Artist', r: 'piano' }] } }, summaries: {}, bios: {}, dgArtists: {} };
+  payload.COVERS = {}; payload.PORTRAITS = {};
+  await mockCloud(page, { payload });
+  await page.goto('/hosted.html');
+  await page.locator('#out .tile').filter({ hasText: 'Earlier Recording' }).click();
+  await page.locator('#dlg [data-artist]').first().click();
+  const timeline = page.locator('#artist-dlg .recording-timeline .ev');
+  await expect(timeline.locator('.yr')).toHaveText(['1958', '1960', '1964–1965', '—']);
+  await expect(timeline.locator('.tlink')).toHaveText(['Earlier Recording', 'Guest Appearance', 'Later Recording', 'Unknown Recording']);
+  await expect(page.locator('#artist-dlg')).toContainText('Recording years');
+  await expect(page.locator('#artist-dlg .a-work').filter({ hasText: 'Earlier Recording' })).toContainText('2020');
+});
+
 test('hosted shell loads only the current Supabase collection', async ({ page }) => {
   await seedLegacyData(page);
   await mockCloud(page);

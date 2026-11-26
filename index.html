@@ -353,6 +353,7 @@ dialog.artist{width:min(900px,calc(100% - 24px));max-height:min(92vh,900px)}
 .a-chips .n{font:400 10px var(--font-mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
 .a-timeline{display:grid;gap:3px;border-left:2px solid var(--line);padding-left:14px;margin:4px 0 0}
 .a-timeline .ev{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:baseline;font-size:13px}
+.a-timeline.recording-timeline .ev{grid-template-columns:88px 1fr}
 .a-timeline .yr{font:500 11px var(--font-mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
 .a-timeline .what{color:var(--ink)}
 .a-timeline .what em{font-style:normal;color:var(--ink-2)}
@@ -4190,11 +4191,13 @@ async function idbDelete(key){
     });
     return works;
   }
-  function timeline(list, extra){
-    var tl = el('div','a-timeline');
+  function timeline(list, extra, recordingYears){
+    var tl = el('div', recordingYears ? 'a-timeline recording-timeline' : 'a-timeline');
     list.forEach(function(r){
       var ev = el('div','ev');
-      ev.append(el('span','yr', r.y?String(r.y):'—'));
+      var d = recordingYears && recordingDate(r);
+      var year = recordingYears ? (d ? String(d.start) + (d.end !== d.start ? '–' + d.end : '') : '—') : (r.y ? String(r.y) : '—');
+      ev.append(el('span','yr', year));
       var what = el('div','what');
       var tb = el('button','tlink', r.t); tb.type='button'; tb.dataset.i = r.i;
       what.append(tb);
@@ -4291,10 +4294,15 @@ async function idbDelete(key){
       cs.append(cch); body.append(cs);
     }
     var ts = section('Timeline');
-    ts.append(timeline(all, function(what, r){
+    ts.append(el('p','hint','Recording years; — means unknown. Release cards below show the year of your edition.'));
+    var chronological = all.slice().sort(function(x,y){
+      var a = recordingDate(x), b = recordingDate(y);
+      return (a ? a.start : Infinity) - (b ? b.start : Infinity) || x.t.localeCompare(y.t);
+    });
+    ts.append(timeline(chronological, function(what, r){
       if(a.appears.indexOf(r) >= 0){ what.append(document.createTextNode(' · ')); what.append(creditNodes(r.a, 'p')); }
       if(r.l){ what.append(document.createTextNode(' · ')); what.append(labelNodes(r, 'p')); }
-    }));
+    }, true));
     body.append(ts);
     if(a.records.length){
       var ws = section('Releases');
